@@ -70,7 +70,7 @@ Per la cronologia completa dei contributi (2010–2018), vedere il file
 
 ### Porting Python/Django
 
-**Sviluppo**: [Tuo Nome / Tua Organizzazione]
+**Sviluppo**: [Dorian Soru / &#x64;&#x6f;&#x72;&#x69;&#x61;&#x6e;&#x73;&#x6f;&#x72;&#x75;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;]
 
 **Strumenti utilizzati**: Il porting è stato sviluppato con l'assistenza di
 **Qwen** (modello di intelligenza artificiale di Alibaba Cloud), che ha
