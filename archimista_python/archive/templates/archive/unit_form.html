@@ -1,0 +1,538 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Modifica{% else %}Nuova{% endif %} unità - Archimista{% endblock %}
+
+{% block content %}
+
+<style>
+.sc2_field { background-color: #F5F5C8; }
+.sc2_instance_highlighter {
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #CCCCCC;
+    margin-bottom: 5px;
+}
+.fsc_organization, .fsc_nationality, .fsc_code, .fsc_open, .fsc_close { display: none; }
+.formset-item { border: 1px solid #dee2e6; border-radius: 0.375rem; }
+
+/* Archidate styles */
+.archidate-wrapper { border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 1rem; margin-bottom: 1rem; background: #f8f9fa; }
+.archidate-inner { }
+.bound-wrapper { padding: 0.75rem; background: #fff; border-radius: 0.25rem; margin-bottom: 0.5rem; }
+.archidate-format-wrapper { }
+.archidate-format-wrapper.inactive { display: none; }
+.bound-wrapper.inactive { opacity: 0.5; }
+.bound-wrapper.inactive input, .bound-wrapper.inactive select { pointer-events: none; }
+.equal-bounds-command { margin-right: 0.25rem; }
+
+/* Select2 full width */
+.select2-container { width: 100% !important; }
+.select2-container .select2-selection--single { height: 38px; border: 1px solid #ced4da; border-radius: 0.375rem; }
+.select2-container .select2-selection--single .select2-selection__rendered { line-height: 36px; padding-left: 12px; }
+.select2-container .select2-selection--single .select2-selection__arrow { height: 36px; }
+.select2-dropdown { border: 1px solid #ced4da; border-radius: 0.375rem; }
+.select2-results__option { padding: 6px 12px; }
+.select2-container--open .select2-dropdown { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25); }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Archivio</a></li>
+                {% if form.instance.fond %}
+                <li class="breadcrumb-item"><a href="{% url 'archive:fond_detail' form.instance.fond.pk %}">{{ form.instance.fond.name }}</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active">{% if form.instance.pk %}Modifica{% else %}Nuova{% endif %} unità</li>
+            </ol>
+        </nav>
+
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <!-- Hidden fields (allineato a Ruby _form.html.erb) -->
+            {% if form.instance.parent_id %}
+            <input type="hidden" name="parent_id" id="id_parent_id" value="{{ form.instance.parent_id }}">
+            {% endif %}
+            {% if form.instance.fond_id %}
+            <input type="hidden" name="fond_id" id="id_fond_id" value="{{ form.instance.fond_id }}">
+            {% endif %}
+            <input type="hidden" name="tsk" id="id_tsk" value="">
+
+            <!-- Datalist suggerimenti vocabolari -->
+            <datalist id="damage_code_list">
+                {% for term in terms.unit_damages_code %}
+                <option value="{{ term.term_value }}">{{ term.term_value }}</option>
+                {% endfor %}
+            </datalist>
+
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-4" id="unitTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">1. Descrizione</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="physical-tab" data-bs-toggle="tab" data-bs-target="#physical" type="button" role="tab">2. Descrizione fisica</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" type="button" role="tab">3. Accesso</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="sources-tab" data-bs-toggle="tab" data-bs-target="#sources" type="button" role="tab">4. Fonti</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="editors-tab" data-bs-toggle="tab" data-bs-target="#editors" type="button" role="tab">5. Compilatori</button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="unitTabsContent">
+                {% include "archive/units/partials/_tab_description.html" %}
+                {% include "archive/units/partials/_tab_physical.html" %}
+                {% include "archive/units/partials/_tab_access.html" %}
+                {% include "archive/units/partials/_tab_sources.html" %}
+                {% include "archive/units/partials/_tab_editors.html" %}
+            </div>
+
+            <!-- Pulsanti -->
+            <div class="d-flex justify-content-between mt-4">
+                {% if form.instance.fond %}
+                <a href="{% url 'archive:fond_detail' form.instance.fond.pk %}" class="btn btn-secondary">Annulla</a>
+                {% else %}
+                <a href="{% url 'archive:fond_list' %}" class="btn btn-secondary">Annulla</a>
+                {% endif %}
+                <button type="submit" class="btn btn-success btn-lg">Salva unità</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mcUnitTypeControlId = 'id_unit_type_term';
+    const mcSc2TypeControlId = 'id_unit_sc2_tsk';
+    const mcUnitFileTypeControlId = 'id_unit_file_type';
+    const mcSc2TypeLabelId = 'lbl_unit_sc2_tsk';
+    const mcFscTypeLabelId = 'lbl_unit_fsc';
+
+    function isUnitDocumentaria(jqEl) {
+        var selectedText = jqEl.find('option:selected').text();
+        try { return /unit.* documentaria/i.test(selectedText); } catch(e) { return false; }
+    }
+
+    function isUnitFascicolo(jqEl) {
+        var selectedText = jqEl.find('option:selected').text();
+        try { return /fascicolo/i.test(selectedText); } catch(e) { return false; }
+    }
+
+    function isSc2TskContainer(jqEl) {
+        let isTarget = false;
+        jqEl.find('.sc2_field').each(function() { if (this.id === mcSc2TypeControlId) isTarget = true; });
+        return isTarget;
+    }
+
+    function isFascicoloContainer(jqEl) {
+        let isTarget = false;
+        jqEl.find('.fsc_field').each(function() { if (this.id === mcUnitFileTypeControlId) isTarget = true; });
+        return isTarget;
+    }
+
+    function isEdiliziaContainer(jqEl) {
+        let isTarget = false;
+        jqEl.find('.fe_field').each(function() { if (this.id === mcUnitFileTypeControlId) isTarget = true; });
+        return isTarget;
+    }
+
+    function isLblSc2TskContainer(jqEl) {
+        let isTarget = false;
+        jqEl.find('.sc2_field_label').each(function() { if (this.id === mcSc2TypeLabelId) isTarget = true; });
+        return isTarget;
+    }
+
+    function isLblFascicoloContainer(jqEl) {
+        let isTarget = false;
+        jqEl.find('.fsc_field_label').each(function() { if (this.id === mcFscTypeLabelId) isTarget = true; });
+        return isTarget;
+    }
+
+    function hideAndClean(jqEl) {
+        jqEl.find('.sc2_field').each(function() { if (this.id !== mcSc2TypeControlId) this.value = ''; });
+        if (jqEl.hasClass('sc2_multi_instance')) jqEl.find('input[type=checkbox]').each(function() { this.checked = true; });
+        jqEl.hide();
+    }
+
+    function fscHideAndClean(jqEl) {
+        jqEl.find('.fsc_field').each(function() { if (this.id !== mcUnitFileTypeControlId) this.value = ''; });
+        jqEl.hide();
+    }
+
+    function feHideAndClean(jqEl) {
+        jqEl.find('.fe_field').each(function() { if (this.id !== mcUnitFileTypeControlId) { if (this.checked) this.checked = false; this.value = ''; } });
+        jqEl.hide();
+    }
+
+    function showAndBuild(jqEl) {
+        if (jqEl.hasClass('sc2_multi_instance')) jqEl.find('input[type=checkbox]').each(function() { this.checked = false; });
+        jqEl.show();
+    }
+
+    function getSc2TskContainer() {
+        let result = null;
+        $('.sc2_container').each(function() { if (isSc2TskContainer($(this))) { result = $(this); return false; } });
+        return result;
+    }
+
+    function getFascicoloContainer() {
+        let result = null;
+        $('.fsc_container').each(function() { if (isFascicoloContainer($(this))) { result = $(this); return false; } });
+        return result;
+    }
+
+    function getLblSc2TskContainer() {
+        let result = null;
+        $('.sc2_container').each(function() { if (isLblSc2TskContainer($(this))) { result = $(this); return false; } });
+        return result;
+    }
+
+    function getLblFascicoloContainer() {
+        let result = null;
+        $('.fsc_container').each(function() { if (isLblFascicoloContainer($(this))) { result = $(this); return false; } });
+        return result;
+    }
+
+    function unitTypeChange() {
+        const unitTypeEl = $('#' + mcUnitTypeControlId);
+        if (isUnitDocumentaria(unitTypeEl)) {
+            getFascicoloContainer().hide(); getLblFascicoloContainer().hide();
+            $('#' + mcUnitFileTypeControlId).val('');
+            getSc2TskContainer().show(); getLblSc2TskContainer().show();
+        } else {
+            getSc2TskContainer().hide(); getLblSc2TskContainer().hide();
+            $('#' + mcSc2TypeControlId).val('');
+            if (isUnitFascicolo(unitTypeEl)) { getFascicoloContainer().show(); getLblFascicoloContainer().show(); }
+            else { getFascicoloContainer().hide(); getLblFascicoloContainer().hide(); $('#' + mcUnitFileTypeControlId).val(''); }
+        }
+        sc2TskChange(); fscChange();
+    }
+
+    function sc2TskChange() {
+        const sc2TskEl = $('#' + mcSc2TypeControlId);
+        const sc2TskValue = sc2TskEl.val().toLowerCase();
+        const physicalTypeWrapper = $('#div_physical_type_wrapper');
+        if (sc2TskValue === '') {
+            physicalTypeWrapper.show();
+            // Mostra tutti i supporti
+            updateMediumDatalist('all');
+            $('.sc2_container').each(function() { if (!isSc2TskContainer($(this)) && !isLblSc2TskContainer($(this))) hideAndClean($(this)); });
+        } else {
+            physicalTypeWrapper.hide();
+            // Filtra supporti in base al tipo SC2 (come Ruby)
+            updateMediumDatalist(sc2TskValue);
+            $('.sc2_container').each(function() {
+                if (!isSc2TskContainer($(this)) && !isLblSc2TskContainer($(this))) {
+                    if ($(this).hasClass('sc2_all') || $(this).hasClass('sc2_' + sc2TskValue)) showAndBuild($(this));
+                    else hideAndClean($(this));
+                }
+            });
+        }
+    }
+
+    // Filtra i supporti in base al tipo SC2 (allineato a Ruby sc2_terms.json)
+    function updateMediumDatalist(sc2Type) {
+        const datalist = document.getElementById('medium_datalist');
+        if (!datalist) return;
+        // Supporti specifici per tipo (da Ruby db/seeds/sc2_terms.json, sc2_vocabulary_id:4)
+        const mediumByType = {
+            'all': [
+                'carta', 'pergamena', 'carta telata', 'cartoncino', 'pellicola', 'altro'
+            ],
+            'f': [
+                'albumina/carta', 'ambrotipo', 'aristotipo', 'autocromia', 'calotipo',
+                'carbone/carta', 'carta salata', 'cianotipia', 'collodio/vetro', 'dagherrotipo',
+                'digitale / virtuale', 'fax / carta termica', 'ferrotipo', 'fotocopia',
+                'gelatina ai sali d\'argento/carta',
+                'gelatina bromuro d\'argento/carta',
+                'gelatina bromuro d\'argento/pellicola in rullo diapositiva (acetato)',
+                'gelatina bromuro d\'argento/pellicola in rullo diapositiva (nitrato)',
+                'gelatina bromuro d\'argento/pellicola in rullo negativa (acetato)',
+                'gelatina bromuro d\'argento/pellicola in rullo negativa (nitrato)',
+                'gelatina bromuro d\'argento/pellicola piana diapositiva (acetato)',
+                'gelatina bromuro d\'argento/pellicola piana diapositiva (nitrato)',
+                'gelatina bromuro d\'argento/pellicola piana negativa (acetato)',
+                'gelatina bromuro d\'argento/pellicola piana negativa (nitrato)',
+                'gelatina bromuro d\'argento/vetro',
+                'gelatina cloruro d\'argento/carta', 'gomma bicromatata/carta',
+                'inchiostri grassi/carta', 'platinotipo/carta', 'polaroid', 'provini/carta',
+                'stampa ai pigmenti/carta', 'telefoto', 'varie', 'collotipia',
+                'fotoincisione', 'fotoincisione a retino',
+                'stampa dye-transfer / carta', 'stampa cromogenica / carta',
+                'stampa cibachrome/ilfochrome / carta', 'stampa lambda / carta',
+                'stampa ink-jet / carta'
+            ],
+            'cars': [
+                'carta', 'carta vegetale', 'carta di riso', 'carta telata', 'pergamena',
+                'cuoio', 'tela', 'supporti misti'
+            ],
+            'd': [
+                'carta', 'carta a mano', 'carta argentata', 'carta bianca', 'carta cerata',
+                'carta colorata', 'carta da lucido', 'carta da spolvero', 'carta di riso',
+                'carta dorata', 'carta filigranata', 'carta giapponese', 'carta goffrata',
+                'carta lucida', 'carta marmorizzata', 'carta millimetrata', 'carta oliata',
+                'carta paglierina', 'carta patinata', 'carta pergamena', 'carta quadrettata',
+                'carta timbrata', 'carta tinta', 'carta velina', 'carta vellutata',
+                'carta vergata', 'cartoncino', 'cartoncino bianco', 'cartoncino colorato',
+                'cartoncino da spolvero', 'cartoncino telato', 'cartone', 'cartone bianco',
+                'cartone colorato', 'cartone da spolvero', 'cartone telato', 'pergamena'
+            ],
+            'dt': [
+                'carta', 'carta vegetale', 'carta di riso', 'carta telata', 'carta da lucido',
+                'carta millimetrata', 'radex', 'file/supporto elettronico', 'supporti misti'
+            ],
+            's': [
+                'carta', 'carta giapponese', 'carta velina', 'cartoncino', 'cartone', 'cuoio',
+                'heliogravure', 'ialografia', 'maniera a granito', 'maniera a lavis',
+                'pergamena', 'pirografia', 'seta', 'stoffa', 'tela', 'tessuto', 'vari',
+                'velluto', 'vetro'
+            ]
+        };
+        const terms = mediumByType[sc2Type] || mediumByType['all'];
+        datalist.innerHTML = '';
+        terms.forEach(function(term) {
+            const opt = document.createElement('option');
+            opt.value = term;
+            datalist.appendChild(opt);
+        });
+    }
+
+    function fscChange() {
+        const fileTypeEl = $('#' + mcUnitFileTypeControlId);
+        const fileTypeValue = fileTypeEl.val().toLowerCase();
+        if (fileTypeValue === '') {
+            $('.fsc_container').each(function() { if (!isFascicoloContainer($(this)) && !isLblFascicoloContainer($(this))) fscHideAndClean($(this)); });
+            $('.fe_container').each(function() { if (!isEdiliziaContainer($(this))) feHideAndClean($(this)); });
+        } else {
+            if (/personale/.test(fileTypeValue)) {
+                $('.fe_container').each(function() { if (!isEdiliziaContainer($(this))) feHideAndClean($(this)); });
+                $('.fsc_container').each(function() { if (!isFascicoloContainer($(this)) && !isLblFascicoloContainer($(this))) { if ($(this).hasClass('fsc_container')) $(this).show(); else hideAndClean($(this)); } });
+            } else {
+                $('.fsc_container').each(function() { if (!isFascicoloContainer($(this)) && !isLblFascicoloContainer($(this))) fscHideAndClean($(this)); });
+                $('.fe_container').each(function() { if (!isEdiliziaContainer($(this))) { if ($(this).hasClass('fe_container')) $(this).show(); else hideAndClean($(this)); } });
+            }
+        }
+    }
+
+    // Inizializzazione
+    setTimeout(function() {
+        const unitTypeEl = $('#' + mcUnitTypeControlId);
+        if (isUnitDocumentaria(unitTypeEl)) {
+            getFascicoloContainer().hide(); getLblFascicoloContainer().hide();
+            getSc2TskContainer().show(); getLblSc2TskContainer().show();
+        } else {
+            getSc2TskContainer().hide(); getLblSc2TskContainer().hide();
+            if (isUnitFascicolo(unitTypeEl)) { getFascicoloContainer().show(); getLblFascicoloContainer().show(); }
+            else { getFascicoloContainer().hide(); getLblFascicoloContainer().hide(); }
+        }
+        // sc2TskChange() chiama già updateMediumDatalist con il valore corretto
+        sc2TskChange(); fscChange();
+    }, 50);
+
+    $('#' + mcUnitTypeControlId).on('change', unitTypeChange);
+    $('#' + mcSc2TypeControlId).on('change', sc2TskChange);
+    $('#' + mcUnitFileTypeControlId).on('change', fscChange);
+
+    // Formset handler generico
+    function setupFormset(prefix) {
+        // Try both underscore and dash separators
+        const formset = document.getElementById(prefix + '_formset')
+                     || document.getElementById(prefix + '-formset');
+        if (!formset) return;
+        const totalForms = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+        if (!totalForms) return;
+        let formCount = parseInt(totalForms.value);
+
+        // Find existing add button
+        let addBtn = document.querySelector(`.add-formset-btn[data-prefix="${prefix}"]`);
+        if (!addBtn) {
+            const possibleIds = ['add-' + prefix + '-btn', 'add_' + prefix + '_btn'];
+            for (const btnId of possibleIds) {
+                addBtn = document.getElementById(btnId);
+                if (addBtn) break;
+            }
+        }
+
+        if (!addBtn) {
+            addBtn = document.createElement('button');
+            addBtn.type = 'button'; addBtn.className = 'btn btn-sm btn-outline-primary mt-2';
+            addBtn.textContent = '+ Aggiungi';
+            formset.parentNode.insertBefore(addBtn, formset.nextSibling);
+        }
+
+        addBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const forms = formset.querySelectorAll('.formset-item');
+            if (forms.length === 0) return;
+
+            const lastForm = forms[forms.length - 1];
+
+            // Step 1: Destroy Select2 on the ORIGINAL row
+            $(lastForm).find('select.select2-hidden-accessible').select2('destroy');
+
+            // Step 2: Clone
+            const newForm = lastForm.cloneNode(true);
+
+            // Step 3: Re-initialize Select2 on the ORIGINAL row
+            $(lastForm).find('select.django-select2').djangoSelect2();
+
+            // Step 4: Clean Select2 artifacts from the CLONE
+            newForm.querySelectorAll('.select2-container').forEach(function(el) { el.remove(); });
+            newForm.querySelectorAll('select').forEach(function(sel) {
+                sel.classList.remove('select2-hidden-accessible');
+                sel.removeAttribute('data-select2-id');
+                sel.removeAttribute('aria-hidden');
+                sel.selectedIndex = 0;
+            });
+
+            newForm.querySelectorAll('input, textarea').forEach(function(field) {
+                if (field.type !== 'hidden' && field.type !== 'checkbox') field.value = '';
+                field.checked = false;
+            });
+            newForm.innerHTML = newForm.innerHTML.replace(new RegExp(`${prefix}-(\\d+)`, 'g'), `${prefix}-${formCount}`);
+
+            const idInput = newForm.querySelector(`input[name="${prefix}-${formCount}-id"]`);
+            if (idInput) idInput.value = '';
+
+            formset.appendChild(newForm);
+            $(newForm).trigger('formset:added');
+
+            formCount++; totalForms.value = formCount;
+        });
+    }
+
+    // Formset handler per editor (stile Ruby: link testuale, righe inline)
+    function setupEditorFormset() {
+        const prefix = 'unit_editors';
+        const formset = document.getElementById(prefix + '_formset')
+                     || document.getElementById(prefix + '-formset');
+        if (!formset) return;
+        const totalForms = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+        if (!totalForms) return;
+        let formCount = parseInt(totalForms.value);
+        const emptyTemplate = document.getElementById(prefix + '-empty-template');
+
+        // Find or create add link
+        let addLink = document.getElementById('add-unit_editors-btn');
+        if (!addLink) {
+            const p = document.createElement('p');
+            addLink = document.createElement('a');
+            addLink.href = '#';
+            addLink.id = 'add-unit_editors-btn';
+            addLink.textContent = 'Aggiungi compilatore';
+            p.appendChild(addLink);
+            formset.appendChild(p);
+        }
+
+        addLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (formCount === 0) {
+                const headerRow = document.createElement('div');
+                headerRow.className = 'row text-muted mb-2';
+                headerRow.innerHTML = '<div class="col-3">Nome compilatore</div><div class="col-3">Qualificatore</div><div class="col-3">Tipo compilazione</div><div class="col-2">Data</div><div class="col-1"></div>';
+                formset.insertBefore(headerRow, formset.firstChild);
+            }
+
+            const forms = formset.querySelectorAll('.formset-item');
+            if (emptyTemplate) {
+                const templateContent = emptyTemplate.innerHTML;
+                const newRowHtml = templateContent.replace(/__prefix__/g, formCount);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = newRowHtml;
+                const newRow = tempDiv.firstElementChild;
+                formset.insertBefore(newRow, addLink.parentNode);
+            } else if (forms.length > 0) {
+                const lastForm = forms[forms.length - 1];
+                const newForm = lastForm.cloneNode(true);
+                newForm.querySelectorAll('input, textarea, select').forEach(function(field) {
+                    if (field.type === 'hidden') {
+                        if (field.name.includes('-id')) field.value = '';
+                    } else if (field.type !== 'checkbox') {
+                        field.value = '';
+                    } else {
+                        field.checked = false;
+                    }
+                    if (field.tagName === 'SELECT') field.selectedIndex = 0;
+                });
+                newForm.innerHTML = newForm.innerHTML.replace(new RegExp(`${prefix}-(\\d+)`, 'g'), `${prefix}-${formCount}`);
+                newForm.id = `${prefix}-${formCount}-row`;
+                formset.insertBefore(newForm, addLink.parentNode);
+            }
+            formCount++;
+            totalForms.value = formCount;
+        });
+    }
+
+    ['unit_identifier','unit_other_reference_number','unit_lang','unit_damage',
+     'unit_url',
+     'rel_unit_source','rel_unit_heading','rel_unit_anagraphic',
+     'sc2_author','sc2_textual','sc2_visual','sc2_commission','sc2_technique','sc2_scale',
+     'fsc_code','fsc_org','fsc_nationality','fsc_open','fsc_close',
+     'fe_id','fe_context','fe_opera','fe_designer','fe_cadastral','fe_land',
+     'fe_fract_land','fe_fract_edil'
+    ].forEach(setupFormset);
+    setupEditorFormset();
+
+    // =====================================================
+    // Archidate JavaScript (porting semplificato da Ruby)
+    // =====================================================
+    function initArchidate() {
+        // Format toggling: Y (data puntuale) vs C (data secolare)
+        document.querySelectorAll('.format-toggler').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const bound = this.classList.contains('start') ? 'start' : 'end';
+                const format = this.value; // 'Y' o 'C'
+                const wrapper = this.closest('.bound-wrapper');
+
+                wrapper.querySelectorAll('.archidate-format-wrapper').forEach(function(fw) {
+                    if (fw.dataset.bound === bound) {
+                        if (fw.dataset.boundFormat === format) {
+                            fw.classList.add('active');
+                            fw.classList.remove('inactive');
+                            fw.querySelectorAll('input, select').forEach(function(f) { f.disabled = false; });
+                        } else {
+                            fw.classList.remove('active');
+                            fw.classList.add('inactive');
+                            fw.querySelectorAll('input, select').forEach(function(f) { f.disabled = true; });
+                        }
+                    }
+                });
+            });
+            // Trigger iniziale
+            if (radio.checked) radio.dispatchEvent(new Event('change'));
+        });
+
+        // Equal bounds: quando checkbox è selezionato, nascondi estremo finale
+        document.querySelectorAll('.equal-bounds-command').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                const wrapper = this.closest('.archidate-wrapper');
+                const endBound = wrapper.querySelector('.end.bound-wrapper');
+                if (this.checked) {
+                    endBound.classList.add('inactive');
+                    endBound.querySelectorAll('input, select').forEach(function(f) { f.disabled = true; });
+                } else {
+                    endBound.classList.remove('inactive');
+                    endBound.querySelectorAll('input, select').forEach(function(f) { f.disabled = false; });
+                }
+            });
+            // Trigger iniziale
+            cb.dispatchEvent(new Event('change'));
+        });
+    }
+
+    initArchidate();
+});
+</script>
+
+<!-- Select2 media (django-select2) -->
+{{ form.media }}
+{{ rel_unit_heading_formset.media }}
+
+{% endblock %}

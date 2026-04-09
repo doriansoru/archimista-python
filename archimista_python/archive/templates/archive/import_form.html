@@ -1,0 +1,77 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}Importa Export Archimista (.aef) - Archimista{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Esplora</a></li>
+                <li class="breadcrumb-item active">Importa AEF</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white p-3">
+                <h4 class="mb-0">Importa archivio (.aef)</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted">
+                    Seleziona un file in formato <strong>AEF (Archimista Exchange Format)</strong> esportato da
+                    Archimista v2/v3.
+                    Il sistema importerà la gerarchia, le unità, i soggetti produttori e gli oggetti digitali (se
+                    presenti nel pacchetto).
+                </p>
+
+                {% if error %}
+                <div class="alert alert-danger shadow-sm">
+                    <strong>Errore:</strong> {{ error }}
+                </div>
+                {% endif %}
+
+                {% if success %}
+                <div class="alert alert-success shadow-sm">
+                    <strong>Successo:</strong> {{ success }}
+                    <div class="mt-2">
+                        <a href="{% url 'archive:fond_list' %}" class="btn btn-sm btn-success">Vai alla lista dei fondi</a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data" class="mt-4">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="aef_file" class="form-label fw-bold">File AEF (.aef o .zip)</label>
+                        <input class="form-control form-control-lg border-primary" type="file" id="aef_file"
+                            name="aef_file" accept=".aef,.zip" required>
+                    </div>
+
+                    <div class="alert alert-info small border-0 bg-light-subtle">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Nota:</strong> Questa operazione potrebbe richiedere alcuni secondi a seconda del numero
+                        di unità e oggetti digitali da processare.
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                            Avvia Importazione
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-4 card border-0 bg-light shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-bold">Istruzioni</h6>
+                <ul class="small text-muted mb-0">
+                    <li>Assicurati che il file caricato sia un formato AEF valido.</li>
+                    <li>Gli oggetti digitali verranno salvati nella cartella <code>media/digital_objects/</code>.</li>
+                    <li>Soggetto Produttori e Voci di Indice verranno creati o collegati se già esistenti.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

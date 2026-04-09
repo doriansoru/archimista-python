@@ -1,0 +1,43 @@
+{% comment %}
+Partial: Tab Compilatori del Soggetto Produttore
+Required context variables: creator_editors_formset, editing_type_terms
+{% endcomment %}
+<div class="tab-pane fade" id="credits" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            <h5>Compilatori</h5>
+            <div class="row text-muted mb-2" id="creator_editors-labels">
+                <div class="col-md-3">Nome</div>
+                <div class="col-md-3">Qualificatore</div>
+                <div class="col-md-3">Tipo compilazione</div>
+                <div class="col-md-2">Data</div>
+                <div class="col-md-1"></div>
+            </div>
+            {{ creator_editors_formset.management_form }}
+            <div id="creator_editors_formset">
+                {% for form in creator_editors_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-3">{{ form.name }}</div>
+                    <div class="col-md-3">{{ form.qualifier }}</div>
+                    <div class="col-md-3">{{ form.editing_type }}</div>
+                    <div class="col-md-2">{{ form.edited_at }}</div>
+                    <div class="col-md-1">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="creator_editors-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-3"><input type="text" name="creator_editors-__prefix__-name" id="id_creator_editors-__prefix__-name" class="form-control"></div>
+                    <div class="col-md-3"><input type="text" name="creator_editors-__prefix__-qualifier" id="id_creator_editors-__prefix__-qualifier" class="form-control"></div>
+                    <div class="col-md-3"><select name="creator_editors-__prefix__-editing_type" id="id_creator_editors-__prefix__-editing_type" class="form-select"><option value="">-- Seleziona --</option>{% for t in editing_type_terms %}<option value="{{ t.term_value }}">{{ t.term_value }}</option>{% endfor %}</select></div>
+                    <div class="col-md-2"><input type="date" name="creator_editors-__prefix__-edited_at" id="id_creator_editors-__prefix__-edited_at" class="form-control"></div>
+                    <div class="col-md-1"><input type="checkbox" name="creator_editors-__prefix__-DELETE" id="id_creator_editors-__prefix__-DELETE"> <label for="id_creator_editors-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="creator_editors">Aggiungi compilatore</a></p>
+        </div>
+    </div>
+</div>

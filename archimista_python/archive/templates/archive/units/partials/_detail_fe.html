@@ -1,0 +1,81 @@
+{% comment %}
+  Partial: FE del dettaglio unità
+  Variabili richieste: unit
+{% endcomment %}
+{% if unit.fe_identifications.exists %}
+<div class="tab-pane fade" id="detail-fe" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Fabbricati edilizia (FE)</h5>
+        </div>
+        <div class="card-body">
+            {% if unit.fe_identifications.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2">Identificazioni</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Codice</th><th>Anno</th><th>Categoria</th><th>Classe</th></tr></thead>
+                <tbody>
+                    {% for ident in unit.fe_identifications.all %}
+                    <tr><td>{{ ident.code }}</td><td>{{ ident.file_year|default:"-" }}</td><td>{{ ident.category|default:"-" }}</td><td>{{ ident.identification_class|default:"-" }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if unit.fe_contexts.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Contesti</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Numero</th><th>Classificazione</th><th>Richiedente</th><th>Anno licenza</th></tr></thead>
+                <tbody>
+                    {% for ctx in unit.fe_contexts.all %}
+                    <tr><td>{{ ctx.number }}</td><td>{{ ctx.classification|default:"-" }}</td><td>{{ ctx.applicant|default:"-" }}</td><td>{{ ctx.license_year|default:"-" }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if unit.fe_operas.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Opere</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Presente</th><th>Stato</th><th>Nome edificio</th><th>Tipo edificio</th></tr></thead>
+                <tbody>
+                    {% for opera in unit.fe_operas.all %}
+                    <tr><td>{{ opera.is_present|yesno:"Sì,No" }}</td><td>{{ opera.status|default:"-" }}</td><td>{{ opera.building_name|default:"-" }}</td><td>{{ opera.building_type|default:"-" }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if unit.fe_designers.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Progettisti</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Nome</th><th>Ruolo</th></tr></thead>
+                <tbody>
+                    {% for des in unit.fe_designers.all %}
+                    <tr><td>{{ des.designer_name }}</td><td>{{ des.designer_role|default:"-" }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if unit.fe_cadastrals.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Dati catastali</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Comune catastale</th><th>Codice via</th><th>Codice comune</th><th>Codice foglio</th></tr></thead>
+                <tbody>
+                    {% for cad in unit.fe_cadastrals.all %}
+                    <tr><td>{{ cad.cadastral_municipality }}</td><td>{{ cad.way_code|default:"-" }}</td><td>{{ cad.municipality_code|default:"-" }}</td><td>{{ cad.paper_code|default:"-" }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if unit.fe_land_parcels.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Particelle fondiarie</h6>
+            <ul class="list-unstyled">
+                {% for parcel in unit.fe_land_parcels.all %}<li>{{ parcel.land_parcel_number }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}

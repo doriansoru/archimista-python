@@ -1,0 +1,88 @@
+{% extends "archive/base.html" %}
+
+{% block title %}Inventario di complesso archivistico — {{ root_fond.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Report complesso archivistico</h2>
+
+    <div class="card mb-3 no-print">
+        <div class="card-body">
+            <h5 class="card-title">{{ root_fond.name }}
+                {% if root_fond.preferred_event %}
+                    <span class="text-muted fs-6">{{ root_fond.preferred_event.full_display_date }}</span>
+                {% endif %}
+            </h5>
+            <div class="d-flex gap-2">
+                <a href="?format=pdf" class="btn btn-sm btn-primary">
+                    <i class="bi bi-file-earmark-pdf"></i> Genera PDF
+                </a>
+                <a href="?format=rtf" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-file-earmark-richtext"></i> Genera RTF
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @media print {
+            .no-print, .no-print * { display: none !important; }
+        }
+    </style>
+
+    <div class="report_content bg-white p-4 border rounded">
+        {% for fd in fonds_data %}
+        <div class="mb-4">
+            <h3>
+                {{ fd.fond.name }}
+                {% if fd.fond.preferred_event %}
+                    <span class="text-muted fs-6">{{ fd.fond.preferred_event.full_display_date }}</span>
+                {% endif %}
+            </h3>
+
+            {% if fd.projects_data %}
+                <h4>Progetti</h4>
+                {% for project, project_html in fd.projects_data %}
+                    <h5>{{ project.display_name }}</h5>
+                    {{ project_html|safe }}
+                {% endfor %}
+            {% endif %}
+
+            {% if fd.custodians_data %}
+                {% if fd.projects_data %}<hr />{% endif %}
+                <h4>Soggetti conservatori</h4>
+                {% for custodian, custodian_html in fd.custodians_data %}
+                    <h5>{{ custodian.display_name }}</h5>
+                    {{ custodian_html|safe }}
+                {% endfor %}
+            {% endif %}
+
+            {% if fd.creators_data %}
+                <hr />
+                <h4>Soggetti produttori</h4>
+                {% for creator, creator_html in fd.creators_data %}
+                    <h5>{{ creator.display_name }}</h5>
+                    {{ creator_html|safe }}
+                {% endfor %}
+            {% endif %}
+
+            <hr />
+            {{ fd.fond_html|safe }}
+
+            {% if fd.units_data %}
+                <hr />
+                <h4>Unità archivistiche</h4>
+                {% for u, unit_html, seq_num in fd.units_data %}
+                <div class="mb-3 ms-3">
+                    <p class="mb-1"><strong>{{ seq_num }}</strong></p>
+                    <h5>{{ u.formatted_title }}</h5>
+                    {{ unit_html|safe }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% if not forloop.last %}<hr />{% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

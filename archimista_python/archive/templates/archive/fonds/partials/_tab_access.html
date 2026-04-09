@@ -1,0 +1,56 @@
+{% comment %}
+Partial: Tab Accesso del Fondo
+Required context variables: fond_form
+{% endcomment %}
+<div class="tab-pane fade" id="access" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Condizioni di accesso e utilizzo</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.access_condition_term.id_for_label }}" class="form-label">{{ fond_form.access_condition_term.label }}</label>
+                    {{ fond_form.access_condition_term }}
+                    {% if fond_form.access_condition_term.errors %}<div class="text-danger small">{{ fond_form.access_condition_term.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.use_condition_term.id_for_label }}" class="form-label">{{ fond_form.use_condition_term.label }}</label>
+                    {{ fond_form.use_condition_term }}
+                    {% if fond_form.use_condition_term.errors %}<div class="text-danger small">{{ fond_form.use_condition_term.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.access_condition.id_for_label }}" class="form-label">{{ fond_form.access_condition.label }}</label>
+                    {{ fond_form.access_condition }}
+                    {% if fond_form.access_condition.errors %}<div class="text-danger small">{{ fond_form.access_condition.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.use_condition.id_for_label }}" class="form-label">{{ fond_form.use_condition.label }}</label>
+                    {{ fond_form.use_condition }}
+                    {% if fond_form.use_condition.errors %}<div class="text-danger small">{{ fond_form.use_condition.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.preservation_term.id_for_label }}" class="form-label">{{ fond_form.preservation_term.label }}</label>
+                    {{ fond_form.preservation_term }}
+                    {% if fond_form.preservation_term.errors %}<div class="text-danger small">{{ fond_form.preservation_term.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.preservation.id_for_label }}" class="form-label">{{ fond_form.preservation.label }}</label>
+                    {{ fond_form.preservation }}
+                    {% if fond_form.preservation.errors %}<div class="text-danger small">{{ fond_form.preservation.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.description_type_term.id_for_label }}" class="form-label">{{ fond_form.description_type_term.label }}</label>
+                    {{ fond_form.description_type_term }}
+                    {% if fond_form.description_type_term.errors %}<div class="text-danger small">{{ fond_form.description_type_term.errors }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

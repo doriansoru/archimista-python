@@ -1,0 +1,330 @@
+{% comment %}
+Partial: Tab Descrizione del Fondo
+Required context variables: fond_form, fond_name_formset, fond_identifier_formset,
+  fond_lang_formset, event_formset
+{% endcomment %}
+<div class="tab-pane fade show active" id="description" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Descrizione</h5>
+        </div>
+        <div class="card-body">
+            {% if fond_form.errors %}
+            <div class="alert alert-danger">
+                <strong>Attenzione:</strong> Ci sono errori nel form. Controlla i campi sottostanti.
+            </div>
+            {% endif %}
+
+            <!-- Identificazione -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2">Identificazione</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.parent.id_for_label }}" class="form-label">Fondo padre</label>
+                    {{ fond_form.parent }}
+                    {% if fond_form.parent.errors %}<div class="text-danger small">{{ fond_form.parent.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ fond_form.fond_type_term.id_for_label }}" class="form-label">{{ fond_form.fond_type_term.label }}</label>
+                    {{ fond_form.fond_type_term }}
+                    {% if fond_form.fond_type_term.errors %}<div class="text-danger small">{{ fond_form.fond_type_term.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="{{ fond_form.name.id_for_label }}" class="form-label">{{ fond_form.name.label }} <span class="text-danger">*</span></label>
+                {{ fond_form.name }}
+                {% if fond_form.name.errors %}<div class="text-danger small">{{ fond_form.name.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Nomi alternativi -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Nomi alternativi</h6>
+            {{ fond_name_formset.management_form }}
+            <div id="fond_name_formset">
+                {% for form in fond_name_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.name.label }}</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">{{ form.qualifier.label }}</label>
+                                {{ form.qualifier }}
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">{{ form.preferred.label }}</label>
+                                {{ form.preferred }}
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">{{ form.patronymic.label }}</label>
+                                {{ form.patronymic }}
+                            </div>
+                            <div class="col-md-1 mb-2">
+                                <label class="form-label">{{ form.nickname.label }}</label>
+                                {{ form.nickname }}
+                            </div>
+                            <div class="col-md-1 mb-2 d-flex align-items-end">
+                                {{ form.DELETE }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-11 mb-2">
+                                <label class="form-label">{{ form.note.label }}</label>
+                                {{ form.note }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_name_btn">+ Aggiungi Nome</button>
+
+            <!-- Identificativi -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificativi</h6>
+            {{ fond_identifier_formset.management_form }}
+            <div id="fond_identifier_formset">
+                {% for form in fond_identifier_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.identifier.label }}</label>
+                                {{ form.identifier }}
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.identifier_source.label }}</label>
+                                {{ form.identifier_source }}
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ form.note.label }}</label>
+                                {{ form.note }}
+                            </div>
+                            <div class="col-md-1 mb-2 d-flex align-items-end">
+                                {{ form.DELETE }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_identifier_btn">+ Aggiungi Identificativo</button>
+
+            <!-- Estensione e Descrizione -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Estensione e Descrizione</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ fond_form.length.id_for_label }}" class="form-label">{{ fond_form.length.label }}</label>
+                    {{ fond_form.length }}
+                    {% if fond_form.length.errors %}<div class="text-danger small">{{ fond_form.length.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label for="{{ fond_form.extent.id_for_label }}" class="form-label">{{ fond_form.extent.label }}</label>
+                    {{ fond_form.extent }}
+                    {% if fond_form.extent.errors %}<div class="text-danger small">{{ fond_form.extent.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="mb-3">
+                {% if fond_form.instance.is_root %}
+                <label for="{{ fond_form.abstract.id_for_label }}" class="form-label">{{ fond_form.abstract.label }}</label>
+                {{ fond_form.abstract }}
+                {% if fond_form.abstract.errors %}<div class="text-danger small">{{ fond_form.abstract.errors }}</div>{% endif %}
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ fond_form.description.id_for_label }}" class="form-label">{{ fond_form.description.label }}</label>
+                {{ fond_form.description }}
+                {% if fond_form.description.errors %}<div class="text-danger small">{{ fond_form.description.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Storia archivistica -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Storia archivistica</h6>
+            <div class="mb-3">
+                <label for="{{ fond_form.history.id_for_label }}" class="form-label">{{ fond_form.history.label }}</label>
+                {{ fond_form.history }}
+                {% if fond_form.history.errors %}<div class="text-danger small">{{ fond_form.history.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ fond_form.arrangement_note.id_for_label }}" class="form-label">{{ fond_form.arrangement_note.label }}</label>
+                {{ fond_form.arrangement_note }}
+                {% if fond_form.arrangement_note.errors %}<div class="text-danger small">{{ fond_form.arrangement_note.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Estremi cronologici -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Estremi cronologici</h6>
+            <div class="archidates-area" data-archidate-cardinality="1">
+                {{ event_formset.management_form }}
+                {% for event_form in event_formset %}
+                <div class="archidate-wrapper editing" data-record-id="{{ event_form.instance.pk|default:'' }}">
+                    <div class="archidate-inner">
+                        {{ event_form.id }}
+                        {{ event_form.content_type }}
+                        {{ event_form.object_id }}
+                        {{ event_form.DELETE }}
+
+                        <h6 class="fw-bold mt-3">Estremo cronologico iniziale</h6>
+                        <div class="start bound-wrapper">
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <label class="form-label">Formato data</label><br>
+                                    {% for radio in event_form.start_date_format %}
+                                    <div class="form-check form-check-inline">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="archidate-format-wrapper Y active" data-bound-format="Y" data-bound="start">
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Specifica</label>
+                                        {{ event_form.start_date_spec }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Anno</label>
+                                        {{ event_form.start_date_from_year }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Mese</label>
+                                        {{ event_form.start_date_from_month }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Giorno</label>
+                                        {{ event_form.start_date_from_day }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Validità</label>
+                                        {{ event_form.start_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="archidate-format-wrapper C inactive" data-bound-format="C" data-bound="start">
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Secolo</label>
+                                        {{ event_form.start_century }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Intervallo</label>
+                                        {{ event_form.start_century_interval }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Validità</label>
+                                        {{ event_form.start_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Luogo</label>
+                                    {{ event_form.start_date_place }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold mt-3">Estremo cronologico finale
+                            <span class="ms-2">
+                                {{ event_form.equal_bounds }}
+                                <label for="{{ event_form.equal_bounds.id_for_label }}" class="inline">Uguale all'estremo iniziale</label>
+                            </span>
+                        </h6>
+                        <div class="end bound-wrapper">
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <label class="form-label">Formato data</label><br>
+                                    {% for radio in event_form.end_date_format %}
+                                    <div class="form-check form-check-inline">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="archidate-format-wrapper Y active" data-bound-format="Y" data-bound="end">
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Specifica</label>
+                                        {{ event_form.end_date_spec }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Anno</label>
+                                        {{ event_form.end_date_from_year }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Mese</label>
+                                        {{ event_form.end_date_from_month }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Giorno</label>
+                                        {{ event_form.end_date_from_day }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Validità</label>
+                                        {{ event_form.end_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="archidate-format-wrapper C inactive" data-bound-format="C" data-bound="end">
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Secolo</label>
+                                        {{ event_form.end_century }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Intervallo</label>
+                                        {{ event_form.end_century_interval }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Validità</label>
+                                        {{ event_form.end_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Luogo</label>
+                                    {{ event_form.end_date_place }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Nota</label>
+                                {{ event_form.note }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Lingue -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Lingue</h6>
+            {{ fond_lang_formset.management_form }}
+            <div id="fond_lang_formset">
+                {% for form in fond_lang_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.code.label }}</label>
+                                {{ form.code }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">
+                                {{ form.DELETE }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_lang_btn">+ Aggiungi Lingua</button>
+
+            <div class="form-check mb-3 mt-3">
+                {{ fond_form.published }}
+                <label for="{{ fond_form.published.id_for_label }}" class="form-check-label">Pubblicato</label>
+            </div>
+        </div>
+    </div>
+</div>

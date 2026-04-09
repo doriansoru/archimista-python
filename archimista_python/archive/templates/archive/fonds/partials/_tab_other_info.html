@@ -1,0 +1,80 @@
+{% comment %}
+Partial: Tab Altre informazioni del Fondo
+Required context variables: fond_form, fond_owner_formset, fond_url_formset
+{% endcomment %}
+<div class="tab-pane fade" id="other-info" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Altre informazioni</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="{{ fond_form.related_materials.id_for_label }}" class="form-label">{{ fond_form.related_materials.label }}</label>
+                {{ fond_form.related_materials }}
+                {% if fond_form.related_materials.errors %}<div class="text-danger small">{{ fond_form.related_materials.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ fond_form.type_materials.id_for_label }}" class="form-label">{{ fond_form.type_materials.label }}</label>
+                {{ fond_form.type_materials }}
+                {% if fond_form.type_materials.errors %}<div class="text-danger small">{{ fond_form.type_materials.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ fond_form.note.id_for_label }}" class="form-label">{{ fond_form.note.label }}</label>
+                {{ fond_form.note }}
+                {% if fond_form.note.errors %}<div class="text-danger small">{{ fond_form.note.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Possessori -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Possessori</h6>
+            {{ fond_owner_formset.management_form }}
+            <div id="fond_owner_formset">
+                {% for form in fond_owner_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.owner.label }}</label>
+                                {{ form.owner }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">
+                                {{ form.DELETE }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_owner_btn">+ Aggiungi Possessore</button>
+
+            <!-- URL -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">URL</h6>
+            {{ fond_url_formset.management_form }}
+            <div id="fond_url_formset">
+                {% for form in fond_url_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">{{ form.url.label }}</label>
+                                {{ form.url }}
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">{{ form.position.label }}</label>
+                                {{ form.position }}
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.note.label }}</label>
+                                {{ form.note }}
+                            </div>
+                            <div class="col-md-1 mb-2 d-flex align-items-end">
+                                {{ form.DELETE }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_url_btn">+ Aggiungi URL</button>
+        </div>
+    </div>
+</div>

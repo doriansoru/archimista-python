@@ -1,0 +1,18 @@
+<div class="tab-pane fade" id="tab-description" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="{{ custodian_form.holdings.id_for_label }}" class="form-label">Patrimonio</label>
+                {{ custodian_form.holdings }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ custodian_form.collecting_policies.id_for_label }}" class="form-label">Politiche di gestione e di acquisizione</label>
+                {{ custodian_form.collecting_policies }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ custodian_form.administrative_structure.id_for_label }}" class="form-label">Struttura amministrativa</label>
+                {{ custodian_form.administrative_structure }}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,74 @@
+{% comment %}
+  Partial: Tab Compilatori del form unità
+  Variabili richieste: unit_editor_formset
+{% endcomment %}
+<div class="tab-pane fade" id="editors" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Compilatori</h5>
+        </div>
+        <div class="card-body">
+            {{ unit_editor_formset.management_form }}
+            <div id="unit_editors-formset">
+                {% if unit_editor_formset.total_form_count > 0 %}
+                <div class="row text-muted mb-2">
+                    <div class="col-3">{{ unit_editor_formset.empty_form.name.label }}</div>
+                    <div class="col-3">{{ unit_editor_formset.empty_form.qualifier.label }}</div>
+                    <div class="col-3">{{ unit_editor_formset.empty_form.editing_type.label }}</div>
+                    <div class="col-2">{{ unit_editor_formset.empty_form.edited_at.label }}</div>
+                    <div class="col-1"></div>
+                </div>
+                {% for form_item in unit_editor_formset %}
+                <div class="row mb-2 editor-row formset-item" id="{{ form_item.prefix }}-row">
+                    {{ form_item.id }}
+                    <div class="col-3">
+                        {{ form_item.name }}
+                    </div>
+                    <div class="col-3">
+                        {{ form_item.qualifier }}
+                    </div>
+                    <div class="col-3">
+                        {{ form_item.editing_type }}
+                    </div>
+                    <div class="col-2">
+                        {{ form_item.edited_at }}
+                    </div>
+                    <div class="col-1">
+                        {{ form_item.DELETE }}
+                        <label for="{{ form_item.DELETE.id_for_label }}" class="form-label small">Elimina</label>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% comment %} Template nascosto per nuove righe {% endcomment %}
+                <template id="unit_editors-empty-template">
+                    <div class="row mb-2 editor-row formset-item" data-index="__prefix__">
+                        <input type="hidden" name="unit_editors-__prefix__-id" id="id_unit_editors-__prefix__-id" value="">
+                        <div class="col-3">
+                            <input type="text" name="unit_editors-__prefix__-name" id="id_unit_editors-__prefix__-name" class="form-control">
+                        </div>
+                        <div class="col-3">
+                            <input type="text" name="unit_editors-__prefix__-qualifier" id="id_unit_editors-__prefix__-qualifier" class="form-control">
+                        </div>
+                        <div class="col-3">
+                            <select name="unit_editors-__prefix__-editing_type" id="id_unit_editors-__prefix__-editing_type" class="form-select">
+                                <option value="">-- Seleziona --</option>
+                                {% for term in editing_type_terms %}
+                                <option value="{{ term.term_value }}">{{ term.term_value }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <input type="date" name="unit_editors-__prefix__-edited_at" id="id_unit_editors-__prefix__-edited_at" class="form-control">
+                        </div>
+                        <div class="col-1">
+                            <input type="checkbox" name="unit_editors-__prefix__-DELETE" id="id_unit_editors-__prefix__-DELETE">
+                            <label for="id_unit_editors-__prefix__-DELETE" class="form-label small">Elimina</label>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>

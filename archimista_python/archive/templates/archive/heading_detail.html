@@ -1,0 +1,58 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ heading.name|default:"Voce di indice" }} - Archimista{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Voce di indice</h2>
+    <div>
+        <a href="{% url 'archive:heading_edit' heading.pk %}" class="btn btn-primary">Modifica</a>
+        <a href="{% url 'archive:heading_list' %}" class="btn btn-secondary">&larr; Torna alle voci di indice</a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">{{ heading.name|default:"Voce di indice" }}</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <tr>
+                <th style="width:200px">Tipologia</th>
+                <td>{{ heading.heading_type|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Lemma</th>
+                <td>{{ heading.name|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Estremi cronologici</th>
+                <td>{{ heading.dates|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Qualifica</th>
+                <td>{{ heading.qualifier|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Gruppo</th>
+                <td>{{ heading.group|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Database source</th>
+                <td>{{ heading.db_source|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Legacy ID</th>
+                <td>{{ heading.legacy_id|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Creato il</th>
+                <td>{{ heading.created_at|date:"d/m/Y H:i"|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Ultimo aggiornamento</th>
+                <td>{{ heading.updated_at|date:"d/m/Y H:i"|default:"—" }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

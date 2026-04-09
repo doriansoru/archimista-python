@@ -1,0 +1,24 @@
+{% extends 'archive/base.html' %}
+{% block title %}Elimina profilo documentario - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Elimina profilo documentario</h2>
+    <a href="{% url 'archive:document_form_list' %}" class="btn btn-sm btn-secondary">&larr; Torna ai profili documentari</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p class="text-danger">
+            <strong>Attenzione:</strong> stai per eliminare il profilo documentario
+            "<strong>{{ document_form.name }}</strong>".
+        </p>
+        <p>Questa azione non può essere annullata. Continuare?</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Elimina</button>
+            <a href="{% url 'archive:document_form_edit' document_form.pk %}" class="btn btn-secondary">Annulla</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

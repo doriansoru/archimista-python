@@ -1,0 +1,72 @@
+{% comment %}
+  Partial: Tab Descrizione fisica del dettaglio unità
+  Variabili richieste: unit
+{% endcomment %}
+<div class="tab-pane fade" id="detail-physical" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Descrizione fisica</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Tipo fisico:</div>
+                <div class="col-sm-9">{{ unit.physical_type_term.term_value|default:unit.physical_type|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Supporto:</div>
+                <div class="col-sm-9">{{ unit.medium_term.term_value|default:unit.medium|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Stato di conservazione:</div>
+                <div class="col-sm-9">{{ unit.preservation_term.term_value|default:unit.preservation|default:"-" }}</div>
+            </div>
+
+            {% if unit.physical_description %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Descrizione fisica</h6>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ unit.physical_description }}</div>
+            {% endif %}
+
+            {% if unit.unit_damages.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Danni</h6>
+            <ul class="list-unstyled">
+                {% for damage in unit.unit_damages.all %}
+                <li><strong>{{ damage.code }}</strong> {% if damage.note %}- {{ damage.note }}{% endif %}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if unit.related_materials %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Materiali correlati</h6>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ unit.related_materials }}</div>
+            {% endif %}
+
+            {% if unit.restoration %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Restauro</h6>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ unit.restoration }}</div>
+            {% endif %}
+
+            {% if unit.note %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Nota</h6>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ unit.note }}</div>
+            {% endif %}
+
+            {% if unit.physical_container_type or unit.physical_container_title or unit.physical_container_number %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Contenitore fisico</h6>
+            <div class="row mb-2">
+                {% if unit.physical_container_type %}
+                <div class="col-sm-4 fw-bold">Tipo:</div>
+                <div class="col-sm-8">{{ unit.physical_container_type }}</div>
+                {% endif %}
+                {% if unit.physical_container_title %}
+                <div class="col-sm-4 fw-bold">Titolo:</div>
+                <div class="col-sm-8">{{ unit.physical_container_title }}</div>
+                {% endif %}
+                {% if unit.physical_container_number %}
+                <div class="col-sm-4 fw-bold">Numero:</div>
+                <div class="col-sm-8">{{ unit.physical_container_number }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

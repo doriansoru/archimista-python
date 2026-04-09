@@ -1,0 +1,229 @@
+<div class="tab-pane fade show active" id="tab-identification" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            <!-- Condizione giuridica, Macrotipologia, Pubblicato -->
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label for="{{ custodian_form.legal_status.id_for_label }}" class="form-label">Condizione giuridica</label>
+                    {{ custodian_form.legal_status }}
+                </div>
+                <div class="col-md-5">
+                    <label for="{{ custodian_form.custodian_type.id_for_label }}" class="form-label">Macrotipologia</label>
+                    {{ custodian_form.custodian_type }}
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">Pubblicato</label>
+                    <div class="form-check">
+                        {{ custodian_form.published }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Denominazione principale -->
+            <div id="preferred_name" class="row mb-3">
+                <div class="col-md-9">
+                    <h5 class="row-header">Denominazione</h5>
+                    <div class="row mb-2">
+                        <div class="col-md-8">
+                            <label class="form-label">Denominazione *</label>
+                            {{ preferred_name_form.name }}
+                            {{ preferred_name_form.preferred }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Note</label>
+                            {{ preferred_name_form.note }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Altre denominazioni -->
+            <div id="other_names" class="row mb-3">
+                <div class="col-md-9">
+                    <h5 class="row-header">Altre denominazioni</h5>
+                    <div class="row text-muted mb-2">
+                        <div class="col-md-3">Qualificatore</div>
+                        <div class="col-md-4">Denominazione</div>
+                        <div class="col-md-4">Note</div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    {{ custodian_name_formset.management_form }}
+                    <div id="custodian_name_formset">
+                        {% for form in custodian_name_formset %}
+                        <div class="row mb-2 formset-item">
+                            <div class="col-md-3">{{ form.qualifier_term }}{{ form.qualifier }}</div>
+                            <div class="col-md-4">{{ form.name }}</div>
+                            <div class="col-md-4">{{ form.note }}</div>
+                            <div class="col-md-1">
+                                {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div id="custodian_name-empty-template" style="display:none">
+                        <div class="row mb-2 formset-item" data-index="__prefix__">
+                            <div class="col-md-3">
+                                <select name="custodian_names-__prefix__-qualifier_term" id="id_custodian_names-__prefix__-qualifier_term" class="form-select">
+                                    <option value="">-- Seleziona --</option>
+                                    {% for term in terms.custodian_names_qualifier %}
+                                    <option value="{{ term.term_value }}">{{ term.term_value }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" name="custodian_names-__prefix__-qualifier" id="id_custodian_names-__prefix__-qualifier">
+                            </div>
+                            <div class="col-md-4"><textarea name="custodian_names-__prefix__-name" id="id_custodian_names-__prefix__-name" class="form-control" rows="2"></textarea></div>
+                            <div class="col-md-4"><textarea name="custodian_names-__prefix__-note" id="id_custodian_names-__prefix__-note" class="form-control" rows="2"></textarea></div>
+                            <div class="col-md-1"><input type="checkbox" name="custodian_names-__prefix__-DELETE" id="id_custodian_names-__prefix__-DELETE"> <label for="id_custodian_names-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                        </div>
+                    </div>
+                    <p><a href="#" class="add-formset-link" data-prefix="custodian_names">Aggiungi denominazione</a></p>
+                </div>
+            </div>
+
+            <!-- Cenni storico istituzionali -->
+            <div class="mb-3">
+                <label for="{{ custodian_form.history.id_for_label }}" class="form-label">Cenni storico istituzionali</label>
+                {{ custodian_form.history }}
+            </div>
+
+            <!-- Contatti -->
+            <div id="custodian_contacts" class="row mb-3">
+                <div class="col-md-9">
+                    <h5 class="row-header">Contatti</h5>
+                    <div class="row text-muted mb-2">
+                        <div class="col-md-2">Tipo</div>
+                        <div class="col-md-4">Contatto</div>
+                        <div class="col-md-4">Annotazioni</div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    {{ custodian_contact_formset.management_form }}
+                    <div id="custodian_contact_formset">
+                        {% for form in custodian_contact_formset %}
+                        <div class="row mb-2 formset-item">
+                            <div class="col-md-2">{{ form.contact_type }}</div>
+                            <div class="col-md-4">{{ form.contact }}</div>
+                            <div class="col-md-4">{{ form.contact_note }}</div>
+                            <div class="col-md-1">
+                                {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div id="custodian_contact-empty-template" style="display:none">
+                        <div class="row mb-2 formset-item" data-index="__prefix__">
+                            <div class="col-md-2"><input type="text" name="custodian_contacts-__prefix__-contact_type" id="id_custodian_contacts-__prefix__-contact_type" class="form-control"></div>
+                            <div class="col-md-4"><input type="text" name="custodian_contacts-__prefix__-contact" id="id_custodian_contacts-__prefix__-contact" class="form-control"></div>
+                            <div class="col-md-4"><textarea name="custodian_contacts-__prefix__-contact_note" id="id_custodian_contacts-__prefix__-contact_note" class="form-control" rows="2"></textarea></div>
+                            <div class="col-md-1"><input type="checkbox" name="custodian_contacts-__prefix__-DELETE" id="id_custodian_contacts-__prefix__-DELETE"> <label for="id_custodian_contacts-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                        </div>
+                    </div>
+                    <p><a href="#" class="add-formset-link" data-prefix="custodian_contacts">Aggiungi contatto</a></p>
+                </div>
+            </div>
+
+            <!-- Referente -->
+            <div class="mb-3">
+                <label for="{{ custodian_form.contact_person.id_for_label }}" class="form-label">Referente</label>
+                {{ custodian_form.contact_person }}
+            </div>
+
+            <!-- Enti titolari -->
+            <div id="custodian_owners" class="row mb-3">
+                <div class="col-md-9">
+                    <h5 class="row-header">Enti titolari</h5>
+                    {{ custodian_owner_formset.management_form }}
+                    <div id="custodian_owner_formset">
+                        {% for form in custodian_owner_formset %}
+                        <div class="row mb-2 formset-item">
+                            <div class="col-md-10">{{ form.owner }}</div>
+                            <div class="col-md-2">
+                                {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div id="custodian_owner-empty-template" style="display:none">
+                        <div class="row mb-2 formset-item" data-index="__prefix__">
+                            <div class="col-md-10"><input type="text" name="custodian_owners-__prefix__-owner" id="id_custodian_owners-__prefix__-owner" class="form-control"></div>
+                            <div class="col-md-2"><input type="checkbox" name="custodian_owners-__prefix__-DELETE" id="id_custodian_owners-__prefix__-DELETE"> <label for="id_custodian_owners-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                        </div>
+                    </div>
+                    <p><a href="#" class="add-formset-link" data-prefix="custodian_owners">Aggiungi ente titolare</a></p>
+                </div>
+            </div>
+
+            <!-- Collegamenti -->
+            <div id="custodian_urls" class="row mb-3">
+                <div class="col-md-9">
+                    <h5 class="row-header">Collegamenti</h5>
+                    <div class="row text-muted mb-2">
+                        <div class="col-md-6">URL</div>
+                        <div class="col-md-4">Note</div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    {{ custodian_url_formset.management_form }}
+                    <div id="custodian_url_formset">
+                        {% for form in custodian_url_formset %}
+                        <div class="row mb-2 formset-item">
+                            <div class="col-md-6">{{ form.url }}</div>
+                            <div class="col-md-4">{{ form.note }}</div>
+                            <div class="col-md-1">
+                                {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div id="custodian_url-empty-template" style="display:none">
+                        <div class="row mb-2 formset-item" data-index="__prefix__">
+                            <div class="col-md-6"><input type="url" name="custodian_urls-__prefix__-url" id="id_custodian_urls-__prefix__-url" class="form-control"></div>
+                            <div class="col-md-4"><textarea name="custodian_urls-__prefix__-note" id="id_custodian_urls-__prefix__-note" class="form-control" rows="2"></textarea></div>
+                            <div class="col-md-1"><input type="checkbox" name="custodian_urls-__prefix__-DELETE" id="id_custodian_urls-__prefix__-DELETE"> <label for="id_custodian_urls-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                        </div>
+                    </div>
+                    <p><a href="#" class="add-formset-link" data-prefix="custodian_urls">Aggiungi URL</a></p>
+                </div>
+            </div>
+
+            <!-- Codici identificativi -->
+            <div id="custodian_identifiers" class="row mb-3">
+                <div class="col-md-9">
+                    <h5 class="row-header">Codici identificativi</h5>
+                    <div class="row text-muted mb-2">
+                        <div class="col-md-3">Codice</div>
+                        <div class="col-md-3">Fonte</div>
+                        <div class="col-md-4">Note</div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    {{ custodian_identifier_formset.management_form }}
+                    <div id="custodian_identifier_formset">
+                        {% for form in custodian_identifier_formset %}
+                        <div class="row mb-2 formset-item">
+                            <div class="col-md-3">{{ form.identifier }}</div>
+                            <div class="col-md-3">{{ form.identifier_source }}</div>
+                            <div class="col-md-4">{{ form.note }}</div>
+                            <div class="col-md-1">
+                                {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div id="custodian_identifier-empty-template" style="display:none">
+                        <div class="row mb-2 formset-item" data-index="__prefix__">
+                            <div class="col-md-3"><input type="text" name="custodian_identifiers-__prefix__-identifier" id="id_custodian_identifiers-__prefix__-identifier" class="form-control"></div>
+                            <div class="col-md-3"><input type="text" name="custodian_identifiers-__prefix__-identifier_source" id="id_custodian_identifiers-__prefix__-identifier_source" class="form-control"></div>
+                            <div class="col-md-4"><textarea name="custodian_identifiers-__prefix__-note" id="id_custodian_identifiers-__prefix__-note" class="form-control" rows="2"></textarea></div>
+                            <div class="col-md-1"><input type="checkbox" name="custodian_identifiers-__prefix__-DELETE" id="id_custodian_identifiers-__prefix__-DELETE"> <label for="id_custodian_identifiers-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                        </div>
+                    </div>
+                    <p><a href="#" class="add-formset-link" data-prefix="custodian_identifiers">Aggiungi codice identificativo</a></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,247 @@
+{% extends "archive/base.html" %}
+{% block title %}Controllo qualità — Complesso archivistico{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+
+            <!-- Header con link indietro -->
+            <div class="d-flex align-items-center mb-3">
+                <h2 class="mb-0 me-3">
+                    Controllo qualità
+                    <span class="text-muted mx-2">/</span>
+                    {% if is_complete %}descrizione completa{% else %}complesso archivistico{% endif %}
+                </h2>
+            </div>
+            <div id="links" class="mb-3">
+                <a href="{% url 'archive:quality_check_index' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Controllo qualità
+                </a>
+            </div>
+
+            <h2>{{ fond_root_name }}</h2>
+
+            <!-- ============ REQUISITI MINIMI ============ -->
+            <h3 class="mt-4 mb-3 p-2 rounded" style="background:#999;color:#fff;font-size:0.875rem;font-weight:bold;text-shadow:0 -1px 0 rgba(0,0,0,0.25);">Requisiti minimi</h3>
+
+            <!-- 1. Denominazione -->
+            <h4>1. Denominazione</h4>
+            {% if fonds_with_no_name|length == 0 %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Il complesso archivistico ha il campo "Denominazione" compilato.</p>
+            {% else %}
+                <p data-bs-toggle="collapse" data-bs-target="#fonds-no-name">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    {% if fonds|length == 1 %}
+                        {{ fonds_with_no_name|length }} complesso archivistico su 1 ({{ fonds_no_name_pct }}%) ha il campo "Denominazione" vuoto.
+                    {% else %}
+                        {{ fonds_with_no_name|length }} complessi archivistici su {{ fonds|length }} ({{ fonds_no_name_pct }}%) hanno il campo "Denominazione" vuoto.
+                    {% endif %}
+                </p>
+                <div id="fonds-no-name" class="collapse">
+                    {% include "archive/quality_check_fond_table.html" with objects=fonds_with_no_name %}
+                </div>
+            {% endif %}
+
+            <!-- 2. Estremi cronologici -->
+            <h4>2. Estremi cronologici</h4>
+            {% if fonds_with_no_event|length == 0 %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Il complesso archivistico ha il campo "Estremi cronologici" compilato.</p>
+            {% else %}
+                <p data-bs-toggle="collapse" data-bs-target="#fonds-no-event">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    {% if fonds|length == 1 %}
+                        {{ fonds_with_no_event|length }} complesso archivistico su 1 ({{ fonds_no_event_pct }}%) ha il campo "Estremi cronologici" vuoto.
+                    {% else %}
+                        {{ fonds_with_no_event|length }} complessi archivistici su {{ fonds|length }} ({{ fonds_no_event_pct }}%) hanno il campo "Estremi cronologici" vuoto.
+                    {% endif %}
+                </p>
+                <div id="fonds-no-event" class="collapse">
+                    {% include "archive/quality_check_fond_table.html" with objects=fonds_with_no_event %}
+                </div>
+            {% endif %}
+
+            <!-- 3. Tipologia -->
+            <h4>3. Tipologia</h4>
+            {% if fonds_with_no_fond_type|length == 0 %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Il complesso archivistico ha il campo "Tipologia" compilato.</p>
+            {% else %}
+                <p data-bs-toggle="collapse" data-bs-target="#fonds-no-fond-type">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    {% if fonds|length == 1 %}
+                        {{ fonds_with_no_fond_type|length }} complesso archivistico su 1 ({{ fonds_no_fond_type_pct }}%) ha il campo "Tipologia" vuoto.
+                    {% else %}
+                        {{ fonds_with_no_fond_type|length }} complessi archivistici su {{ fonds|length }} ({{ fonds_no_fond_type_pct }}%) hanno il campo "Tipologia" vuoto.
+                    {% endif %}
+                </p>
+                <div id="fonds-no-fond-type" class="collapse">
+                    {% include "archive/quality_check_fond_table.html" with objects=fonds_with_no_fond_type %}
+                </div>
+            {% endif %}
+
+            <!-- 4. Unità -->
+            <h4>4. Unità</h4>
+            {% if fonds_with_no_units|length == 0 %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Il complesso archivistico è collegato ad almeno una "Unità".</p>
+            {% else %}
+                <p data-bs-toggle="collapse" data-bs-target="#fonds-no-units">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    {% if fonds|length == 1 %}
+                        {{ fonds_with_no_units|length }} complesso archivistico su 1 ({{ fonds_no_units_pct }}%) non ha unità archivistiche collegate.
+                    {% else %}
+                        {{ fonds_with_no_units|length }} complessi archivistici su {{ fonds|length }} ({{ fonds_no_units_pct }}%) non hanno unità archivistiche collegate.
+                    {% endif %}
+                </p>
+                <div id="fonds-no-units" class="collapse">
+                    {% include "archive/quality_check_fond_table.html" with objects=fonds_with_no_units %}
+                </div>
+            {% endif %}
+
+            <!-- ============ REQUISITI MEDI ============ -->
+            <h3 class="mt-4 mb-3 p-2 rounded" style="background:#999;color:#fff;font-size:0.875rem;font-weight:bold;text-shadow:0 -1px 0 rgba(0,0,0,0.25);">Requisiti medi</h3>
+
+            <!-- 1. Descrizione -->
+            <h4>1. Descrizione</h4>
+            {% if fonds_with_no_description|length == 0 %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Il complesso archivistico ha il campo "Descrizione" compilato.</p>
+            {% else %}
+                <p data-bs-toggle="collapse" data-bs-target="#fonds-no-description">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    {% if fonds|length == 1 %}
+                        {{ fonds_with_no_description|length }} complesso archivistico su 1 ({{ fonds_no_description_pct }}%) ha il campo "Descrizione" vuoto.
+                    {% else %}
+                        {{ fonds_with_no_description|length }} complessi archivistici su {{ fonds|length }} ({{ fonds_no_description_pct }}%) hanno il campo "Descrizione" vuoto.
+                    {% endif %}
+                </p>
+                <div id="fonds-no-description" class="collapse">
+                    {% include "archive/quality_check_fond_table.html" with objects=fonds_with_no_description %}
+                </div>
+            {% endif %}
+
+            <!-- 2. Storia archivistica -->
+            <h4>2. Storia archivistica</h4>
+            {% if fonds_with_no_history|length == 0 %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Il complesso archivistico ha il campo "Storia archivistica" compilato.</p>
+            {% else %}
+                <p data-bs-toggle="collapse" data-bs-target="#fonds-no-history">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    {% if fonds|length == 1 %}
+                        {{ fonds_with_no_history|length }} complesso archivistico su 1 ({{ fonds_no_history_pct }}%) ha il campo "Storia archivistica" vuoto.
+                    {% else %}
+                        {{ fonds_with_no_history|length }} complessi archivistici su {{ fonds|length }} ({{ fonds_no_history_pct }}%) hanno il campo "Storia archivistica" vuoto.
+                    {% endif %}
+                </p>
+                <div id="fonds-no-history" class="collapse">
+                    {% include "archive/quality_check_fond_table.html" with objects=fonds_with_no_history %}
+                </div>
+            {% endif %}
+
+            <!-- 3. Metri lineari -->
+            <h4>3. Metri lineari</h4>
+            {% if fonds_with_no_length|length == 0 %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Il complesso archivistico ha il campo "Metri lineari" compilato.</p>
+            {% else %}
+                <p data-bs-toggle="collapse" data-bs-target="#fonds-no-length">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    {% if fonds|length == 1 %}
+                        {{ fonds_with_no_length|length }} complesso archivistico su 1 ({{ fonds_no_length_pct }}%) ha il campo "Metri lineari" vuoto.
+                    {% else %}
+                        {{ fonds_with_no_length|length }} complessi archivistici su {{ fonds|length }} ({{ fonds_no_length_pct }}%) hanno il campo "Metri lineari" vuoto.
+                    {% endif %}
+                </p>
+                <div id="fonds-no-length" class="collapse">
+                    {% include "archive/quality_check_fond_table.html" with objects=fonds_with_no_length %}
+                </div>
+            {% endif %}
+
+            <!-- 4. Progetti -->
+            <h4>4. Progetti</h4>
+            {% if projects %}
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th style="width:100px;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in projects %}
+                        <tr>
+                            <td>{{ project.name }}</td>
+                            <td><a href="{% url 'archive:project_detail' project.pk %}" class="btn btn-sm btn-outline-secondary">Dettagli</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-danger">[Nessun progetto associato]</p>
+            {% endif %}
+
+            <!-- 5. Fonti -->
+            <h4>5. Fonti</h4>
+            {% if fonds_with_sources %}
+                <p><i class="bi bi-check-circle-fill text-success"></i>
+                    Sono stati trovati {{ fonds_with_sources|length }} {{ fonds_with_sources|length|pluralize:"complesso archivistico con relazione a fonti,complessi archivistici con relazione a fonti" }}.</p>
+            {% else %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Sono stati trovati 0 complessi archivistici con relazione a fonti.</p>
+            {% endif %}
+
+            <!-- ============ SOGGETTI PRODUTTORI ============ -->
+            <h2 class="mt-4">Soggetti produttori</h2>
+            {% if creators %}
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th style="width:25%;">Tipologia</th>
+                            <th>Denominazione</th>
+                            <th style="width:100px;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for creator in creators %}
+                        <tr>
+                            <td>
+                                {% if creator.creator_type == 'P' %}Persona
+                                {% elif creator.creator_type == 'E' %}Ente
+                                {% elif creator.creator_type == 'F' %}Famiglia
+                                {% else %}<span class="text-warning">[non presente]</span>{% endif %}
+                            </td>
+                            <td>{{ creator.preferred_name.name|default:"[nome non compilato]" }}</td>
+                            <td><a href="{% url 'archive:creator_detail' creator.pk %}" class="btn btn-sm btn-outline-secondary">Dettagli</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-danger">[Nessun soggetto produttore associato]</p>
+            {% endif %}
+
+            <!-- ============ SOGGETTI CONSERVATORI ============ -->
+            <h2 class="mt-4">Soggetti conservatori</h2>
+            {% if custodians %}
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th style="width:25%;">Macrotipologia</th>
+                            <th>Denominazione</th>
+                            <th style="width:100px;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for custodian in custodians %}
+                        <tr>
+                            <td>{{ custodian.custodian_type.custodian_type|default:"[non presente]" }}</td>
+                            <td>{{ custodian.preferred_name.name|default:"[nome non compilato]" }}</td>
+                            <td><a href="{% url 'archive:custodian_detail' custodian.pk %}" class="btn btn-sm btn-outline-secondary">Dettagli</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-danger">[Nessun soggetto conservatore associato]</p>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

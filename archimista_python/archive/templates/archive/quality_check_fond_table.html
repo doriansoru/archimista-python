@@ -1,0 +1,32 @@
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>tipologia</th>
+            <th>denominazione</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fond in objects %}
+        <tr>
+            <td>
+                {% if fond.fond_type or fond.fond_type_term %}
+                    {{ fond.fond_type_term.term_value|default:fond.fond_type }}
+                {% else %}
+                    <span style="color:#f00;">[non presente]</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if fond.name and fond.name != '[nome non compilato]' %}
+                    {{ fond.name }}
+                {% else %}
+                    <span style="color:#f00;">[non presente]</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'archive:fond_detail' fond.pk %}">modifica</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

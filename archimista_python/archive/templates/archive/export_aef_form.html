@@ -1,0 +1,230 @@
+{% extends "archive/base.html" %}
+
+{% block title %}Esporta AEF{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Esporta archivio (formato AEF)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Esporta i dati dell'archivio in formato AEF o XML.
+                        Il file AEF generato è compatibile con la funzione di importazione di Archimista.
+                    </p>
+
+                    {% if messages %}
+                    <div class="alert alert-danger">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Target entity tabs -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Entità da esportare</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="export_type" id="type_fond" value="fond" checked>
+                                    <label class="form-check-label" for="type_fond">
+                                        Fondo
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="export_type" id="type_custodian" value="custodian">
+                                    <label class="form-check-label" for="type_custodian">
+                                        Soggetto conservatore
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="export_type" id="type_creator" value="creator">
+                                    <label class="form-check-label" for="type_creator">
+                                        Soggetto produttore
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="export_type" id="type_source" value="source">
+                                    <label class="form-check-label" for="type_source">
+                                        Fonte
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="export_type" id="type_project" value="project">
+                                    <label class="form-check-label" for="type_project">
+                                        Progetto
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Entity selectors -->
+                        <div class="mb-3" id="select_fond">
+                            <label for="fond_id" class="form-label">Fondo</label>
+                            <select name="fond_id" id="fond_id" class="form-select">
+                                <option value="">-- Seleziona un fondo --</option>
+                                {% for fond in root_fonds %}
+                                <option value="{{ fond.id }}">{{ fond.name|default:"Senza nome" }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="select_custodian" style="display:none;">
+                            <label for="custodian_id" class="form-label">Soggetto conservatore</label>
+                            <select name="custodian_id" id="custodian_id" class="form-select">
+                                <option value="">-- Seleziona un soggetto conservatore --</option>
+                                {% for c in custodians %}
+                                <option value="{{ c.id }}">
+                                    {% with pn=c.custodian_names.all|first %}{{ pn.name|default:"Senza nome" }}{% endwith %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="select_creator" style="display:none;">
+                            <label for="creator_id" class="form-label">Soggetto produttore</label>
+                            <select name="creator_id" id="creator_id" class="form-select">
+                                <option value="">-- Seleziona un soggetto produttore --</option>
+                                {% for cr in creators %}
+                                <option value="{{ cr.id }}">
+                                    {% with pn=cr.creator_names.all|first %}
+                                        {% if pn.first_name or pn.last_name %}{{ pn.first_name }} {{ pn.last_name }}
+                                        {% elif pn.name %}{{ pn.name }}
+                                        {% else %}Soggetto #{{ cr.id }}{% endif %}
+                                    {% endwith %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="select_source" style="display:none;">
+                            <label for="source_id" class="form-label">Fonte</label>
+                            <select name="source_id" id="source_id" class="form-select">
+                                <option value="">-- Seleziona una fonte --</option>
+                                {% for src in sources %}
+                                <option value="{{ src.id }}">{{ src.title|default:src.author|default:"Senza titolo" }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="select_project" style="display:none;">
+                            <label for="project_id" class="form-label">Progetto</label>
+                            <select name="project_id" id="project_id" class="form-select">
+                                <option value="">-- Seleziona un progetto --</option>
+                                {% for p in projects %}
+                                <option value="{{ p.id }}">{{ p.name|default:"Senza nome" }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Options checkboxes (matching Ruby) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Opzioni</label>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="inc_digit" name="include_digital_objects" checked>
+                                <label class="form-check-label" for="inc_digit">
+                                    Includi gli oggetti digitali
+                                </label>
+                            </div>
+                            <div class="form-check" id="inc_entities_check">
+                                <input type="checkbox" class="form-check-input" id="inc_entities" name="include_entities" checked>
+                                <label class="form-check-label" for="inc_entities">
+                                    Includi le entità correlate all'oggetto da esportare
+                                </label>
+                            </div>
+                            <div class="form-check" id="inc_san_check">
+                                <input type="checkbox" class="form-check-input" id="inc_san" name="inc_san">
+                                <label class="form-check-label" for="inc_san">
+                                    Esporta le entità selezionate in formato CAT-SAN e METS-SAN
+                                </label>
+                            </div>
+                            <div class="form-check" id="inc_ead_check">
+                                <input type="checkbox" class="form-check-input" id="inc_ead" name="inc_ead">
+                                <label class="form-check-label" for="inc_ead">
+                                    Esporta il complesso selezionato in formato ICAR-IMPORT
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'archive:fond_list' %}" class="btn btn-secondary">Annulla</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-download"></i> Esporta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const radios = document.querySelectorAll('input[name="export_type"]');
+    const selects = {
+        fond: document.getElementById('select_fond'),
+        custodian: document.getElementById('select_custodian'),
+        creator: document.getElementById('select_creator'),
+        source: document.getElementById('select_source'),
+        project: document.getElementById('select_project'),
+    };
+    const incSan = document.getElementById('inc_san');
+    const incEad = document.getElementById('inc_ead');
+    const incEntities = document.getElementById('inc_entities');
+    const incDigit = document.getElementById('inc_digit');
+    const incEntitiesCheck = document.getElementById('inc_entities_check');
+    const incSanCheck = document.getElementById('inc_san_check');
+    const incEadCheck = document.getElementById('inc_ead_check');
+
+    radios.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            // Show/hide selectors
+            Object.keys(selects).forEach(function(key) {
+                selects[key].style.display = this.value === key ? 'block' : 'none';
+            }.bind(this));
+
+            // Projects: disable SAN, EAD, entities (like Ruby)
+            if (this.value === 'project') {
+                incEad.disabled = true; incEad.checked = false;
+                incSan.disabled = true; incSan.checked = false;
+                incEntities.disabled = true; incEntities.checked = false;
+            } else {
+                incEntities.disabled = false;
+                incSan.disabled = false;
+                // EAD only enabled for fonds (complessi)
+                incEad.disabled = (this.value !== 'fond');
+                if (this.value !== 'fond') { incEad.checked = false; }
+            }
+        });
+    });
+
+    // Mutual exclusion (like Ruby imports-exports.js)
+    incSan.addEventListener('change', function() {
+        if (this.checked) {
+            incEad.checked = false; incEad.disabled = true;
+        } else {
+            incEad.disabled = false;
+        }
+    });
+
+    incEad.addEventListener('change', function() {
+        if (this.checked) {
+            incDigit.checked = true; incDigit.disabled = true;
+            incEntities.checked = true; incEntities.disabled = true;
+            incSan.checked = false; incSan.disabled = true;
+        } else {
+            incDigit.disabled = false;
+            incEntities.disabled = false;
+            incSan.disabled = false;
+        }
+    });
+});
+</script>
+{% endblock %}

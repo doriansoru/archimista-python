@@ -1,0 +1,24 @@
+{% extends 'archive/base.html' %}
+{% block title %}Elimina profilo istituzionale - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Elimina profilo istituzionale</h2>
+    <a href="{% url 'archive:institution_list' %}" class="btn btn-sm btn-secondary">&larr; Torna ai profili istituzionali</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p class="text-danger">
+            <strong>Attenzione:</strong> stai per eliminare il profilo istituzionale
+            "<strong>{{ institution.name }}</strong>".
+        </p>
+        <p>Questa azione non può essere annullata. Continuare?</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Elimina</button>
+            <a href="{% url 'archive:institution_edit' institution.pk %}" class="btn btn-secondary">Annulla</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

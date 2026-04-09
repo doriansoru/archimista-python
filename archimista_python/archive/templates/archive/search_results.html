@@ -1,0 +1,81 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}Risultati Ricerca: {{ query }} - Archimista{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Risultati della ricerca: <span class="text-primary">"{{ query }}"</span></h1>
+
+        <p class="text-muted mb-5">Trovate {{ total_count }} occorrenze in totale.</p>
+
+        {% if total_count > 0 %}
+
+        {% if results.fonds %}
+        <h3 class="border-bottom pb-2 mb-3 mt-4">Fondi ({{ results.fonds|length }})</h3>
+        <div class="list-group shadow-sm mb-4">
+            {% for fond in results.fonds %}
+            <a href="{% url 'archive:fond_detail' fond.pk %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 text-primary">{{ fond.name }}</h5>
+                    <small class="text-muted">ID: {{ fond.id }}</small>
+                </div>
+                {% if fond.abstract %}
+                <p class="mb-1 small text-truncate">{{ fond.abstract }}</p>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if results.units %}
+        <h3 class="border-bottom pb-2 mb-3 mt-4">Unità ({{ results.units|length }})</h3>
+        <div class="list-group shadow-sm mb-4">
+            {% for unit in results.units %}
+            <a href="{% url 'archive:unit_detail' unit.pk %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 text-success">{{ unit.title|default:"Senza Titolo" }}</h5>
+                    <small class="text-muted">{{ unit.unit_type|default:"Unità" }} - {{ unit.reference_number|default:"No segnatura" }}</small>
+                </div>
+                <small class="text-muted">Fondo: {{ unit.fond.name }}</small>
+                {% if unit.content %}
+                <p class="mb-1 small text-truncate mt-1">{{ unit.content }}</p>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if results.headings %}
+        <h3 class="border-bottom pb-2 mb-3 mt-4">Voci di indice ({{ results.headings|length }})</h3>
+        <div class="list-group shadow-sm mb-4">
+            {% for heading in results.headings %}
+            <div class="list-group-item">
+                <h5 class="mb-1 text-info">{{ heading.name }}</h5>
+                <small class="text-muted">{{ heading.heading_type }} - {{ heading.dates }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if results.digital_objects %}
+        <h3 class="border-bottom pb-2 mb-3 mt-4">Oggetti digitali ({{ results.digital_objects|length }})</h3>
+        <div class="list-group shadow-sm mb-4">
+            {% for dobj in results.digital_objects %}
+            <div class="list-group-item">
+                <h5 class="mb-1 text-warning">{{ dobj.title|default:"Senza Titolo" }}</h5>
+                <small class="text-muted">File: {{ dobj.asset_file_name }} ({{ dobj.asset_content_type }})</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="alert alert-info shadow-sm p-5 text-center">
+            <h4>Nessun risultato trovato</h4>
+            <p class="mb-0">Prova a semplificare i termini della ricerca o controlla eventuali errori di battitura.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

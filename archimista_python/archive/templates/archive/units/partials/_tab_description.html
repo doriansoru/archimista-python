@@ -1,0 +1,659 @@
+{% comment %}
+  Partial: Tab Descrizione del form unità
+  Variabili richieste: form, unit_identifier_formset, unit_other_reference_number_formset,
+                       unit_lang_formset, sc2_textual_formset, sc2_visual_formset,
+                       sc2_author_formset, sc2_commission_formset, sc2_form,
+                       fsc_org_formset, fsc_nationality_formset, fsc_code_formset,
+                       fsc_open_formset, fsc_close_formset,
+                       fe_id_formset, fe_context_formset
+{% endcomment %}
+<div class="tab-pane fade show active" id="description" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Descrizione</h5>
+        </div>
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Attenzione:</strong> ci sono errori nel form. Controlla i campi sottostanti.
+            </div>
+            {% endif %}
+
+            <!-- Contesto -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2">Contesto</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.fond.id_for_label }}" class="form-label">Fondo <span class="text-danger">*</span></label>
+                    {{ form.fond }}
+                    {% if form.fond.errors %}<div class="text-danger small">{{ form.fond.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.parent.id_for_label }}" class="form-label">{{ form.parent.label }}</label>
+                    {{ form.parent }}
+                    {% if form.parent.errors %}<div class="text-danger small">{{ form.parent.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.classification.id_for_label }}" class="form-label">{{ form.classification.label }}</label>
+                    {{ form.classification }}
+                    {% if form.classification.errors %}<div class="text-danger small">{{ form.classification.errors }}</div>{% endif %}
+                </div>
+            </div>
+
+            <!-- Identificazione -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificazione</h6>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="id_unit_type_term" class="form-label">Tipologia</label>
+                    {{ form.unit_type_term }}
+                    {% if form.unit_type_term.errors %}<div class="text-danger small">{{ form.unit_type_term.errors }}</div>{% endif %}
+                    <input type="hidden" id="id_unit_type_text" name="unit_type" value="{{ form.instance.unit_type|default:'' }}">
+                </div>
+                <div class="col-md-3 fsc_container">
+                    <label for="id_unit_file_type" class="form-label fsc_field_label" id="lbl_unit_fsc">Tipologia fascicolo</label>
+                    {{ form.file_type }}
+                    {% if form.file_type.errors %}<div class="text-danger small">{{ form.file_type.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-3 sc2_container">
+                    <label for="id_unit_sc2_tsk" class="form-label sc2_field_label" id="lbl_unit_sc2_tsk">Scheda speciale</label>
+                    {{ form.sc2_tsk }}
+                    {% if form.sc2_tsk.errors %}<div class="text-danger small">{{ form.sc2_tsk.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">Pubblicato</label>
+                    <div class="form-check">
+                        {{ form.published }}
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Attribuito</label>
+                    <div class="form-check">
+                        {{ form.given_title }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- FSC Name/Surname -->
+            <div class="row fsc_container">
+                <div class="col-md-4">
+                    <label for="{{ form.fsc_name.id_for_label }}" class="form-label">{{ form.fsc_name.label }}</label>
+                    {{ form.fsc_name }}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.fsc_surname.id_for_label }}" class="form-label">{{ form.fsc_surname.label }}</label>
+                    {{ form.fsc_surname }}
+                </div>
+                <div class="col-md-1 d-flex align-items-end"></div>
+            </div>
+
+            <!-- Titolo -->
+            <div class="row mt-3">
+                <div class="col-md-10">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors }}</div>{% endif %}
+                </div>
+            </div>
+
+            <!-- Contenuto -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Contenuto</h6>
+            <div class="mb-3">
+                <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+                {{ form.content }}
+                {% if form.content.errors %}<div class="text-danger small">{{ form.content.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.extent.id_for_label }}" class="form-label">{{ form.extent.label }}</label>
+                {{ form.extent }}
+                {% if form.extent.errors %}<div class="text-danger small">{{ form.extent.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.arrangement_note.id_for_label }}" class="form-label">{{ form.arrangement_note.label }}</label>
+                {{ form.arrangement_note }}
+                {% if form.arrangement_note.errors %}<div class="text-danger small">{{ form.arrangement_note.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Segnatura -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Segnatura</h6>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.tmp_reference_number.id_for_label }}" class="form-label">{{ form.tmp_reference_number.label }}</label>
+                    {{ form.tmp_reference_number }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.tmp_reference_string.id_for_label }}" class="form-label">{{ form.tmp_reference_string.label }}</label>
+                    {{ form.tmp_reference_string }}
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="{{ form.folder_number.id_for_label }}" class="form-label">{{ form.folder_number.label }}</label>
+                    {{ form.folder_number }}
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="{{ form.file_number.id_for_label }}" class="form-label">{{ form.file_number.label }}</label>
+                    {{ form.file_number }}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.reference_number.id_for_label }}" class="form-label">{{ form.reference_number.label }}</label>
+                {{ form.reference_number }}
+                {% if form.reference_number.errors %}<div class="text-danger small">{{ form.reference_number.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Estremi cronologici -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Estremi cronologici</h6>
+            <div class="archidates-area" data-archidate-cardinality="1">
+                {{ event_formset.management_form }}
+                {% for event_form in event_formset %}
+                <div class="archidate-wrapper editing" data-record-id="{{ event_form.instance.pk|default:'' }}">
+                    <div class="archidate-inner">
+                        {{ event_form.id }}
+                        {{ event_form.content_type }}
+                        {{ event_form.object_id }}
+                        {{ event_form.DELETE }}
+
+                        <!-- Estremo cronologico iniziale -->
+                        <h6 class="fw-bold mt-3">Estremo cronologico iniziale</h6>
+                        <div class="start bound-wrapper">
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <label class="form-label">Formato data</label><br>
+                                    {% for radio in event_form.start_date_format %}
+                                    <div class="form-check form-check-inline">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <!-- Data puntuale (Y) -->
+                            <div class="archidate-format-wrapper Y active" data-bound-format="Y" data-bound="start">
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Specifica</label>
+                                        {{ event_form.start_date_spec }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Anno</label>
+                                        {{ event_form.start_date_from_year }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Mese</label>
+                                        {{ event_form.start_date_from_month }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Giorno</label>
+                                        {{ event_form.start_date_from_day }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Validità</label>
+                                        {{ event_form.start_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Data secolare (C) -->
+                            <div class="archidate-format-wrapper C inactive" data-bound-format="C" data-bound="start">
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Secolo</label>
+                                        {{ event_form.start_century }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Intervallo</label>
+                                        {{ event_form.start_century_interval }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Validità</label>
+                                        {{ event_form.start_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Luogo</label>
+                                    {{ event_form.start_date_place }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estremo cronologico finale -->
+                        <h6 class="fw-bold mt-3">Estremo cronologico finale
+                            <span class="ms-2">
+                                {{ event_form.equal_bounds }}
+                                <label for="{{ event_form.equal_bounds.id_for_label }}" class="inline">Uguale all'estremo iniziale</label>
+                            </span>
+                        </h6>
+                        <div class="end bound-wrapper">
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <label class="form-label">Formato data</label><br>
+                                    {% for radio in event_form.end_date_format %}
+                                    <div class="form-check form-check-inline">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <!-- Data puntuale (Y) -->
+                            <div class="archidate-format-wrapper Y active" data-bound-format="Y" data-bound="end">
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Specifica</label>
+                                        {{ event_form.end_date_spec }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Anno</label>
+                                        {{ event_form.end_date_from_year }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Mese</label>
+                                        {{ event_form.end_date_from_month }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Giorno</label>
+                                        {{ event_form.end_date_from_day }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Validità</label>
+                                        {{ event_form.end_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Data secolare (C) -->
+                            <div class="archidate-format-wrapper C inactive" data-bound-format="C" data-bound="end">
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Secolo</label>
+                                        {{ event_form.end_century }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Intervallo</label>
+                                        {{ event_form.end_century_interval }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Validità</label>
+                                        {{ event_form.end_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Luogo</label>
+                                    {{ event_form.end_date_place }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nota -->
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Nota</label>
+                                {{ event_form.note }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Elementi testuali SC2 -->
+            <div id="unit_sc2_textual_elements" class="row sc2_container sc2_multi_instance sc2_all mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Elementi testuali</h6>
+                    {{ sc2_textual_formset.management_form }}
+                    <div id="sc2-textual-formset">
+                        {% for form_item in sc2_textual_formset %}
+                        <div class="card mb-2 formset-item">
+                            <div class="card-body py-2">
+                                <div class="row">
+                                    <div class="col-md-10">{{ form_item.isri }}</div>
+                                    <div class="col-md-2 d-flex align-items-end">{{ form_item.DELETE }} Elimina</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Elementi visivi SC2 -->
+            <div id="unit_sc2_visual_elements" class="row sc2_container sc2_multi_instance sc2_all mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Elementi visivi</h6>
+                    {{ sc2_visual_formset.management_form }}
+                    <div id="sc2-visual-formset">
+                        {% for form_item in sc2_visual_formset %}
+                        <div class="card mb-2 formset-item">
+                            <div class="card-body py-2">
+                                <div class="row">
+                                    <div class="col-md-10">{{ form_item.stmd }}</div>
+                                    <div class="col-md-2 d-flex align-items-end">{{ form_item.DELETE }} Elimina</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Soggetto iconografico -->
+            <div class="row sc2_container sc2_all mt-3">
+                <div class="col-md-12">
+                    <label class="form-label">Soggetto iconografico (sgti)</label>
+                    {{ sc2_form.sgti }}
+                </div>
+            </div>
+
+            <!-- Autori SC2 -->
+            <div id="unit_sc2_authors" class="sc2_container sc2_multi_instance sc2_all mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Autori</h6>
+                    {{ sc2_author_formset.management_form }}
+                    <div id="sc2-author-formset">
+                        {% for form_item in sc2_author_formset %}
+                        <div class="card mb-2 formset-item">
+                            <div class="card-body py-2">
+                                <div class="row">
+                                    <div class="col-md-4">{{ form_item.autn }}</div>
+                                    <div class="col-md-3">{{ form_item.autr }}</div>
+                                    <div class="col-md-3">{{ form_item.auta }}</div>
+                                    <div class="col-md-2">{{ form_item.DELETE }} Elimina</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commissioni SC2 -->
+            <div id="unit_sc2_commissions" class="sc2_container sc2_multi_instance sc2_all mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Commissioni</h6>
+                    {{ sc2_commission_formset.management_form }}
+                    <div id="sc2-commission-formset">
+                        {% for form_item in sc2_commission_formset %}
+                        <div class="card mb-2 formset-item">
+                            <div class="card-body py-2">
+                                <div class="row">
+                                    <div class="col-md-10">{{ form_item.cmmc }}</div>
+                                    <div class="col-md-2">{{ form_item.DELETE }} Elimina</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Numero commessa (cmmr) - sc2_dt -->
+            <div class="row sc2_container sc2_dt mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Numero commessa (cmmr)</label>
+                    {{ sc2_form.cmmr }}
+                </div>
+            </div>
+
+            <!-- Luogo ripresa (lrc) - sc2_f -->
+            <div class="row sc2_container sc2_f mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Luogo ripresa (lrc)</label>
+                    {{ sc2_form.lrc }}
+                </div>
+            </div>
+
+            <!-- Data ripresa (lrd) - sc2_f -->
+            <div class="row sc2_container sc2_f mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Data ripresa (lrd)</label>
+                    {{ sc2_form.lrd }}
+                </div>
+            </div>
+
+            <!-- FSC -->
+            <div class="fsc_container mt-4">
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Fascicolo sanitario (FSC)</h6>
+
+                <div id="unit_fsc_organizations" class="row fsc_organization">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-2">Organizzazioni</h6>
+                        {{ fsc_org_formset.management_form }}
+                        {% for form_item in fsc_org_formset %}
+                        <div class="mb-2">{{ form_item.organization }} {{ form_item.DELETE }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="unit_fsc_nationalities" class="row fsc_nationality">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-2">Nazionalità</h6>
+                        {{ fsc_nationality_formset.management_form }}
+                        {% for form_item in fsc_nationality_formset %}
+                        <div class="mb-2">{{ form_item.nationality }} {{ form_item.DELETE }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="unit_fsc_codes" class="row fsc_code">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-2">Codici</h6>
+                        {{ fsc_code_formset.management_form }}
+                        {% for form_item in fsc_code_formset %}
+                        <div class="row mb-2">
+                            <div class="col-md-4">{{ form_item.code }}</div>
+                            <div class="col-md-6">{{ form_item.note }}</div>
+                            <div class="col-md-2">{{ form_item.DELETE }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="unit_fsc_opens" class="row fsc_open">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-2">Aperture</h6>
+                        {{ fsc_open_formset.management_form }}
+                        {% for form_item in fsc_open_formset %}
+                        <div class="mb-2">{{ form_item.open }} {{ form_item.note }} {{ form_item.DELETE }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="unit_fsc_closes" class="row fsc_close">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-2">Chiusure</h6>
+                        {{ fsc_close_formset.management_form }}
+                        {% for form_item in fsc_close_formset %}
+                        <div class="mb-2">{{ form_item.close }} {{ form_item.note }} {{ form_item.DELETE }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- FE Identificazione -->
+            <div id="unit_fe_identification" class="row fe_container mt-4">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-3 border-bottom pb-2">Identificazione fabbricato (FE)</h6>
+                    {{ fe_id_formset.management_form }}
+                    {% for form_item in fe_id_formset %}
+                    <div class="row mb-2">
+                        <div class="col-md-3">{{ form_item.code }}</div>
+                        <div class="col-md-2">{{ form_item.file_year }}</div>
+                        <div class="col-md-3">{{ form_item.category }}</div>
+                        <div class="col-md-3">{{ form_item.identification_class }}</div>
+                        <div class="col-md-1">{{ form_item.DELETE }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- FE Contesti -->
+            <div id="unit_fe_contexts" class="row fe_container mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Contesto</h6>
+                    {{ fe_context_formset.management_form }}
+                    {% for form_item in fe_context_formset %}
+                    <div class="row mb-2">
+                        <div class="col-md-2">{{ form_item.number }}</div>
+                        <div class="col-md-2">{{ form_item.classification }}</div>
+                        <div class="col-md-3">{{ form_item.applicant }}</div>
+                        <div class="col-md-2">{{ form_item.license_year }}</div>
+                        <div class="col-md-2">{{ form_item.DELETE }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Identificativi alternativi -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificativi alternativi</h6>
+            {{ unit_identifier_formset.management_form }}
+            <div id="unit_identifier_formset">
+                {% for form_item in unit_identifier_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.identifier.label }}</label>
+                                {{ form_item.identifier }}
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.identifier_source.label }}</label>
+                                {{ form_item.identifier_source }}
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ form.note.label }}</label>
+                                {{ form_item.note }}
+                            </div>
+                            <div class="col-md-1 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Altre segnature -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Altre segnature</h6>
+            {{ unit_other_reference_number_formset.management_form }}
+            <div id="unit_other_reference_number_formset">
+                {% for form_item in unit_other_reference_number_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.other_reference_number.label }}</label>
+                                {{ form_item.other_reference_number }}
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ form.qualifier.label }}</label>
+                                {{ form_item.qualifier }}
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ form.note.label }}</label>
+                                {{ form_item.note }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- URL -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Collegamenti</h6>
+            {{ unit_url_formset.management_form }}
+            <div id="unit_url_formset">
+                {% for form_item in unit_url_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">{{ form.url.label }}</label>
+                                {{ form_item.url }}
+                            </div>
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">{{ form.note.label }}</label>
+                                {{ form_item.note }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Identificativi -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificativi</h6>
+            {{ unit_identifier_formset.management_form }}
+            <div id="unit_identifier_formset">
+                {% for form_item in unit_identifier_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.identifier.label }}</label>
+                                {{ form_item.identifier }}
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ form.identifier_source.label }}</label>
+                                {{ form_item.identifier_source }}
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ form.note.label }}</label>
+                                {{ form_item.note }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- FE Frazionamenti particelle fondiarie -->
+            <div id="unit_fe_fract_land_parcels" class="row fe_container mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Frazionamenti particelle fondiarie</h6>
+                    {{ fe_fract_land_formset.management_form }}
+                    {% for form_item in fe_fract_land_formset %}
+                    <div class="row mb-2">
+                        <div class="col-md-4">{{ form_item.fract_land_parcel_number }}</div>
+                        <div class="col-md-4">{{ form_item.edil_parcel_number }}</div>
+                        <div class="col-md-2">{{ form_item.DELETE }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- FE Frazionamenti particelle edilizie -->
+            <div id="unit_fe_fract_edil_parcels" class="row fe_container mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Frazionamenti particelle edilizie</h6>
+                    {{ fe_fract_edil_formset.management_form }}
+                    {% for form_item in fe_fract_edil_formset %}
+                    <div class="row mb-2">
+                        <div class="col-md-4">{{ form_item.fract_edil_parcel_number }}</div>
+                        <div class="col-md-4">{{ form_item.material_portion }}</div>
+                        <div class="col-md-2">{{ form_item.DELETE }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Lingue -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Lingue</h6>
+            {{ unit_lang_formset.management_form }}
+            <div id="unit_lang_formset">
+                {% for form_item in unit_lang_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.code.label }}</label>
+                                {{ form_item.code }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

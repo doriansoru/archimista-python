@@ -1,0 +1,26 @@
+<div class="tab-pane fade" id="tab-sources" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            <h5>Fonti</h5>
+            {{ rel_custodian_source_formset.management_form }}
+            <div id="rel_custodian_source_formset">
+                {% for form in rel_custodian_source_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-10">{{ form.source }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="rel_custodian_source-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-10"><select name="rel_custodian_sources-__prefix__-source" id="id_rel_custodian_sources-__prefix__-source" class="form-select"><option value="">---------</option>{% for s in sources_list %}<option value="{{ s.pk }}">{{ s }}</option>{% endfor %}</select></div>
+                    <div class="col-md-2"><input type="checkbox" name="rel_custodian_sources-__prefix__-DELETE" id="id_rel_custodian_sources-__prefix__-DELETE"> <label for="id_rel_custodian_sources-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="rel_custodian_sources">Aggiungi fonte</a></p>
+        </div>
+    </div>
+</div>

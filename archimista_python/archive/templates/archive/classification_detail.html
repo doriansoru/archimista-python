@@ -1,0 +1,225 @@
+{% extends 'archive/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ classification }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'archive:classification_list' %}">Titolario</a></li>
+                    {% if breadcrumbs %}
+                    {% for bc in breadcrumbs %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'archive:classification_detail' bc.pk %}">{{ bc.code|default:"" }} {{ bc.name }}</a>
+                    </li>
+                    {% endfor %}
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ classification.code|default:"" }} {{ classification.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <h2>
+                <i class="fas fa-folder-open me-2"></i>
+                {% if classification.code %}{{ classification.code }} - {% endif %}{{ classification.name }}
+            </h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'archive:classification_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Torna al titolario
+            </a>
+            <a href="{% url 'archive:classification_update' classification.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i>Modifica
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="row mb-3">
+        <div class="col">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Informazioni -->
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-1"></i> Informazioni
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <th style="width: 180px;">Codice</th>
+                            <td><code>{{ classification.code|default:"—" }}</code></td>
+                        </tr>
+                        <tr>
+                            <th>Denominazione</th>
+                            <td>{{ classification.name }}</td>
+                        </tr>
+                        {% if classification.parent %}
+                        <tr>
+                            <th>Classe padre</th>
+                            <td>
+                                <a href="{% url 'archive:classification_detail' classification.parent.pk %}">
+                                    {{ classification.parent.code|default:"" }} {{ classification.parent.name }}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if classification.description %}
+                        <tr>
+                            <th>Descrizione</th>
+                            <td>{{ classification.description|linebreaksbr }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiche -->
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i> Statistiche
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border rounded p-3">
+                                <h3 class="mb-0">{{ children.count }}</h3>
+                                <small class="text-muted">Classi figlio</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3">
+                                <h3 class="mb-0">{{ classification.units.count }}</h3>
+                                <small class="text-muted">Unità classificate</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classi figlio -->
+    {% if children %}
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-sitemap me-1"></i> Classi figlio
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Codice</th>
+                                <th>Denominazione</th>
+                                <th>Unità</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for child in children %}
+                            <tr>
+                                <td><code>{{ child.code|default:"—" }}</code></td>
+                                <td>{{ child.name }}</td>
+                                <td>
+                                    {% if child.units.count > 0 %}
+                                    <span class="badge bg-primary">{{ child.units.count }}</span>
+                                    {% else %}
+                                    <span class="text-muted">0</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'archive:classification_detail' child.pk %}" class="btn btn-outline-secondary" title="Dettaglio">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'archive:classification_update' child.pk %}" class="btn btn-outline-primary" title="Modifica">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Unità classificate -->
+    {% if units %}
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-file-archive me-1"></i> Unità classificate
+                    {% if units.count >= 50 %}
+                    <a href="{% url 'archive:classification_units' classification.pk %}" class="btn btn-sm btn-outline-primary float-end">
+                        Vedi tutte ({{ classification.units.count }})
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Segnatura</th>
+                                <th>Titolo</th>
+                                <th>Fondo</th>
+                                <th>Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for unit in units %}
+                            <tr>
+                                <td><code>{{ unit.reference_number|default:"—" }}</code></td>
+                                <td>
+                                    <a href="{% url 'archive:unit_detail' unit.pk %}">{{ unit.title|truncatechars:60 }}</a>
+                                </td>
+                                <td>
+                                    {% if unit.fond %}
+                                    <a href="{% url 'archive:fond_detail' unit.fond.pk %}">{{ unit.fond.name|truncatechars:30 }}</a>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if unit.unit_type_term %}
+                                    <span class="badge bg-secondary">{{ unit.unit_type_term.term_value }}</span>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

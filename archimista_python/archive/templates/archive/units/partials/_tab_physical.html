@@ -1,0 +1,261 @@
+{% comment %}
+  Partial: Tab Descrizione fisica del form unità
+  Variabili richieste: form, unit_damage_formset,
+                       sc2_technique_formset, sc2_scale_formset, sc2_form
+{% endcomment %}
+<div class="tab-pane fade" id="physical" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Descrizione fisica</h5>
+        </div>
+        <div class="card-body">
+            <!-- Supporto (SEMPRE visibile, campo testo come Ruby) -->
+            <div class="row mb-3">
+                <div class="col-md-6 mb-3">
+                    <label for="id_unit_medium" class="form-label">Supporto</label>
+                    <input type="text" name="medium" id="id_unit_medium" class="form-control"
+                           value="{{ form.instance.medium|default:'' }}"
+                           list="medium_datalist"
+                           placeholder="Seleziona o inserisci supporto">
+                    <datalist id="medium_datalist">
+                        <!-- Opzioni di default (tutti i supporti) -->
+                        {% for term in terms.units_medium %}
+                        <option value="{{ term.term_value }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </div>
+
+            <!-- Tipo fisico + FE (nascosti se SC2 selezionato) -->
+            <div id="div_physical_type_wrapper">
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.physical_type_term.id_for_label }}" class="form-label">{{ form.physical_type_term.label }}</label>
+                        {{ form.physical_type_term }}
+                        {% if form.physical_type_term.errors %}<div class="text-danger small">{{ form.physical_type_term.errors }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div id="unit_fe_operas" class="row fe_container">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2">Opera</h6>
+                        {{ fe_opera_formset.management_form }}
+                        {% for form_item in fe_opera_formset %}
+                        <div class="row mb-2">
+                            <div class="col-md-2">{{ form_item.is_present }} Presente</div>
+                            <div class="col-md-2">{{ form_item.status }}</div>
+                            <div class="col-md-3">{{ form_item.building_name }}</div>
+                            <div class="col-md-3">{{ form_item.building_type }}</div>
+                            <div class="col-md-2">{{ form_item.DELETE }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="unit_fe_designers" class="row fe_container">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-2">Progettisti</h6>
+                        {{ fe_designer_formset.management_form }}
+                        {% for form_item in fe_designer_formset %}
+                        <div class="row mb-2">
+                            <div class="col-md-5">{{ form_item.designer_name }}</div>
+                            <div class="col-md-5">{{ form_item.designer_role }}</div>
+                            <div class="col-md-2">{{ form_item.DELETE }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="unit_fe_cadastrals" class="row fe_container">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-2">Dati catastali</h6>
+                        {{ fe_cadastral_formset.management_form }}
+                        {% for form_item in fe_cadastral_formset %}
+                        <div class="row mb-2">
+                            <div class="col-md-3">{{ form_item.cadastral_municipality }}</div>
+                            <div class="col-md-2">{{ form_item.way_code }}</div>
+                            <div class="col-md-2">{{ form_item.municipality_code }}</div>
+                            <div class="col-md-3">{{ form_item.paper_code }}</div>
+                            <div class="col-md-2">{{ form_item.DELETE }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="unit_fe_land_parcels" class="row fe_container">
+                    <div class="col-md-12">
+                        <h6 class="fw-bold mb-2">Particelle fondiarie</h6>
+                        {{ fe_land_formset.management_form }}
+                        {% for form_item in fe_land_formset %}
+                        <div class="mb-2">{{ form_item.land_parcel_number }} {{ form_item.DELETE }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tecniche SC2 -->
+            <div id="unit_sc2_techniques" class="row sc2_container sc2_multi_instance sc2_cars sc2_d sc2_dt sc2_s mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Tecniche</h6>
+                    {{ sc2_technique_formset.management_form }}
+                    <div id="sc2-technique-formset">
+                        {% for form_item in sc2_technique_formset %}
+                        <div class="card mb-2 formset-item">
+                            <div class="card-body py-2">
+                                <div class="row">
+                                    <div class="col-md-10">{{ form_item.mtct }}</div>
+                                    <div class="col-md-2">{{ form_item.DELETE }} Elimina</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Esecuzione (mtce) - sc2_dt -->
+            <div class="row sc2_container sc2_voc_ref_container sc2_dt mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Esecuzione (mtce)</label>
+                    {{ sc2_form.mtce }}
+                </div>
+            </div>
+
+            <!-- Scale SC2 -->
+            <div id="unit_sc2_scales" class="row sc2_container sc2_multi_instance sc2_cars sc2_dt mt-3">
+                <div class="col-md-12">
+                    <h6 class="fw-bold mb-2">Scale</h6>
+                    {{ sc2_scale_formset.management_form }}
+                    {% for form_item in sc2_scale_formset %}
+                    <div class="mb-2">{{ form_item.sca }} {{ form_item.DELETE }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Tipo rappresentazione (sdtt) -->
+            <div class="row sc2_container sc2_voc_ref_container sc2_cars sc2_dt mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Tipo rappresentazione (sdtt)</label>
+                    {{ sc2_form.sdtt }}
+                </div>
+            </div>
+
+            <!-- Rappresentazione tematica (sdts) - sc2_cars -->
+            <div class="row sc2_container sc2_voc_ref_container sc2_cars mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Rappresentazione tematica (sdts)</label>
+                    {{ sc2_form.sdts }}
+                </div>
+            </div>
+
+            <!-- Numero tavola (dpgf) - sc2_dt -->
+            <div class="row sc2_container sc2_dt mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Numero tavola (dpgf)</label>
+                    {{ sc2_form.dpgf }}
+                </div>
+            </div>
+
+            <!-- Misure -->
+            <div class="row sc2_container sc2_all mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Altezza (misa)</label>
+                    {{ sc2_form.misa }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Larghezza (misl)</label>
+                    {{ sc2_form.misl }}
+                </div>
+            </div>
+
+            <!-- Orientamento (ort) - sc2_cars -->
+            <div class="row sc2_container sc2_cars mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Orientamento (ort)</label>
+                    {{ sc2_form.ort }}
+                </div>
+            </div>
+
+            <!-- Descrizione fisica textarea -->
+            <div class="mb-3 mt-4">
+                <label for="{{ form.physical_description.id_for_label }}" class="form-label">{{ form.physical_description.label }}</label>
+                {{ form.physical_description }}
+                {% if form.physical_description.errors %}<div class="text-danger small">{{ form.physical_description.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Documentazione collegata -->
+            <div class="mb-3">
+                <label for="{{ form.related_materials.id_for_label }}" class="form-label">{{ form.related_materials.label }}</label>
+                {{ form.related_materials }}
+                {% if form.related_materials.errors %}<div class="text-danger small">{{ form.related_materials.errors }}</div>{% endif %}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.preservation_term.id_for_label }}" class="form-label">{{ form.preservation_term.label }}</label>
+                    {{ form.preservation_term }}
+                    {% if form.preservation_term.errors %}<div class="text-danger small">{{ form.preservation_term.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.preservation_note.id_for_label }}" class="form-label">{{ form.preservation_note.label }}</label>
+                    {{ form.preservation_note }}
+                    {% if form.preservation_note.errors %}<div class="text-danger small">{{ form.preservation_note.errors }}</div>{% endif %}
+                </div>
+            </div>
+
+            <!-- Restauri -->
+            <div class="mb-3">
+                <label for="{{ form.restoration.id_for_label }}" class="form-label">{{ form.restoration.label }}</label>
+                {{ form.restoration }}
+                {% if form.restoration.errors %}<div class="text-danger small">{{ form.restoration.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Contenitore fisico -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Contenitore fisico</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.physical_container_type.id_for_label }}" class="form-label">{{ form.physical_container_type.label }}</label>
+                    {{ form.physical_container_type }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.physical_container_title.id_for_label }}" class="form-label">{{ form.physical_container_title.label }}</label>
+                    {{ form.physical_container_title }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.physical_container_number.id_for_label }}" class="form-label">{{ form.physical_container_number.label }}</label>
+                    {{ form.physical_container_number }}
+                </div>
+            </div>
+
+            <!-- Appunti di servizio -->
+            <div class="mb-3">
+                <label for="{{ form.note.id_for_label }}" class="form-label">{{ form.note.label }}</label>
+                {{ form.note }}
+                {% if form.note.errors %}<div class="text-danger small">{{ form.note.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Danni -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Danni</h6>
+            {{ unit_damage_formset.management_form }}
+            <div id="unit_damage_formset">
+                {% for form_item in unit_damage_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">{{ form.code.label }}</label>
+                                {{ form_item.code }}
+                            </div>
+                            <div class="col-md-5 mb-2">
+                                <label class="form-label">{{ form.note.label }}</label>
+                                {{ form_item.note }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

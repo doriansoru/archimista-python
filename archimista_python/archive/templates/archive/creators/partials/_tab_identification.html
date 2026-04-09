@@ -1,0 +1,176 @@
+{% comment %}
+Partial: Tab Identificazione del Soggetto Produttore
+Required context variables: creator_form, preferred_name_form, creator_names_formset,
+  creator_urls_formset, creator_identifiers_formset, creator_legal_statuses_formset, terms
+{% endcomment %}
+<div class="tab-pane fade show active" id="identification" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            <!-- Tipo, Tipo corporate, Pubblicato -->
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label for="{{ creator_form.creator_type.id_for_label }}" class="form-label">Tipo</label>
+                    {{ creator_form.creator_type }}
+                </div>
+                <div class="col-md-5" id="corporate_type_wrapper" style="display:none;">
+                    <label for="{{ creator_form.creator_corporate_type.id_for_label }}" class="form-label">Tipo di ente</label>
+                    {{ creator_form.creator_corporate_type }}
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">Pubblicato</label>
+                    <div class="form-check">
+                        {{ creator_form.published }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Denominazione (Ente/Famiglia) -->
+            <div id="preferred_name_cf" style="display:none;">
+                <h5 class="row-header">Denominazione</h5>
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Denominazione *</label>
+                        {{ preferred_name_form.name }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Note</label>
+                        {{ preferred_name_form.note }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nome e Cognome (Persona) -->
+            <div id="preferred_name_p" style="display:none;">
+                <h5 class="row-header">Denominazione</h5>
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label">Nome *</label>
+                        {{ preferred_name_form.first_name }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Cognome *</label>
+                        {{ preferred_name_form.last_name }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Note</label>
+                        {{ preferred_name_form.note }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Altre denominazioni -->
+            <h5 class="row-header mt-3">Altre denominazioni</h5>
+            {{ creator_names_formset.management_form }}
+            <div id="creator_names_formset">
+                {% for form in creator_names_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-3">{{ form.name }}</div>
+                    <div class="col-md-3">{{ form.qualifier_term }}{{ form.qualifier }}</div>
+                    <div class="col-md-4">{{ form.note }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="creator_names-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-3"><input type="text" name="creator_names-__prefix__-name" id="id_creator_names-__prefix__-name" class="form-control"></div>
+                    <div class="col-md-3">
+                        <select name="creator_names-__prefix__-qualifier_term" id="id_creator_names-__prefix__-qualifier_term" class="form-select">
+                            <option value="">-- Seleziona --</option>
+                            {% for term in terms.creator_names_qualifier %}
+                            <option value="{{ term.term_value }}">{{ term.term_value }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="creator_names-__prefix__-qualifier" id="id_creator_names-__prefix__-qualifier">
+                    </div>
+                    <div class="col-md-4"><input type="text" name="creator_names-__prefix__-note" id="id_creator_names-__prefix__-note" class="form-control"></div>
+                    <div class="col-md-2"><input type="checkbox" name="creator_names-__prefix__-DELETE" id="id_creator_names-__prefix__-DELETE"> <label for="id_creator_names-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="creator_names">Aggiungi denominazione</a></p>
+
+            <!-- URL -->
+            <h5 class="row-header mt-3">URL</h5>
+            {{ creator_urls_formset.management_form }}
+            <div id="creator_urls_formset">
+                {% for form in creator_urls_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-6">{{ form.url }}</div>
+                    <div class="col-md-4">{{ form.note }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="creator_urls-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-6"><input type="url" name="creator_urls-__prefix__-url" id="id_creator_urls-__prefix__-url" class="form-control"></div>
+                    <div class="col-md-4"><input type="text" name="creator_urls-__prefix__-note" id="id_creator_urls-__prefix__-note" class="form-control"></div>
+                    <div class="col-md-2"><input type="checkbox" name="creator_urls-__prefix__-DELETE" id="id_creator_urls-__prefix__-DELETE"> <label for="id_creator_urls-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="creator_urls">Aggiungi URL</a></p>
+
+            <!-- Identificativi -->
+            <h5 class="row-header mt-3">Identificativi</h5>
+            {{ creator_identifiers_formset.management_form }}
+            <div id="creator_identifiers_formset">
+                {% for form in creator_identifiers_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-3">{{ form.identifier }}</div>
+                    <div class="col-md-3">{{ form.identifier_source }}</div>
+                    <div class="col-md-4">{{ form.note }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="creator_identifiers-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-3"><input type="text" name="creator_identifiers-__prefix__-identifier" id="id_creator_identifiers-__prefix__-identifier" class="form-control"></div>
+                    <div class="col-md-3"><input type="text" name="creator_identifiers-__prefix__-identifier_source" id="id_creator_identifiers-__prefix__-identifier_source" class="form-control"></div>
+                    <div class="col-md-4"><input type="text" name="creator_identifiers-__prefix__-note" id="id_creator_identifiers-__prefix__-note" class="form-control"></div>
+                    <div class="col-md-2"><input type="checkbox" name="creator_identifiers-__prefix__-DELETE" id="id_creator_identifiers-__prefix__-DELETE"> <label for="id_creator_identifiers-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="creator_identifiers">Aggiungi identificativo</a></p>
+
+            <!-- Residenza -->
+            <div class="mb-3 mt-3">
+                <label for="{{ creator_form.residence.id_for_label }}" class="form-label">Sede</label>
+                {{ creator_form.residence }}
+            </div>
+
+            <!-- Condizione giuridica -->
+            <h5 class="row-header mt-3">Condizione giuridica</h5>
+            {{ creator_legal_statuses_formset.management_form }}
+            <div id="creator_legal_statuses_formset">
+                {% for form in creator_legal_statuses_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-4">{{ form.legal_status }}</div>
+                    <div class="col-md-6">{{ form.note }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="creator_legal_statuses-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-4"><input type="text" name="creator_legal_statuses-__prefix__-legal_status" id="id_creator_legal_statuses-__prefix__-legal_status" class="form-control"></div>
+                    <div class="col-md-6"><textarea name="creator_legal_statuses-__prefix__-note" id="id_creator_legal_statuses-__prefix__-note" class="form-control" rows="2"></textarea></div>
+                    <div class="col-md-2"><input type="checkbox" name="creator_legal_statuses-__prefix__-DELETE" id="id_creator_legal_statuses-__prefix__-DELETE"> <label for="id_creator_legal_statuses-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="creator_legal_statuses">Aggiungi condizione giuridica</a></p>
+        </div>
+    </div>
+</div>

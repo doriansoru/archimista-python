@@ -1,0 +1,560 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}{{ fond.name }} - Archimista{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Fondi</a></li>
+        <li class="breadcrumb-item active">{{ fond.name }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="display-6">{{ fond.name }}</h1>
+    <div>
+        <div class="btn-group btn-group-sm">
+            <a href="{% url 'archive:fond_digital_object_list' fond_id=fond.pk %}" class="btn btn-outline-info" title="Oggetti digitali">
+                <i class="fas fa-images"></i> <span class="d-none d-md-inline">Oggetti digitali{% if fond.digital_objects.count %} ({{ fond.digital_objects.count }}){% endif %}</span>
+            </a>
+            <a href="{% url 'archive:fond_create' %}?parent_id={{ fond.pk }}" class="btn btn-outline-success" title="Aggiungi serie o sottofondo">
+                <i class="fas fa-folder-plus"></i> <span class="d-none d-md-inline">Aggiungi serie</span>
+            </a>
+            <a href="{% url 'archive:fond_update' fond.pk %}" class="btn btn-outline-primary" title="Modifica">
+                <i class="fas fa-edit"></i>
+            </a>
+            <a href="{% url 'archive:fond_delete' fond.pk %}" class="btn btn-outline-danger" title="Elimina">
+                <i class="fas fa-trash"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4" id="fondDetailTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="detail-desc-tab" data-bs-toggle="tab" data-bs-target="#detail-desc" type="button" role="tab">1. Descrizione</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="detail-info-tab" data-bs-toggle="tab" data-bs-target="#detail-info" type="button" role="tab">2. Altre informazioni</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="detail-access-tab" data-bs-toggle="tab" data-bs-target="#detail-access" type="button" role="tab">3. Accesso</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="detail-relations-tab" data-bs-toggle="tab" data-bs-target="#detail-relations" type="button" role="tab">4. Relazioni</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="detail-sources-tab" data-bs-toggle="tab" data-bs-target="#detail-sources" type="button" role="tab">5. Fonti</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="detail-editors-tab" data-bs-toggle="tab" data-bs-target="#detail-editors" type="button" role="tab">6. Compilatori</button>
+    </li>
+    {% if events %}
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="detail-dates-tab" data-bs-toggle="tab" data-bs-target="#detail-dates" type="button" role="tab">Estremi cronologici</button>
+    </li>
+    {% endif %}
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="fondDetailTabsContent">
+
+    <!-- 1. DESCRIZIONE -->
+    <div class="tab-pane fade show active" id="detail-desc" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">Descrizione</h5></div>
+            <div class="card-body">
+                <!-- Contesto -->
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Contesto</h6>
+                {% if fond.parent %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Fondo padre:</div>
+                    <div class="col-sm-9"><a href="{% url 'archive:fond_detail' fond.parent.pk %}">{{ fond.parent.name }}</a></div>
+                </div>
+                {% endif %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Tipologia:</div>
+                    <div class="col-sm-9">{{ fond.fond_type_term.term_value|default:fond.fond_type|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Pubblicato:</div>
+                    <div class="col-sm-9">
+                        {% if fond.published %}<span class="badge bg-success">Sì</span>
+                        {% else %}<span class="badge bg-secondary">No</span>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Identificazione -->
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificazione</h6>
+                {% if fond.length %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Lunghezza (ml):</div>
+                    <div class="col-sm-9">{{ fond.length }}</div>
+                </div>
+                {% endif %}
+                {% if fond.extent %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Entità:</div>
+                    <div class="col-sm-9">{{ fond.extent }}</div>
+                </div>
+                {% endif %}
+
+                <!-- Nomi alternativi -->
+                {% if fond.fond_names.exists %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Nomi alternativi</h6>
+                <ul class="list-unstyled">
+                    {% for n in fond.fond_names.all %}
+                    <li><strong>{{ n.name }}</strong>
+                        {% if n.qualifier %} ({{ n.qualifier }}){% endif %}
+                        {% if n.preferred %} <span class="badge bg-info">Preferito</span>{% endif %}
+                        {% if n.patronymic %} — Patronimico: {{ n.patronymic }}{% endif %}
+                        {% if n.nickname %} — Nickname: {{ n.nickname }}{% endif %}
+                        {% if n.note %} — {{ n.note }}{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <!-- Identificativi -->
+                {% if fond.fond_identifiers.exists %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificativi</h6>
+                <ul class="list-unstyled">
+                    {% for ident in fond.fond_identifiers.all %}
+                    <li><strong>{{ ident.identifier }}</strong>
+                        {% if ident.identifier_source %} ({{ ident.identifier_source }}){% endif %}
+                        {% if ident.note %} — {{ ident.note }}{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <!-- Lingue -->
+                {% if fond.fond_langs.exists %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Lingue</h6>
+                <ul class="list-unstyled">
+                    {% for lang in fond.fond_langs.all %}<li>{{ lang.code }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+
+                <!-- Abstract -->
+                {% if fond.abstract %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Abstract</h6>
+                <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ fond.abstract }}</div>
+                {% endif %}
+
+                <!-- Descrizione -->
+                {% if fond.description %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Descrizione</h6>
+                <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ fond.description }}</div>
+                {% endif %}
+
+                <!-- Storia archivistica -->
+                {% if fond.history %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Storia archivistica</h6>
+                <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ fond.history }}</div>
+                {% endif %}
+
+                <!-- Nota dell'archivista -->
+                {% if fond.arrangement_note %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Nota dell'archivista</h6>
+                <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ fond.arrangement_note }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ALTRE INFORMAZIONI -->
+    <div class="tab-pane fade" id="detail-info" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">Altre informazioni</h5></div>
+            <div class="card-body">
+                {% if fond.related_materials %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Materiali correlati:</div>
+                    <div class="col-sm-9">{{ fond.related_materials }}</div>
+                </div>
+                {% endif %}
+                {% if fond.type_materials %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Tipo materiali:</div>
+                    <div class="col-sm-9">{{ fond.type_materials }}</div>
+                </div>
+                {% endif %}
+                {% if fond.note %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Note:</div>
+                    <div class="col-sm-9">{{ fond.note }}</div>
+                </div>
+                {% endif %}
+
+                <!-- Possessori -->
+                {% if fond.fond_owners.exists %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Possessori</h6>
+                <ul class="list-unstyled">
+                    {% for owner in fond.fond_owners.all %}<li>{{ owner.owner }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+
+                <!-- URL -->
+                {% if fond.fond_urls.exists %}
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Collegamenti</h6>
+                <ul class="list-unstyled">
+                    {% for u in fond.fond_urls.all %}
+                    <li><a href="{{ u.url }}" target="_blank">{{ u.url }}</a> {% if u.note %}- {{ u.note }}{% endif %}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ACCESSO -->
+    <div class="tab-pane fade" id="detail-access" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">Accesso</h5></div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Condizione di accesso:</div>
+                    <div class="col-sm-9">{{ fond.access_condition_term.term_value|default:fond.access_condition|default:"-" }}</div>
+                </div>
+                {% if fond.access_condition_note %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Nota accesso:</div>
+                    <div class="col-sm-9">{{ fond.access_condition_note }}</div>
+                </div>
+                {% endif %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Condizione d'uso:</div>
+                    <div class="col-sm-9">{{ fond.use_condition_term.term_value|default:fond.use_condition|default:"-" }}</div>
+                </div>
+                {% if fond.use_condition_note %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Nota uso:</div>
+                    <div class="col-sm-9">{{ fond.use_condition_note }}</div>
+                </div>
+                {% endif %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Stato di conservazione:</div>
+                    <div class="col-sm-9">{{ fond.preservation_term.term_value|default:fond.preservation|default:"-" }}</div>
+                </div>
+                {% if fond.preservation_note %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Nota conservazione:</div>
+                    <div class="col-sm-9">{{ fond.preservation_note }}</div>
+                </div>
+                {% endif %}
+                {% if fond.description_type_term %}
+                <div class="row mb-3">
+                    <div class="col-sm-3 fw-bold">Tipo descrizione:</div>
+                    <div class="col-sm-9">{{ fond.description_type_term.term_value }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. RELAZIONI -->
+    <div class="tab-pane fade" id="detail-relations" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">Relazioni</h5></div>
+            <div class="card-body">
+                <!-- Voci di indice -->
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Voci di indice</h6>
+                {% if fond.relfondheading_set.exists %}
+                <ul class="list-unstyled">
+                    {% for rel in fond.relfondheading_set.all %}<li>{{ rel.heading }}</li>{% endfor %}
+                </ul>
+                {% else %}<p class="text-muted">Nessuna voce di indice collegata</p>{% endif %}
+
+                <!-- Forme documentarie -->
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Forme documentarie</h6>
+                {% if fond.relfonddocumentform_set.exists %}
+                <ul class="list-unstyled">
+                    {% for rel in fond.relfonddocumentform_set.all %}<li>{{ rel.document_form }}</li>{% endfor %}
+                </ul>
+                {% else %}<p class="text-muted">Nessuna forma documentaria collegata</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. FONTI -->
+    <div class="tab-pane fade" id="detail-sources" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">Fonti</h5></div>
+            <div class="card-body">
+                {% if fond.relfondsource_set.exists %}
+                <ul class="list-unstyled">
+                    {% for rel in fond.relfondsource_set.all %}<li>{{ rel.source }}</li>{% endfor %}
+                </ul>
+                {% else %}<p class="text-muted">Nessuna fonte collegata</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. COMPILATORI -->
+    <div class="tab-pane fade" id="detail-editors" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">Compilatori</h5></div>
+            <div class="card-body">
+                {% if fond.fond_editors.exists %}
+                <table class="table table-striped">
+                    <thead><tr><th>Nome</th><th>Qualificatore</th><th>Tipo compilazione</th><th>Data</th></tr></thead>
+                    <tbody>
+                        {% for editor in fond.fond_editors.all %}
+                        <tr>
+                            <td>{{ editor.name|default:"-" }}</td>
+                            <td>{{ editor.qualifier|default:"-" }}</td>
+                            <td>{{ editor.editing_type|default:"-" }}</td>
+                            <td>{{ editor.edited_at|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}<p class="text-muted">Nessun compilatore registrato</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ESTREMI CRONOLOGICI -->
+    {% if events %}
+    <div class="tab-pane fade" id="detail-dates" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">Estremi cronologici</h5></div>
+            <div class="card-body">
+                {% for event in events %}
+                <div class="mb-3 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div class="d-flex justify-content-between">
+                        <strong>
+                            {% if event.start_date_display and event.end_date_display %}
+                                {{ event.start_date_display }} – {{ event.end_date_display }}
+                            {% elif event.start_date_display %}
+                                {{ event.start_date_display }}
+                            {% elif event.end_date_display %}
+                                {{ event.end_date_display }}
+                            {% else %}
+                                Data non specificata
+                            {% endif %}
+                        </strong>
+                        {% if event.preferred %}<span class="badge bg-success">Preferito</span>{% endif %}
+                    </div>
+                    {% if event.event_type %}
+                    <div class="text-muted small">Tipo: {{ event.event_type }}</div>
+                    {% endif %}
+                    {% if event.start_date_spec or event.start_date_valid %}
+                    <div class="small">
+                        {% if event.start_date_spec %}<span class="badge bg-secondary me-1">{{ event.start_date_spec }}</span>{% endif %}
+                        {% if event.start_date_valid %}<span class="badge bg-info me-1">{{ event.start_date_valid }}</span>{% endif %}
+                        {% if event.end_date_spec %}<span class="badge bg-secondary me-1">{{ event.end_date_spec }}</span>{% endif %}
+                        {% if event.end_date_valid %}<span class="badge bg-info me-1">{{ event.end_date_valid }}</span>{% endif %}
+                    </div>
+                    {% endif %}
+                    {% if event.start_date_place or event.end_date_place %}
+                    <div class="small text-muted">
+                        {% if event.start_date_place %}Luogo inizio: {{ event.start_date_place }}{% endif %}
+                        {% if event.end_date_place %}{% if event.start_date_place %} | {% endif %}Luogo fine: {{ event.end_date_place }}{% endif %}
+                    </div>
+                    {% endif %}
+                    {% if event.note %}
+                    <div class="small text-muted">Nota: {{ event.note }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Struttura unità d'archivio -->
+<div class="card shadow-sm border-0 mb-5">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Struttura unità d'archivio</span>
+        <div>
+            <button id="btn-mass-classify" class="btn btn-sm btn-outline-light disabled" data-bs-toggle="modal" data-bs-target="#mass-classify-modal">
+                <i class="bi bi-folder"></i> Classifica selezionate
+            </button>
+            <a href="{% url 'archive:unit_create' %}?fond={{ fond.pk }}" class="btn btn-sm btn-success ms-1">+ Aggiungi Unità</a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if fond.children.exists %}
+        <div class="card-body bg-light border-bottom">
+            <h6 class="mb-2 fw-bold text-muted"><i class="bi bi-folder2-open"></i> Serie e sottofondi</h6>
+            <ul class="list-unstyled mb-0">
+                {% for child in fond.children.all %}
+                <li class="py-1">
+                    <a href="{% url 'archive:fond_detail' child.pk %}" class="text-decoration-none fw-medium">
+                        📁 {{ child.name|default:"Senza nome" }}
+                    </a>
+                    <span class="text-muted small ms-2">({{ child.units.count }} unità)</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <div class="list-group list-group-flush">
+            {% for unit in fond.units.all %}
+            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <input type="checkbox" class="unit-checkbox form-check-input" value="{{ unit.pk }}" data-unit-title="{{ unit.title|default:'Senza titolo' }}">
+                    <div>
+                        <h6 class="mb-0 fw-bold">{{ unit.title|default:"Senza titolo" }}</h6>
+                        <small class="text-muted">{{ unit.unit_type|default:"Unità" }} | {{ unit.reference_number|default:"No segnatura" }}</small>
+                    </div>
+                </div>
+                <div class="btn-group btn-group-sm">
+                    <a href="{% url 'archive:unit_detail' unit.pk %}" class="btn btn-outline-secondary" title="Dettaglio">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{% url 'archive:unit_update' unit.pk %}" class="btn btn-outline-primary" title="Modifica">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'archive:unit_delete' unit.pk %}" class="btn btn-outline-danger" title="Elimina">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="p-4 text-center text-muted fst-italic">
+                Nessuna unità registrata per questo fondo.
+                {% if fond.children.exists %}
+                    Vedi le <a href="#serie-sottofondi" class="alert-link">serie e i sottofondi</a> qui sotto.
+                {% else %}
+                    <a href="{% url 'archive:unit_create' %}?fond={{ fond.pk }}" class="alert-link">Aggiungine una ora</a>.
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Modale Classificazione di massa -->
+<div class="modal fade" id="mass-classify-modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-folder"></i> Classifica unità selezionate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small">Seleziona il fondo di destinazione per le unità selezionate:</p>
+                <div id="classify-tree" data-root-fond-id="{{ fond.pk }}" class="border rounded p-3" style="height: 400px; overflow-y: auto;"></div>
+                <div id="classify-selected-info" class="mt-2 small text-muted"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" id="confirm-classify" class="btn btn-primary">Classifica</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    // Abilita/disabilita pulsante classifica in base alle checkbox selezionate
+    var $checkboxes = $('.unit-checkbox');
+    var $classifyBtn = $('#btn-mass-classify');
+
+    $checkboxes.on('change', function() {
+        var checkedCount = $checkboxes.filter(':checked').length;
+        if (checkedCount > 0) {
+            $classifyBtn.removeClass('disabled').prop('disabled', false);
+            $('#classify-selected-info').text(checkedCount + ' unità selezionate');
+        } else {
+            $classifyBtn.addClass('disabled').prop('disabled', true);
+            $('#classify-selected-info').text('');
+        }
+    });
+
+    // Inizializza albero di classificazione quando si apre il modale
+    $('#mass-classify-modal').on('shown.bs.modal', function () {
+        var $tree = $('#classify-tree');
+        if ($tree.data('jstree')) return; // Già inizializzato
+
+        $tree.jstree({
+            'core': {
+                'data': {
+                    'url': function (node) {
+                        return node.id === '#' ?
+                            "{% url 'archive:tree_data_root' %}" :
+                            "{% url 'archive:tree_data_children_fonds_only' 'NODE_ID' %}".replace('NODE_ID', node.id);
+                    },
+                    'data': function (node) {
+                        return { 'id': node.id };
+                    }
+                },
+                'themes': { 'name': 'default', 'dots': true, 'icons': true },
+                'multiple': false
+            },
+            'types': {
+                'fond': { 'icon': 'bi bi-folder-fill text-warning' }
+            },
+            'plugins': ['types', 'ui']
+        });
+    });
+
+    // Conferma classificazione
+    $('#confirm-classify').on('click', function() {
+        var $tree = $('#classify-tree');
+        var selected = $tree.jstree('get_selected');
+        if (!selected || selected.length === 0) {
+            alert('Seleziona un fondo di destinazione');
+            return;
+        }
+
+        var newFondId = selected[0].replace('fond_', '');
+        var recordIds = $checkboxes.filter(':checked').map(function() {
+            return $(this).val();
+        }).get();
+
+        if (recordIds.length === 0) {
+            alert('Nessuna unità selezionata');
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Classifica...');
+
+        $.ajax({
+            url: "{% url 'archive:units_classify' %}",
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                record_ids: recordIds,
+                new_fond_id: newFondId
+            }),
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert(response.message || 'Classificazione completata');
+                    location.reload();
+                } else {
+                    alert('Errore: ' + (response.message || 'Classificazione fallita'));
+                    $btn.prop('disabled', false).text('Classifica');
+                }
+            },
+            error: function() {
+                alert('Errore di comunicazione con il server');
+                $btn.prop('disabled', false).text('Classifica');
+            }
+        });
+    });
+});
+</script>
+
+<!-- Sidebar -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm border-0 mb-4 bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Azioni</h5>
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'archive:fond_update' fond.pk %}" class="btn btn-sm btn-outline-primary">✏️ Modifica</a>
+                    <a href="{% url 'archive:report_inventory' fond.pk %}" class="btn btn-sm btn-info">📋 Inventario completo (PDF/RTF)</a>
+                    <a href="{% url 'archive:fond_export_aef' fond.pk %}" class="btn btn-sm btn-success">📦 Esporta AEF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

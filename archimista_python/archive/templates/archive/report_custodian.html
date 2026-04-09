@@ -1,0 +1,90 @@
+{% extends "archive/base.html" %}
+
+{% block title %}Report: {{ custodian.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'archive:report_index' %}">Report</a></li>
+            <li class="breadcrumb-item active">{{ display_name }}</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">Report: {{ display_name }}</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ total_fonds }}</h3>
+                    <p class="text-muted mb-0">Fondi conservati</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ total_units }}</h3>
+                    <p class="text-muted mb-0">Unità archivistiche</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if accessibility or services %}
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Informazioni sull'accessibilità</h5>
+        </div>
+        <div class="card-body">
+            {% if accessibility %}
+            <div class="mb-3">
+                <strong>Accessibilità:</strong>
+                <p>{{ accessibility|linebreaks }}</p>
+            </div>
+            {% endif %}
+            {% if services %}
+            <div>
+                <strong>Servizi:</strong>
+                <p>{{ services|linebreaks }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Fondi conservati</h5>
+        </div>
+        <div class="card-body">
+            {% if fonds %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Fondo</th>
+                        <th>Unità</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in fonds %}
+                    <tr>
+                        <td>{{ item.fond.name|default:"Senza nome" }}</td>
+                        <td>{{ item.unit_count }}</td>
+                        <td>
+                            <a href="{% url 'archive:fond_detail' item.fond.id %}" class="btn btn-sm btn-outline-primary">Vai al fondo</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">Nessun fondo collegato a questo soggetto conservatore.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

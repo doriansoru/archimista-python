@@ -1,0 +1,336 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ action }} - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ action }}</h2>
+    <a href="{% url 'archive:source_list' %}" class="btn btn-sm btn-secondary">&larr; Torna alle fonti</a>
+</div>
+
+{% if form.errors or url_formset.errors %}
+<div class="alert alert-danger">
+    <strong>Errore:</strong> correggi i campi evidenziati.
+    {{ form.errors }}
+    {{ url_formset.errors }}
+</div>
+{% endif %}
+
+<form method="post" id="source-form">
+    {% csrf_token %}
+
+    <div class="tabbable mb-4">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#tab-description" data-bs-toggle="tab">Descrizione</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#tab-relations" data-bs-toggle="tab">Relazioni</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tab-content">
+        <!-- Tab 1: Descrizione -->
+        <div class="tab-pane active" id="tab-description">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <!-- Tipologia -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.source_type_code.label }} <span class="text-danger">*</span></label>
+                        {{ form.source_type_code }}
+                        {% if form.source_type_code.errors %}
+                        <div class="text-danger small">{{ form.source_type_code.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tipologia specifica -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.source_subtype_code.label }}</label>
+                        {{ form.source_subtype_code }}
+                    </div>
+
+                    <!-- Sigla (obbligatorio) -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.short_title.label }} <span class="text-danger">*</span></label>
+                        {{ form.short_title }}
+                        {% if form.short_title.errors %}
+                        <div class="text-danger small">{{ form.short_title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Autore -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.author.label }}</label>
+                        {{ form.author }}
+                    </div>
+
+                    <!-- Titolo (obbligatorio) -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.title.label }} <span class="text-danger">*</span></label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger small">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Curatore -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.editor.label }}</label>
+                        {{ form.editor }}
+                    </div>
+
+                    <!-- Luogo di pubblicazione -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.place.label }}</label>
+                        {{ form.place }}
+                    </div>
+
+                    <!-- Editore -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.publisher.label }}</label>
+                        {{ form.publisher }}
+                    </div>
+
+                    <!-- Data di pubblicazione -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.date_string.label }}</label>
+                        {{ form.date_string }}
+                    </div>
+
+                    <hr />
+
+                    <!-- Validità dello strumento -->
+                    <div class="mb-3 form-check">
+                        {{ form.finding_aid_valid }}
+                        <label class="form-check-label" for="{{ form.finding_aid_valid.id_for_label }}">
+                            {{ form.finding_aid_valid.label }}
+                        </label>
+                    </div>
+
+                    <!-- Edito? -->
+                    <div class="mb-3 form-check">
+                        {{ form.finding_aid_published }}
+                        <label class="form-check-label" for="{{ form.finding_aid_published.id_for_label }}">
+                            {{ form.finding_aid_published.label }}
+                        </label>
+                    </div>
+
+                    <hr />
+
+                    <!-- Titolo correlato -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.related_item.label }}</label>
+                        {{ form.related_item }}
+                        <div class="form-text" style="font-size:12px; color: #999">Titolo del libro correlato o della rivista</div>
+                    </div>
+
+                    <!-- Note titolo correlato -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.related_item_specs.label }}</label>
+                        {{ form.related_item_specs }}
+                    </div>
+
+                    <hr />
+
+                    <!-- Abstract -->
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.abstract.label }}</label>
+                        {{ form.abstract }}
+                    </div>
+
+                    <!-- URL -->
+                    <div id="url_formset" class="mt-4">
+                        <h5 class="row-header">Collegamenti</h5>
+                        <div class="row row-labels mb-2">
+                            <div class="col-5">URL</div>
+                            <div class="col-5">Nota</div>
+                            <div class="col-2"></div>
+                        </div>
+                        {{ url_formset.management_form }}
+                        {% for form_item in url_formset %}
+                        <div class="row mb-2 align-items-center url-formset-row">
+                            <div class="col-5">{{ form_item.url }}</div>
+                            <div class="col-5">{{ form_item.note }}</div>
+                            <div class="col-2">
+                                {% if form_item.id %}{{ form_item.id }}{% endif %}
+                                {% if form_item.DELETE %}
+                                <div class="form-check">
+                                    {{ form_item.DELETE }}
+                                    <label class="form-check-label small">Elimina</label>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <button type="button" class="btn btn-sm btn-link add-formset-link" data-prefix="url">Aggiungi URL</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Relazioni -->
+        <div class="tab-pane" id="tab-relations">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted">
+                        Le relazioni con complessi archivistici, soggetti produttori e soggetti conservatori
+                        si gestiscono dalle rispettive schede (tab "Fonti").
+                    </p>
+                    {% if source %}
+                    <dl>
+                        <dt>Complessi archivistici collegati:</dt>
+                        <dd>
+                            {% if source.rel_fond_sources.all %}
+                            <ul>
+                                {% for rel in source.rel_fond_sources.all %}
+                                <li><a href="{% url 'archive:fond_detail' rel.fond.pk %}">{{ rel.fond.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <span class="text-muted">Nessun complesso collegato.</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt>Soggetti produttori collegati:</dt>
+                        <dd>
+                            {% if source.rel_creator_sources.all %}
+                            <ul>
+                                {% for rel in source.rel_creator_sources.all %}
+                                <li><a href="{% url 'archive:creator_detail' rel.creator.pk %}">{{ rel.creator.display_name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <span class="text-muted">Nessun soggetto collegato.</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt>Soggetti conservatori collegati:</dt>
+                        <dd>
+                            {% if source.rel_custodian_sources.all %}
+                            <ul>
+                                {% for rel in source.rel_custodian_sources.all %}
+                                <li><a href="{% url 'archive:custodian_detail' rel.custodian.pk %}">{{ rel.custodian.display_name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <span class="text-muted">Nessun soggetto collegato.</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                    {% else %}
+                    <p class="text-muted">Salva la scheda per gestire le relazioni.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Salva</button>
+        <a href="{% url 'archive:source_list' %}" class="btn btn-secondary">Annulla</a>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Dynamic subtype dropdown
+    const subtypesData = {{ source_subtypes_json|safe }};
+    const typeSelect = document.getElementById('{{ form.source_type_code.id_for_label }}');
+    const subtypeSelect = document.getElementById('{{ form.source_subtype_code.id_for_label }}');
+
+    function updateSubtypes() {
+        const parentCode = parseInt(typeSelect.value);
+        const subtypes = subtypesData[parentCode] || [];
+
+        // Clear existing options
+        subtypeSelect.innerHTML = '';
+
+        // Add blank option
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = '---';
+        subtypeSelect.appendChild(blank);
+
+        // Add subtype options
+        subtypes.forEach(function(item) {
+            const opt = document.createElement('option');
+            opt.value = item[0];
+            opt.textContent = item[1].charAt(0).toUpperCase() + item[1].slice(1);
+            subtypeSelect.appendChild(opt);
+        });
+
+        // Show/hide subtype field
+        const subtypeGroup = subtypeSelect.closest('.mb-3');
+        if (subtypes.length > 0) {
+            subtypeGroup.style.display = '';
+        } else {
+            subtypeGroup.style.display = 'none';
+            subtypeSelect.value = '';
+        }
+    }
+
+    if (typeSelect && subtypeSelect) {
+        typeSelect.addEventListener('change', updateSubtypes);
+        // Initialize on load
+        updateSubtypes();
+    }
+
+    // Formset for URLs
+    setupFormset('url');
+});
+
+function setupFormset(prefix) {
+    const container = document.getElementById(prefix + '_formset');
+    if (!container) return;
+
+    const totalInput = container.querySelector('[name$="-TOTAL_FORMS"]');
+    const initialInput = container.querySelector('[name$="-INITIAL_FORMS"]');
+    if (!totalInput) return;
+
+    const totalForms = parseInt(totalInput.value);
+    const emptyRow = container.querySelector('.url-formset-row:last-of-type') ||
+                     container.querySelector('.row.mb-2.align-items-center');
+
+    const link = container.querySelector('.add-formset-link');
+    if (link) {
+        link.addEventListener('click', function() {
+            const currentTotal = parseInt(totalInput.value);
+            const rows = container.querySelectorAll('.url-formset-row');
+            let template = null;
+
+            // Cerca un template nascosto o clona l'ultima riga se vuota
+            const tpl = document.getElementById(prefix + '-empty');
+            if (tpl) {
+                template = tpl.innerHTML;
+            } else if (rows.length > 0) {
+                // Usa l'ultima riga come template, pulendo i valori
+                const lastRow = rows[rows.length - 1];
+                template = lastRow.outerHTML;
+                // Pulisci i valori dei campi
+                template = template.replace(/name="[^"]*"/g, function(m) {
+                    return m.replace(/-\d+-/, '-' + currentTotal + '-');
+                });
+                template = template.replace(/value="[^"]*"/g, 'value=""');
+                template = template.replace(/checked/g, '');
+            }
+
+            if (template) {
+                const newRow = document.createElement('div');
+                newRow.innerHTML = template.trim();
+                // Aggiorna gli indici
+                newRow.innerHTML = newRow.innerHTML.replace(
+                    new RegExp(prefix + '-(\\d+)', 'g'),
+                    prefix + '-' + currentTotal
+                );
+                newRow.classList.add('url-formset-row');
+                link.parentElement.insertBefore(newRow, link);
+            }
+
+            totalInput.value = currentTotal + 1;
+        });
+    }
+}
+</script>
+
+{% endblock %}

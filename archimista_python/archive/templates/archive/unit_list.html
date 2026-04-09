@@ -1,0 +1,131 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}Unità - Archimista{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Unità archivistiche</h2>
+    <a href="{% url 'archive:unit_create' %}" class="btn btn-primary">Nuova unità</a>
+</div>
+
+<!-- Filtri -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Cerca per titolo o segnatura</label>
+                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Cerca...">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Filtra per fondo</label>
+                <select name="fond_id" class="form-select">
+                    <option value="">— Tutti i fondi —</option>
+                    {% for fond in fonds %}
+                        <option value="{{ fond.pk }}" {% if selected_fond_id == fond.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ fond.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-outline-primary me-2">Filtra</button>
+                {% if q or selected_fond_id %}
+                    <a href="{% url 'archive:unit_list' %}" class="btn btn-outline-secondary">Reset</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if orphan_count %}
+<div class="alert alert-warning d-flex align-items-center">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <div>
+        <strong>{{ orphan_count }} unità orfan{{ orphan_count|pluralize:"a,e" }}</strong> senza fondo associato.
+        <a href="{% url 'archive:unit_list' %}?fond_id=" class="alert-link">Vedi tutte</a>.
+    </div>
+</div>
+{% endif %}
+
+{% if units %}
+<table class="table table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th style="width: 80px;">Segnatura</th>
+            <th>Titolo</th>
+            <th style="width: 150px;">Fondo</th>
+            <th style="width: 100px;">Tipo</th>
+            <th style="width: 120px;" class="text-end">Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for unit in units %}
+        <tr class="{% if not unit.fond_id %}table-warning{% endif %}">
+            <td>
+                <small class="text-muted">{{ unit.reference_number|default:"—" }}</small>
+            </td>
+            <td>
+                <a href="{% url 'archive:unit_detail' unit.pk %}" class="text-decoration-none fw-medium">
+                    {{ unit.title|default:"Senza titolo" }}
+                </a>
+                {% if not unit.fond_id %}
+                    <span class="badge bg-warning text-dark ms-2">orfana</span>
+                {% endif %}
+                {% if unit.parent %}
+                    <div class="small text-muted">↳ {{ unit.parent.title|default:"Senza titolo"|truncatechars:40 }}</div>
+                {% endif %}
+            </td>
+            <td>
+                {% if unit.fond %}
+                    <a href="{% url 'archive:fond_detail' unit.fond.pk %}" class="text-decoration-none small">
+                        {{ unit.fond.name|truncatechars:25 }}
+                    </a>
+                {% else %}
+                    <span class="text-muted small">—</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if unit.unit_type %}
+                    <span class="badge bg-secondary">{{ unit.unit_type }}</span>
+                {% else %}
+                    <span class="text-muted small">—</span>
+                {% endif %}
+            </td>
+            <td class="text-end">
+                <a href="{% url 'archive:unit_detail' unit.pk %}" class="btn btn-sm btn-outline-secondary">Dettagli</a>
+                <a href="{% url 'archive:unit_update' unit.pk %}" class="btn btn-sm btn-outline-primary">Modifica</a>
+                <a href="{% url 'archive:unit_delete' unit.pk %}" class="btn btn-sm btn-outline-danger">Elimina</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav>
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_fond_id %}&fond_id={{ selected_fond_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">Indietro</a>
+            </li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_fond_id %}&fond_id={{ selected_fond_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}">Avanti</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body text-center py-5">
+        <p class="lead text-muted mb-4">Nessuna unità trovata.</p>
+        <a href="{% url 'archive:unit_create' %}" class="btn btn-primary">Crea la prima unità</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

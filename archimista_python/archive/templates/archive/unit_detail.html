@@ -1,0 +1,127 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}{{ unit.title|default:"Unità" }} - Dettaglio unità{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Archivio</a></li>
+                {% if unit.fond %}
+                <li class="breadcrumb-item"><a href="{% url 'archive:fond_detail' unit.fond.pk %}">{{ unit.fond.name }}</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active">{{ unit.title|default:"Senza titolo" }}</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="display-6">{{ unit.title|default:"Senza titolo" }}</h1>
+            <div>
+                <div class="btn-group btn-group-sm">
+                    <a href="{% url 'archive:unit_move' unit.pk %}" class="btn btn-outline-info" title="Modifica livello nella gerarchia">
+                        <i class="fas fa-arrows-alt-v"></i> <span class="d-none d-md-inline">Modifica livello</span>
+                    </a>
+                    <a href="{% url 'archive:unit_update' unit.pk %}" class="btn btn-outline-primary" title="Modifica">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'archive:unit_delete' unit.pk %}" class="btn btn-outline-danger" title="Elimina">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-4" id="unitDetailTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="detail-desc-tab" data-bs-toggle="tab" data-bs-target="#detail-desc" type="button" role="tab">1. Descrizione</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-physical-tab" data-bs-toggle="tab" data-bs-target="#detail-physical" type="button" role="tab">2. Descrizione fisica</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-access-tab" data-bs-toggle="tab" data-bs-target="#detail-access" type="button" role="tab">3. Accesso</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-sources-tab" data-bs-toggle="tab" data-bs-target="#detail-sources" type="button" role="tab">4. Fonti</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-editors-tab" data-bs-toggle="tab" data-bs-target="#detail-editors" type="button" role="tab">5. Compilatori</button>
+            </li>
+            {% if unit.sc2_card %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-sc2-tab" data-bs-toggle="tab" data-bs-target="#detail-sc2" type="button" role="tab">Scheda SC2/SC3</button>
+            </li>
+            {% endif %}
+            {% if unit.iccd_card %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-iccd-tab" data-bs-toggle="tab" data-bs-target="#detail-iccd" type="button" role="tab">Scheda ICCD</button>
+            </li>
+            {% endif %}
+            {% if unit.fsc_codes.exists or unit.fsc_organizations.exists %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-fsc-tab" data-bs-toggle="tab" data-bs-target="#detail-fsc" type="button" role="tab">FSC</button>
+            </li>
+            {% endif %}
+            {% if unit.fe_identifications.exists %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-fe-tab" data-bs-toggle="tab" data-bs-target="#detail-fe" type="button" role="tab">FE</button>
+            </li>
+            {% endif %}
+            {% if events %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detail-dates-tab" data-bs-toggle="tab" data-bs-target="#detail-dates" type="button" role="tab">Estremi cronologici</button>
+            </li>
+            {% endif %}
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="unitDetailTabsContent">
+            {% include "archive/units/partials/_detail_description.html" %}
+            {% include "archive/units/partials/_detail_physical.html" %}
+            {% include "archive/units/partials/_detail_access.html" %}
+            {% include "archive/units/partials/_detail_sources.html" %}
+            {% include "archive/units/partials/_detail_editors.html" %}
+            {% include "archive/units/partials/_detail_sc2.html" %}
+            {% include "archive/units/partials/_detail_iccd.html" %}
+            {% include "archive/units/partials/_detail_fsc.html" %}
+            {% include "archive/units/partials/_detail_fe.html" %}
+            {% include "archive/units/partials/_detail_dates.html" %}
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-2">
+        <div class="card shadow-sm border-0 mb-4 bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Azioni</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'archive:archive_tree' %}" class="btn btn-sm btn-info text-white">🌳 Albero</a>
+                    <a href="{% url 'archive:unit_update' unit.pk %}" class="btn btn-sm btn-outline-primary">✏️ Modifica</a>
+                    {% if unit.fond %}
+                    <a href="{% url 'archive:fond_detail' unit.fond.pk %}" class="btn btn-sm btn-outline-secondary">📁 Fondo</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if unit.digital_objects.exists %}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0">Oggetti digitali</h6>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'archive:unit_digital_object_list' unit_id=unit.pk %}" class="btn btn-sm btn-outline-info w-100 mb-2">🖼️ Vedi tutti ({{ unit.digital_objects.count }})</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <a href="{% url 'archive:unit_digital_object_list' unit_id=unit.pk %}" class="btn btn-sm btn-outline-info w-100">🖼️ Oggetti digitali</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

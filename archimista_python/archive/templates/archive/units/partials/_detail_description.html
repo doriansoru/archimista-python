@@ -1,0 +1,167 @@
+{% comment %}
+  Partial: Tab Descrizione del dettaglio unità
+  Variabili richieste: unit
+{% endcomment %}
+<div class="tab-pane fade show active" id="detail-desc" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Descrizione</h5>
+        </div>
+        <div class="card-body">
+            <!-- Contesto -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2">Contesto</h6>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Fondo:</div>
+                <div class="col-sm-9">
+                    {% if unit.fond %}
+                    <a href="{% url 'archive:fond_detail' unit.fond.pk %}">{{ unit.fond.name }}</a>
+                    {% else %}<span class="text-muted">-</span>{% endif %}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Unità padre:</div>
+                <div class="col-sm-9">
+                    {% if unit.parent %}
+                    <a href="{% url 'archive:unit_detail' unit.parent.pk %}">{{ unit.parent.title }}</a>
+                    {% else %}<span class="text-muted">-</span>{% endif %}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Classificazione:</div>
+                <div class="col-sm-9">
+                    {% if unit.classification %}
+                    <a href="{% url 'archive:classification_detail' unit.classification.pk %}">
+                        {{ unit.classification.code|default:"" }} {{ unit.classification.name }}
+                    </a>
+                    {% else %}<span class="text-muted">-</span>{% endif %}
+                </div>
+            </div>
+
+            <!-- Identificazione -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificazione</h6>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Tipo unità:</div>
+                <div class="col-sm-9">{{ unit.unit_type_term.term_value|default:unit.unit_type|default:"-" }}</div>
+            </div>
+            {% if unit.sc2_card %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Scheda speciale:</div>
+                <div class="col-sm-9"><span class="badge bg-warning text-dark">{{ unit.sc2_card.card_type }}</span></div>
+            </div>
+            {% endif %}
+            {% if unit.file_type %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Tipologia fascicolo:</div>
+                <div class="col-sm-9">{{ unit.file_type }}</div>
+            </div>
+            {% endif %}
+            {% if unit.fsc_name or unit.fsc_surname %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Nome:</div>
+                <div class="col-sm-9">{{ unit.fsc_name|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Cognome:</div>
+                <div class="col-sm-9">{{ unit.fsc_surname|default:"-" }}</div>
+            </div>
+            {% endif %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Segnatura:</div>
+                <div class="col-sm-9">{{ unit.reference_number|default:"-" }}</div>
+            </div>
+
+            <!-- Segnatura provvisoria -->
+            {% if unit.tmp_reference_number or unit.tmp_reference_string %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Segnatura provvisoria - numero:</div>
+                <div class="col-sm-9">{{ unit.tmp_reference_number|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Segnatura provvisoria - testo:</div>
+                <div class="col-sm-9">{{ unit.tmp_reference_string|default:"-" }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Busta / Fascicolo -->
+            {% if unit.folder_number or unit.file_number %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Busta:</div>
+                <div class="col-sm-9">{{ unit.folder_number|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Fascicolo:</div>
+                <div class="col-sm-9">{{ unit.file_number|default:"-" }}</div>
+            </div>
+            {% endif %}
+
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Pubblicato:</div>
+                <div class="col-sm-9">
+                    {% if unit.published %}<span class="badge bg-success">Sì</span>
+                    {% else %}<span class="badge bg-secondary">No</span>{% endif %}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Attribuito:</div>
+                <div class="col-sm-9">
+                    {% if unit.given_title %}<span class="badge bg-success">Sì</span>
+                    {% else %}<span class="badge bg-secondary">No</span>{% endif %}
+                </div>
+            </div>
+
+            <!-- Titolo -->
+            {% if unit.title %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Titolo:</div>
+                <div class="col-sm-9">{{ unit.title }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Identificativi alternativi -->
+            {% if unit.unit_identifiers.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificativi alternativi</h6>
+            <ul class="list-unstyled">
+                {% for ident in unit.unit_identifiers.all %}
+                <li><strong>{{ ident.identifier }}</strong> {% if ident.identifier_source %}({{ ident.identifier_source }}){% endif %} {% if ident.note %}- {{ ident.note }}{% endif %}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <!-- Altre segnature -->
+            {% if unit.unit_other_reference_numbers.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Altre segnature</h6>
+            <ul class="list-unstyled">
+                {% for ref in unit.unit_other_reference_numbers.all %}
+                <li>{{ ref.other_reference_number }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <!-- Lingue -->
+            {% if unit.unit_langs.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Lingue</h6>
+            <ul class="list-unstyled">
+                {% for lang in unit.unit_langs.all %}
+                <li>{{ lang.code }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <!-- Contenuto -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Contenuto</h6>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ unit.content|default:"Nessun contenuto inserito"|default_if_none:"Nessun contenuto inserito" }}</div>
+
+            <!-- Consistenza -->
+            {% if unit.extent %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Consistenza</h6>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ unit.extent }}</div>
+            {% endif %}
+
+            <!-- Nota dell'archivista -->
+            {% if unit.arrangement_note %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Nota dell'archivista</h6>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ unit.arrangement_note }}</div>
+            {% endif %}
+        </div>
+    </div>
+</div>

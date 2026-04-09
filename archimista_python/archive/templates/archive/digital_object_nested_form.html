@@ -1,0 +1,113 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ title }} - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ title }}</h2>
+    <a href="{% if attachable_type == 'fond' %}{% url 'archive:fond_digital_object_list' fond_id=attachable.pk %}{% elif attachable_type == 'unit' %}{% url 'archive:unit_digital_object_list' unit_id=attachable.pk %}{% elif attachable_type == 'creator' %}{% url 'archive:creator_digital_object_list' creator_id=attachable.pk %}{% elif attachable_type == 'custodian' %}{% url 'archive:custodian_digital_object_list' custodian_id=attachable.pk %}{% elif attachable_type == 'source' %}{% url 'archive:source_digital_object_list' source_id=attachable.pk %}{% endif %}" class="btn btn-outline-secondary">&larr; Torna agli oggetti digitali</a>
+</div>
+<div class="card shadow-sm"><div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <p>Correggi gli errori nel form:</p>
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <div class="alert alert-info">
+            <strong>Entità collegata:</strong> <a href="{{ attachable_detail_url }}">{{ attachable }}</a>
+        </div>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label fw-bold" for="{{ form.title.id_for_label }}">
+                {{ form.title.label }}
+            </label>
+            <div class="col-sm-9">
+                {{ form.title }}
+                {% if form.title.errors %}
+                <div class="text-danger">{{ form.title.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label fw-bold" for="{{ form.description.id_for_label }}">
+                {{ form.description.label }}
+            </label>
+            <div class="col-sm-9">
+                {{ form.description }}
+                {% if form.description.errors %}
+                <div class="text-danger">{{ form.description.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label fw-bold" for="{{ form.position.id_for_label }}">
+                {{ form.position.label }}
+            </label>
+            <div class="col-sm-3">
+                {{ form.position }}
+                {% if form.position.errors %}
+                <div class="text-danger">{{ form.position.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label fw-bold" for="{{ form.published.id_for_label }}">
+                {{ form.published.label }}
+            </label>
+            <div class="col-sm-9">
+                <div class="form-check">
+                    {{ form.published }}
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-sm-3 col-form-label fw-bold" for="{{ form.asset_file.id_for_label }}">
+                {{ form.asset_file.label }}
+            </label>
+            <div class="col-sm-9">
+                {{ form.asset_file }}
+                {% if form.asset_file.help_text %}
+                <div class="form-text">{{ form.asset_file.help_text }}</div>
+                {% endif %}
+                {% if form.asset_file.errors %}
+                <div class="text-danger">{{ form.asset_file.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if action == 'update' and digital_object %}
+        <hr>
+        <div class="row mb-3">
+            <div class="col-sm-3 text-muted fw-bold">Informazioni file:</div>
+            <div class="col-sm-9">
+                {% if digital_object.asset_file_name %}
+                    <p class="mb-1"><strong>Nome file:</strong> {{ digital_object.asset_file_name }}</p>
+                    {% if digital_object.asset_file_size %}
+                    <p class="mb-1"><strong>Dimensione:</strong> {{ digital_object.asset_file_size|filesizeformat }}</p>
+                    {% endif %}
+                    {% if digital_object.asset_content_type %}
+                    <p class="mb-1"><strong>Tipo:</strong> {{ digital_object.asset_content_type }}</p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">Nessun file caricato.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-sm-9 offset-sm-3">
+                <button type="submit" class="btn btn-primary">
+                    {% if action == 'create' %}Crea oggetto digitale{% else %}Salva{% endif %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div></div>
+{% endblock %}

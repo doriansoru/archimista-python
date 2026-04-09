@@ -1,0 +1,95 @@
+{% extends 'archive/base.html' %}
+{% block title %}Fonti - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Fonti</h2>
+    <div class="d-flex gap-2">
+        {% if q %}
+        <a href="{% url 'archive:source_list' %}" class="btn btn-sm btn-outline-secondary">Mostra tutte</a>
+        {% endif %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                Nuova fonte
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'archive:source_create' %}?type=1">Bibliografia</a></li>
+                <li><a class="dropdown-item" href="{% url 'archive:source_create' %}?type=2">Strumento di corredo</a></li>
+                <li><a class="dropdown-item" href="{% url 'archive:source_create' %}?type=3">Fonte archivistica</a></li>
+                <li><a class="dropdown-item" href="{% url 'archive:source_create' %}?type=4">Fonte normativa</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+            <form method="get" class="d-flex">
+                <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm me-2" placeholder="Cerca per titolo o autore" style="width:300px">
+                <button type="submit" class="btn btn-sm btn-outline-primary">Cerca</button>
+            </form>
+        </div>
+
+        {% if sources %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Titolo breve</th>
+                    <th>Titolo completo</th>
+                    <th>Aggiornato il</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sources %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td><a href="{% url 'archive:source_edit' s.pk %}">{{ s.short_title|default:"—" }}</a></td>
+                    <td>
+                        {{ s.formatted_source|safe }}
+                        {% if s.source_type_code %}
+                        <span class="text-muted small">[{{ s.get_source_type_display }}]</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ s.updated_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if s.use_legacy %}
+                        <span class="badge bg-secondary">importato</span>
+                        {% endif %}
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'archive:source_detail' s.pk %}" class="btn btn-outline-secondary" title="Dettaglio">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'archive:source_edit' s.pk %}" class="btn btn-outline-primary" title="Modifica">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'archive:source_delete' s.pk %}" class="btn btn-outline-danger" title="Elimina">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if is_paginated %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?q={{ q }}&page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Pagina {{ page_obj.number }} di {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?q={{ q }}&page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <p class="text-muted">Non sono presenti schede fonte.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

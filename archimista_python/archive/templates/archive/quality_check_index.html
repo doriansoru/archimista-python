@@ -1,0 +1,71 @@
+{% extends "archive/base.html" %}
+{% block title %}Controllo qualità{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Controllo qualità</h2>
+
+            {% if fonds %}
+                <h3 class="section mt-4">Complessi archivistici</h3>
+
+                {% if fonds|length < 5 %}
+                    {% for fond in fonds %}
+                        <p><a href="{% url 'archive:quality_check_fond' fond.pk %}">{{ fond.name|default:"[nome non compilato]" }}</a></p>
+                    {% endfor %}
+                {% else %}
+                    <form id="quality_checks-fond-choice" class="skip-prompt mb-3" method="get">
+                        <i class="bi bi-search me-1"></i>
+                        <input type="text" name="q" id="quality_checks-fond-name-autocomplete"
+                               class="autocomplete form-control" style="max-width:400px;"
+                               placeholder="Cerca un complesso archivistico"
+                               data-autocompletion-controller="fonds">
+                        <input type="hidden" name="fond_id" id="quality_checks-fond-id-autocomplete">
+                    </form>
+                {% endif %}
+
+                <h3 class="section mt-4">Soggetti produttori</h3>
+                {% if creators|length == 0 %}
+                    <p>Non sono presenti schede soggetto produttore.</p>
+                {% elif creators|length <= 5 %}
+                    {% for creator in creators %}
+                        <p><a href="{% url 'archive:quality_check_creator' creator.pk %}">{{ creator.preferred_name.name|default:"[nome non compilato]" }}</a></p>
+                    {% endfor %}
+                {% else %}
+                    <form id="quality_checks-creator-choice" class="skip-prompt mb-3" method="get">
+                        <i class="bi bi-search me-1"></i>
+                        <input type="text" name="q" id="quality_checks-creator-name-autocomplete"
+                               class="autocomplete form-control" style="max-width:400px;"
+                               placeholder="Cerca un soggetto produttore"
+                               data-autocompletion-controller="creators">
+                        <input type="hidden" name="creator_id" id="quality_checks-creator-id-autocomplete">
+                    </form>
+                {% endif %}
+
+                <h3 class="section mt-4">Soggetti conservatori</h3>
+                {% if custodians|length == 0 %}
+                    <p>Non sono presenti schede soggetto conservatore.</p>
+                {% elif custodians|length <= 5 %}
+                    {% for custodian in custodians %}
+                        <p><a href="{% url 'archive:quality_check_custodian' custodian.pk %}">{{ custodian.preferred_name.name|default:"[nome non compilato]" }}</a></p>
+                    {% endfor %}
+                {% else %}
+                    <form id="quality_checks-custodian-choice" class="skip-prompt mb-3" method="get">
+                        <i class="bi bi-search me-1"></i>
+                        <input type="text" name="q" id="quality_checks-custodian-name-autocomplete"
+                               class="autocomplete form-control" style="max-width:400px;"
+                               placeholder="Cerca un soggetto conservatore"
+                               data-autocompletion-controller="custodians">
+                        <input type="hidden" name="custodian_id" id="quality_checks-custodian-id-autocomplete">
+                    </form>
+                {% endif %}
+
+            {% else %}
+                <p>Non sono presenti schede complesso archivistico. Controllo qualità non disponibile.</p>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

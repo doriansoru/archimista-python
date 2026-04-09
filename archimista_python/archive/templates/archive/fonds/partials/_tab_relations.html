@@ -1,0 +1,60 @@
+{% comment %}
+Partial: Tab Relazioni del Fondo
+Required context variables: rel_fond_heading_formset, rel_fond_document_formset
+{% endcomment %}
+<div class="tab-pane fade" id="relations" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Relazioni</h5>
+        </div>
+        <div class="card-body">
+            <!-- Voci di indice -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2">Voci di indice</h6>
+            {{ rel_fond_heading_formset.management_form }}
+            <div id="rel_fond_heading_formset">
+                {% for form in rel_fond_heading_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.heading.label }}</label>
+                                {{ form.heading }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">
+                                {{ form.DELETE }}
+                                <label for="{{ form.DELETE.id_for_label }}" class="form-label small ms-1 mb-0">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_heading_btn">+ Aggiungi Voce</button>
+
+            <!-- Forme documentarie -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Forme documentarie</h6>
+            {{ rel_fond_document_formset.management_form }}
+            <div id="rel_fond_document_formset">
+                {% for form in rel_fond_document_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.document_form.label }}</label>
+                                {{ form.document_form }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">
+                                {{ form.DELETE }}
+                                <label for="{{ form.DELETE.id_for_label }}" class="form-label small ms-1 mb-0">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_document_form_btn">+ Aggiungi Forma Documentaria</button>
+        </div>
+    </div>
+</div>

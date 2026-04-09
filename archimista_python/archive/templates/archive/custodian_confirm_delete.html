@@ -1,0 +1,25 @@
+{% extends 'archive/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h2 class="mb-0">Elimina soggetto conservatore</h2>
+            </div>
+            <div class="card-body">
+                <p>Sei sicuro di voler eliminare il soggetto conservatore "<strong>{{ custodian.history|truncatewords:5 }}</strong>"?</p>
+                <p class="text-danger">Questa operazione non può essere annullata.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'archive:custodian_list' %}" class="btn btn-secondary">Annulla</a>
+                        <button type="submit" class="btn btn-danger">Elimina</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

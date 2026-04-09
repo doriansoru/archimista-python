@@ -1,0 +1,33 @@
+{% comment %}
+  Partial: Tab Fonti del dettaglio unità
+  Variabili richieste: unit
+{% endcomment %}
+<div class="tab-pane fade" id="detail-sources" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Fonti e relazioni</h5>
+        </div>
+        <div class="card-body">
+            <h6 class="fw-bold mb-3 border-bottom pb-2">Fonti</h6>
+            {% if unit.relunitsource_set.exists %}
+            <ul class="list-unstyled">
+                {% for rel in unit.relunitsource_set.all %}<li>{{ rel.source }}</li>{% endfor %}
+            </ul>
+            {% else %}<p class="text-muted">Nessuna fonte collegata</p>{% endif %}
+
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Voci di indice</h6>
+            {% if unit.relunitheading_set.exists %}
+            <ul class="list-unstyled">
+                {% for rel in unit.relunitheading_set.all %}<li>{{ rel.heading }}</li>{% endfor %}
+            </ul>
+            {% else %}<p class="text-muted">Nessuna voce di indice collegata</p>{% endif %}
+
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Anagrafiche</h6>
+            {% if unit.relunitanagraphic_set.exists %}
+            <ul class="list-unstyled">
+                {% for rel in unit.relunitanagraphic_set.all %}<li>{{ rel.anagraphic }}</li>{% endfor %}
+            </ul>
+            {% else %}<p class="text-muted">Nessuna anagrafica collegata</p>{% endif %}
+        </div>
+    </div>
+</div>

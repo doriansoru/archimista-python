@@ -1,0 +1,203 @@
+{% comment %}
+Partial: Tab Descrizione del Soggetto Produttore
+Required context variables: creator_form, event_formset
+{% endcomment %}
+<div class="tab-pane fade" id="description" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="{{ creator_form.abstract.id_for_label }}" class="form-label">Abstract</label>
+                {{ creator_form.abstract }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ creator_form.history.id_for_label }}" class="form-label">Storia</label>
+                {{ creator_form.history }}
+            </div>
+
+            <!-- Estremi cronologici -->
+            <h5 class="row-header mt-3">Estremi cronologici</h5>
+            <div class="archidates-area" data-archidate-cardinality="1">
+                {{ event_formset.management_form }}
+                {% for event_form in event_formset %}
+                <div class="archidate-wrapper editing" data-record-id="{{ event_form.instance.pk|default:'' }}">
+                    <div class="archidate-inner">
+                        {{ event_form.id }}
+                        {{ event_form.content_type }}
+                        {{ event_form.object_id }}
+                        {{ event_form.DELETE }}
+
+                        <h6 class="fw-bold mt-2">Estremo cronologico iniziale</h6>
+                        <div class="start bound-wrapper">
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <label class="form-label small text-muted">Formato data</label><br>
+                                    {% for radio in event_form.start_date_format %}
+                                    <div class="form-check form-check-inline">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="archidate-format-wrapper Y active" data-bound-format="Y" data-bound="start">
+                                <div class="row mb-2">
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Specifica</label>
+                                        {{ event_form.start_date_spec }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Anno</label>
+                                        {{ event_form.start_date_from_year }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Mese</label>
+                                        {{ event_form.start_date_from_month }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Giorno</label>
+                                        {{ event_form.start_date_from_day }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Validità</label>
+                                        {{ event_form.start_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Data secolare (C) -->
+                            <div class="archidate-format-wrapper C inactive" data-bound-format="C" data-bound="start">
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label small">Secolo</label>
+                                        {{ event_form.start_century }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">Intervallo</label>
+                                        {{ event_form.start_century_interval }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">Validità</label>
+                                        {{ event_form.start_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if creator.creator_type == 'P' %}
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small">Luogo di nascita</label>
+                                    {{ event_form.start_date_place }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <h6 class="fw-bold mt-2">Estremo cronologico finale
+                            <span class="ms-2">
+                                {{ event_form.equal_bounds }}
+                                <label for="{{ event_form.equal_bounds.id_for_label }}" class="inline small">Uguale all'estremo iniziale</label>
+                            </span>
+                        </h6>
+                        <div class="end bound-wrapper">
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <label class="form-label small text-muted">Formato data</label><br>
+                                    {% for radio in event_form.end_date_format %}
+                                    <div class="form-check form-check-inline">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="archidate-format-wrapper Y active" data-bound-format="Y" data-bound="end">
+                                <div class="row mb-2">
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Specifica</label>
+                                        {{ event_form.end_date_spec }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Anno</label>
+                                        {{ event_form.end_date_from_year }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Mese</label>
+                                        {{ event_form.end_date_from_month }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Giorno</label>
+                                        {{ event_form.end_date_from_day }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">Validità</label>
+                                        {{ event_form.end_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Data secolare (C) -->
+                            <div class="archidate-format-wrapper C inactive" data-bound-format="C" data-bound="end">
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label small">Secolo</label>
+                                        {{ event_form.end_century }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">Intervallo</label>
+                                        {{ event_form.end_century_interval }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">Validità</label>
+                                        {{ event_form.end_date_valid }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if creator.creator_type == 'P' %}
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small">Luogo di morte</label>
+                                    {{ event_form.end_date_place }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-md-8">
+                                <label class="form-label small">Nota</label>
+                                {{ event_form.note }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ creator_form.note.id_for_label }}" class="form-label">Note</label>
+                {{ creator_form.note }}
+            </div>
+
+            <!-- Attività -->
+            <h5 class="row-header mt-3">Attività</h5>
+            {{ creator_activities_formset.management_form }}
+            <div id="creator_activities_formset">
+                {% for form in creator_activities_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-6">{{ form.activity }}</div>
+                    <div class="col-md-4">{{ form.note }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="creator_activities-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-6"><textarea name="creator_activities-__prefix__-activity" id="id_creator_activities-__prefix__-activity" class="form-control" rows="2"></textarea></div>
+                    <div class="col-md-4"><textarea name="creator_activities-__prefix__-note" id="id_creator_activities-__prefix__-note" class="form-control" rows="2"></textarea></div>
+                    <div class="col-md-2"><input type="checkbox" name="creator_activities-__prefix__-DELETE" id="id_creator_activities-__prefix__-DELETE"> <label for="id_creator_activities-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="creator_activities">Aggiungi attivita</a></p>
+        </div>
+    </div>
+</div>

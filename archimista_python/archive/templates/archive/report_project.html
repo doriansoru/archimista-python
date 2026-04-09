@@ -1,0 +1,126 @@
+{% extends "archive/base.html" %}
+
+{% block title %}Report: {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'archive:report_index' %}">Report</a></li>
+            <li class="breadcrumb-item active">{{ project.name }}</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">Report: {{ project.name }}</h2>
+
+    {% if project.start_year or project.end_year %}
+    <p class="text-muted">
+        {% if project.start_year %}{{ project.start_year }}{% endif %}
+        {% if project.start_year and project.end_year %} — {% endif %}
+        {% if project.end_year %}{{ project.end_year }}{% endif %}
+    </p>
+    {% endif %}
+
+    {% if project.description %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <p>{{ project.description|linebreaks }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ total_fonds }}</h3>
+                    <p class="text-muted mb-0">Fondi</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ total_units }}</h3>
+                    <p class="text-muted mb-0">Unità archivistiche</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ creators|length }}</h3>
+                    <p class="text-muted mb-0">Soggetti produttori</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Fondi collegati</h5>
+        </div>
+        <div class="card-body">
+            {% if fonds %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Fondo</th>
+                        <th>Unità</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in fonds %}
+                    <tr>
+                        <td>{{ item.fond.name|default:"Senza nome" }}</td>
+                        <td>{{ item.unit_count }}</td>
+                        <td>
+                            <a href="{% url 'archive:fond_detail' item.fond.id %}" class="btn btn-sm btn-outline-primary">Vai al fondo</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">Nessun fondo collegato a questo progetto.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if creators %}
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Soggetti produttori</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                {% for item in creators %}
+                <li class="list-group-item">
+                    <a href="{% url 'archive:creator_detail' item.creator.id %}">{{ item.display_name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if custodians %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">Soggetti conservatori</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                {% for c in custodians %}
+                <li class="list-group-item">
+                    <a href="{% url 'archive:custodian_detail' c.id %}">{{ c.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

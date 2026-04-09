@@ -1,0 +1,190 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}Dettaglio Progetto: {{ project.name }} - Archimista{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'archive:project_list' %}">Progetti</a></li>
+            <li class="breadcrumb-item active">{{ project.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">{{ project.name }}</h1>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group btn-group-sm">
+                <a href="{% url 'archive:project_update' project.pk %}" class="btn btn-outline-primary" title="Modifica">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'archive:project_delete' project.pk %}" class="btn btn-outline-danger" title="Elimina">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Colonna Principale -->
+        <div class="col-lg-8">
+            <!-- 1. IDENTIFICAZIONE -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Identificazione</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4 text-muted fw-bold">Tipologia d'intervento:</div>
+                        <div class="col-md-8">{{ project.project_type|default:"—" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 text-muted fw-bold">Estremi cronologici:</div>
+                        <div class="col-md-8">
+                            {% if project.start_year == project.end_year %}
+                                {{ project.start_year|default:"—" }}
+                            {% else %}
+                                {{ project.start_year|default:"—" }} - {{ project.end_year|default:"—" }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 text-muted fw-bold">Status:</div>
+                        <div class="col-md-8">{{ project.status|default:"—" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 text-muted fw-bold">Pubblicato:</div>
+                        <div class="col-md-8">
+                            {% if project.published %}
+                                <span class="badge bg-success">Sì</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if project.description %}
+                    <div class="mt-4">
+                        <h6 class="fw-bold border-bottom pb-2">Descrizione</h6>
+                        <div class="bg-light p-3 rounded">
+                            {{ project.description|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.note %}
+                    <div class="mt-4">
+                        <h6 class="fw-bold border-bottom pb-2">Annotazioni</h6>
+                        <p>{{ project.note|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if project.project_urls.all %}
+                    <div class="mt-4">
+                        <h6 class="fw-bold border-bottom pb-2">Collegamenti</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for u in project.project_urls.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <a href="{{ u.url }}" target="_blank">{{ u.url }}</a>
+                                <span class="text-muted small">{{ u.note }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 2. RESPONSABILITÀ -->
+            {% if project.project_managers.all or project.project_stakeholders.all %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Responsabilità</h5>
+                </div>
+                <div class="card-body">
+                    {% if project.project_managers.all %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2">Responsabili</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Qualificatore</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in project.project_managers.all %}
+                                <tr>
+                                    <td>{{ m.name }}</td>
+                                    <td>{{ m.qualifier|default:"—" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if project.project_stakeholders.all %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2">Soggetti coinvolti</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Qualificatore</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in project.project_stakeholders.all %}
+                                <tr>
+                                    <td>{{ s.name }}</td>
+                                    <td>{{ s.qualifier|default:"—" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Colonna Laterale: Relazioni -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Fondi collegati</h5>
+                </div>
+                <div class="card-body">
+                    {% if project.relprojectfond_set.all %}
+                        <div class="list-group list-group-flush">
+                        {% for rel in project.relprojectfond_set.all %}
+                            <a href="{% url 'archive:fond_detail' rel.fond.pk %}" class="list-group-item list-group-item-action">
+                                <i class="bi bi-folder2-open me-2 text-primary"></i>
+                                {{ rel.fond.name }}
+                            </a>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">Nessun fondo collegato.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Info Sistema -->
+            <div class="card shadow-sm small">
+                <div class="card-body">
+                    <p class="mb-1 text-muted">Creato il: {{ project.created_at|date:"d/m/Y H:i" }}</p>
+                    <p class="mb-0 text-muted">Ultima modifica: {{ project.updated_at|date:"d/m/Y H:i" }}</p>
+                    {% if project.legacy_id %}
+                        <p class="mt-2 mb-0 text-muted">ID originale: {{ project.legacy_id }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

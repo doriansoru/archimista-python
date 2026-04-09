@@ -1,0 +1,71 @@
+{% extends "archive/base.html" %}
+{% block title %}Controllo qualità — Soggetto conservatore{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+
+            <!-- Header con link indietro -->
+            <div class="d-flex align-items-center mb-3">
+                <h2 class="mb-0 me-3">
+                    Controllo qualità
+                    <span class="text-muted mx-2">/</span>
+                    Soggetti conservatori
+                </h2>
+            </div>
+            <div id="links" class="mb-3">
+                <a href="{% url 'archive:quality_check_index' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Controllo qualità
+                </a>
+            </div>
+
+            <!-- REQUISITI MINIMI -->
+            <h3 class="section">Requisiti minimi</h3>
+            <table class="table">
+                <tr>
+                    <th style="width:25%;">Denominazione</th>
+                    <td>
+                        {% if custodian.preferred_name.name %}
+                            {{ custodian.preferred_name.name }}
+                        {% else %}
+                            <span class="text-danger">[non presente]</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Macrotipologia</th>
+                    <td>
+                        {% if custodian.custodian_type %}
+                            {{ custodian.custodian_type.custodian_type|capfirst }}
+                        {% else %}
+                            <span class="text-danger">[non presente]</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if custodian.custodian_buildings.exists %}
+                    {% for building in custodian.custodian_buildings.all %}
+                    <tr>
+                        <th>{{ building.custodian_building_type|capfirst }}</th>
+                        <td>
+                            {{ building.name }}<br>
+                            {{ building.address }}<br>
+                            {{ building.postcode }} {{ building.city }}<br>
+                            {{ building.state }} {{ building.country }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <th>Sedi</th>
+                        <td><span class="text-danger">[non presente]</span></td>
+                    </tr>
+                {% endif %}
+            </table>
+
+            <hr style="border-width: 2px 0;">
+
+        </div>
+    </div>
+</div>
+{% endblock %}

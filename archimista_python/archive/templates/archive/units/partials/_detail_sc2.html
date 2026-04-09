@@ -1,0 +1,125 @@
+{% comment %}
+  Partial: Scheda SC2/SC3 del dettaglio unità
+  Variabili richieste: unit
+{% endcomment %}
+{% if unit.sc2_card %}
+<div class="tab-pane fade" id="detail-sc2" role="tabpanel">
+    <div class="card shadow-sm mb-4 border-warning">
+        <div class="card-header {% if unit.sc2_card.card_type in 'F,SC3' %}bg-info text-white{% else %}bg-warning text-dark{% endif %}">
+            <h5 class="mb-0">
+                {% if unit.sc2_card.card_type in 'F,SC3' %}Scheda fotografia (SC3)
+                {% elif unit.sc2_card.card_type == 'CARS' %}Cartografia storica (CARS)
+                {% elif unit.sc2_card.card_type == 'D' %}Disegno artistico (D)
+                {% elif unit.sc2_card.card_type == 'DT' %}Disegno tecnico (DT)
+                {% elif unit.sc2_card.card_type == 'S' %}Stampa (S)
+                {% else %}Scheda tecnica (SC2){% endif %}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Tipo scheda:</div>
+                <div class="col-sm-9"><span class="badge bg-warning text-dark">{{ unit.sc2_card.card_type }}</span></div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Esecuzione (mtce):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.mtce|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Tipo rappresentazione (sdtt):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.sdtt|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Soggetto iconografico (sgti):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.sgti|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Dimensioni:</div>
+                <div class="col-sm-9">{{ unit.sc2_card.misa|default:"-" }} x {{ unit.sc2_card.misl|default:"-" }} cm</div>
+            </div>
+
+            {% if unit.sc2_card.card_type == 'CARS' %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Rappresentazione tematica (sdts):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.sdts|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Orientamento (ort):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.ort|default:"-" }}</div>
+            </div>
+            {% endif %}
+
+            {% if unit.sc2_card.card_type == 'DT' %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Numero commessa (cmmr):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.cmmr|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Numero tavola (dpgf):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.dpgf|default:"-" }}</div>
+            </div>
+            {% endif %}
+
+            {% if unit.sc2_card.card_type in 'F,SC3' %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Luogo ripresa (lrc):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.lrc|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Data ripresa (lrd):</div>
+                <div class="col-sm-9">{{ unit.sc2_card.lrd|default:"-" }}</div>
+            </div>
+            {% endif %}
+
+            {% if unit.sc2_card.card_type == 'CARS' or unit.sc2_card.card_type == 'DT' %}
+            {% if unit.sc2_scales.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Scale</h6>
+            <ul class="list-unstyled">
+                {% for scale in unit.sc2_scales.all %}<li>{{ scale.sca }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+            {% endif %}
+
+            {% if unit.sc2_techniques.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Tecniche</h6>
+            <ul class="list-unstyled">
+                {% for tech in unit.sc2_techniques.all %}<li>{{ tech.mtct }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if unit.sc2_authors.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Autori</h6>
+            <table class="table table-sm">
+                <thead><tr><th>Nome</th><th>Ruolo</th><th>Attribuzione</th></tr></thead>
+                <tbody>
+                    {% for author in unit.sc2_authors.all %}
+                    <tr><td>{{ author.autn|default:"-" }}</td><td>{{ author.autr|default:"-" }}</td><td>{{ author.auta|default:"-" }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if unit.sc2_commissions.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Commissioni</h6>
+            <ul class="list-unstyled">
+                {% for comm in unit.sc2_commissions.all %}<li>{{ comm.cmmc }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if unit.sc2_textual_elements.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Elementi testuali</h6>
+            <ul class="list-unstyled">
+                {% for el in unit.sc2_textual_elements.all %}<li>{{ el.isri }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if unit.sc2_visual_elements.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Elementi visivi</h6>
+            <ul class="list-unstyled">
+                {% for el in unit.sc2_visual_elements.all %}<li>{{ el.stmd }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}

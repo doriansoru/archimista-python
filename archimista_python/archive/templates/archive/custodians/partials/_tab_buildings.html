@@ -1,0 +1,87 @@
+<div class="tab-pane fade" id="tab-buildings" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            {{ custodian_building_formset.management_form }}
+            <div id="custodian_building_formset">
+                {% for form in custodian_building_formset %}
+                <div class="card mb-3 formset-item">
+                    <div class="card-body">
+                        <!-- Denominazione sede / Tipologia -->
+                        <div class="row mb-2">
+                            <div class="col-md-8">
+                                <label class="form-label">Denominazione sede</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tipologia</label>
+                                {{ form.custodian_building_type }}
+                            </div>
+                        </div>
+                        <!-- Indirizzo -->
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <label class="form-label">Indirizzo</label>
+                                {{ form.address }}
+                            </div>
+                        </div>
+                        <!-- Comune / CAP / Nazione -->
+                        <div class="row mb-2">
+                            <div class="col-md-5">
+                                <label class="form-label">Comune</label>
+                                {{ form.city }}
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">CAP</label>
+                                {{ form.postcode }}
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Nazione</label>
+                                {{ form.country }}
+                            </div>
+                        </div>
+                        <!-- Descrizione -->
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <label class="form-label">Descrizione</label>
+                                {{ form.description }}
+                            </div>
+                        </div>
+                        <!-- Elimina -->
+                        <div class="row">
+                            <div class="col-md-1">
+                                {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="custodian_building-empty-template" style="display:none">
+                <div class="card mb-3 formset-item" data-index="__prefix__">
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-md-8"><label class="form-label">Denominazione sede</label><input type="text" name="custodian_buildings-__prefix__-name" id="id_custodian_buildings-__prefix__-name" class="form-control"></div>
+                            <div class="col-md-4"><label class="form-label">Tipologia</label><input type="text" name="custodian_buildings-__prefix__-custodian_building_type" id="id_custodian_buildings-__prefix__-custodian_building_type" class="form-control"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-12"><label class="form-label">Indirizzo</label><input type="text" name="custodian_buildings-__prefix__-address" id="id_custodian_buildings-__prefix__-address" class="form-control"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-5"><label class="form-label">Comune</label><input type="text" name="custodian_buildings-__prefix__-city" id="id_custodian_buildings-__prefix__-city" class="form-control"></div>
+                            <div class="col-md-2"><label class="form-label">CAP</label><input type="text" name="custodian_buildings-__prefix__-postcode" id="id_custodian_buildings-__prefix__-postcode" class="form-control"></div>
+                            <div class="col-md-5"><label class="form-label">Nazione</label><input type="text" name="custodian_buildings-__prefix__-country" id="id_custodian_buildings-__prefix__-country" class="form-control"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-12"><label class="form-label">Descrizione</label><textarea name="custodian_buildings-__prefix__-description" id="id_custodian_buildings-__prefix__-description" class="form-control" rows="2"></textarea></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-1"><input type="checkbox" name="custodian_buildings-__prefix__-DELETE" id="id_custodian_buildings-__prefix__-DELETE"> <label for="id_custodian_buildings-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="custodian_buildings">Aggiungi sede</a></p>
+        </div>
+    </div>
+</div>

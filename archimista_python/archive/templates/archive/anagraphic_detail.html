@@ -1,0 +1,104 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ anagraphic.surname|default:"Scheda anagrafica" }}, {{ anagraphic.name|default:"" }} - Archimista{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Scheda anagrafica</h2>
+    <div>
+        <a href="{% url 'archive:anagraphic_edit' anagraphic.pk %}" class="btn btn-primary">Modifica</a>
+        <a href="{% url 'archive:anagraphic_list' %}" class="btn btn-secondary">&larr; Torna alle schede anagrafiche</a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">{{ anagraphic.surname|default:"" }}, {{ anagraphic.name|default:"Scheda anagrafica" }}</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <tr>
+                <th style="width:200px">Nome</th>
+                <td>{{ anagraphic.name|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Cognome</th>
+                <td>{{ anagraphic.surname|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Luogo di nascita</th>
+                <td>{{ anagraphic.start_date_place|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Data di nascita</th>
+                <td>{{ anagraphic.start_date|date:"d/m/Y"|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Luogo di morte</th>
+                <td>{{ anagraphic.end_date_place|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Data di morte</th>
+                <td>{{ anagraphic.end_date|date:"d/m/Y"|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Tipo anagrafica</th>
+                <td>{{ anagraphic.anagraphic_type|default:"—" }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- Codici identificativi -->
+{% if anagraphic.anag_identifiers.exists %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Codici identificativi</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Codice identificativo</th>
+                    <th>Qualifica</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for id in anagraphic.anag_identifiers.all %}
+                <tr>
+                    <td>{{ id.identifier }}</td>
+                    <td>{{ id.qualifier|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-sm">
+            <tr>
+                <th style="width:200px">Gruppo</th>
+                <td>{{ anagraphic.group|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Database source</th>
+                <td>{{ anagraphic.db_source|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Legacy ID</th>
+                <td>{{ anagraphic.legacy_id|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Creato il</th>
+                <td>{{ anagraphic.created_at|date:"d/m/Y H:i"|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Ultimo aggiornamento</th>
+                <td>{{ anagraphic.updated_at|date:"d/m/Y H:i"|default:"—" }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

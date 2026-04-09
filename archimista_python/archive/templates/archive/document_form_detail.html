@@ -1,0 +1,88 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ document_form.name|default:"Profilo documentario" }} - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ document_form.name|default:"Profilo documentario" }}</h2>
+    <div>
+        <a href="{% url 'archive:document_form_edit' document_form.pk %}" class="btn btn-sm btn-outline-secondary">Modifica</a>
+        <a href="{% url 'archive:document_form_list' %}" class="btn btn-sm btn-secondary">&larr; Torna ai profili documentari</a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white"><h5 class="mb-0">Descrizione</h5></div>
+    <div class="card-body">
+        <table class="table table-borderless mb-0">
+            <tbody>
+                <tr>
+                    <th style="width:200px">Denominazione</th>
+                    <td>{{ document_form.name|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <th>Descrizione</th>
+                    <td>{{ document_form.description|default:"—"|linebreaksbr }}</td>
+                </tr>
+                <tr>
+                    <th>Note</th>
+                    <td>{{ document_form.note|default:"—" }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Compilatori -->
+{% if document_form_editors %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-secondary text-white"><h5 class="mb-0">Compilatori</h5></div>
+    <div class="card-body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Compilatore</th>
+                    <th>Qualifica</th>
+                    <th>Tipologia di intervento</th>
+                    <th>Data intervento</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for editor in document_form_editors %}
+                <tr>
+                    <td>{{ editor.name|default:"—" }}</td>
+                    <td>{{ editor.qualifier|default:"—" }}</td>
+                    <td>{{ editor.editing_type|default:"—" }}</td>
+                    <td>{{ editor.edited_at|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Legacy info -->
+{% if document_form.identifier or document_form.identifier_source %}
+<div class="card shadow-sm">
+    <div class="card-header bg-light"><h5 class="mb-0">Informazioni legacy</h5></div>
+    <div class="card-body">
+        <table class="table table-borderless mb-0">
+            <tbody>
+                {% if document_form.identifier %}
+                <tr>
+                    <th style="width:200px">Identificativo</th>
+                    <td>{{ document_form.identifier }}</td>
+                </tr>
+                {% endif %}
+                {% if document_form.identifier_source %}
+                <tr>
+                    <th>Fonte identificativo</th>
+                    <td>{{ document_form.identifier_source }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

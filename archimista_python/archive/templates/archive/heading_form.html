@@ -1,0 +1,79 @@
+{% extends 'archive/base.html' %}
+{% block title %}{% if heading %}Modifica lemma{% else %}Nuovo lemma{% endif %} - Archimista{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{% if heading %}Modifica lemma{% else %}Nuovo lemma{% endif %}</h2>
+    <a href="{% url 'archive:heading_list' %}" class="btn btn-secondary">&larr; Torna alle voci di indice</a>
+</div>
+
+{% if form.errors %}
+<div class="alert alert-danger">
+    <strong>Errore:</strong> Correggi gli errori nel form.
+    {{ form.errors }}
+</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="{{ form.heading_type_term.id_for_label }}" class="form-label">
+                        Tipologia
+                    </label>
+                    {{ form.heading_type_term }}
+                    {% if form.heading_type_term.errors %}
+                    <div class="text-danger small">{{ form.heading_type_term.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">
+                        Lemma <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div class="text-danger small">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="{{ form.dates.id_for_label }}" class="form-label">
+                        Estremi cronologici
+                    </label>
+                    {{ form.dates }}
+                    {% if form.dates.errors %}
+                    <div class="text-danger small">{{ form.dates.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="{{ form.qualifier.id_for_label }}" class="form-label">
+                        Qualifica
+                    </label>
+                    {{ form.qualifier }}
+                    {% if form.qualifier.errors %}
+                    <div class="text-danger small">{{ form.qualifier.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    {% if heading %}Salva{% else %}Crea scheda{% endif %}
+                </button>
+                <a href="{% url 'archive:heading_list' %}" class="btn btn-secondary">Annulla</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

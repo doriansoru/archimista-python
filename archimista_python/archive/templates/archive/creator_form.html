@@ -1,0 +1,220 @@
+{% extends 'archive/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h1>{% if creator %}Modifica{% else %}Nuovo{% endif %} soggetto produttore</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'archive:creator_list' %}" class="btn btn-secondary">Annulla</a>
+        </div>
+    </div>
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <ul class="nav nav-tabs mb-3" id="creatorTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="identification-tab" data-bs-toggle="tab" data-bs-target="#identification" type="button">1. Identificazione</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button">2. Descrizione</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="relations-tab" data-bs-toggle="tab" data-bs-target="#relations" type="button">3. Relazioni</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sources-tab" data-bs-toggle="tab" data-bs-target="#sources" type="button">4. Fonti</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="credits-tab" data-bs-toggle="tab" data-bs-target="#credits" type="button">5. Compilatori</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="creatorTabsContent">
+            {% include "archive/creators/partials/_tab_identification.html" %}
+            {% include "archive/creators/partials/_tab_description.html" %}
+            {% include "archive/creators/partials/_tab_relations.html" %}
+            {% include "archive/creators/partials/_tab_sources.html" %}
+            {% include "archive/creators/partials/_tab_credits.html" %}
+        </div>
+
+        <div class="d-flex justify-content-between mt-4 mb-4">
+            <a href="{% url 'archive:creator_list' %}" class="btn btn-secondary">Annulla</a>
+            <button type="submit" class="btn btn-success">Salva</button>
+        </div>
+    </form>
+</div>
+
+<style>
+/* Archidate styles */
+.archidate-wrapper { border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 1rem; margin-bottom: 1rem; background: #f8f9fa; }
+.bound-wrapper { padding: 0.75rem; background: #fff; border-radius: 0.25rem; margin-bottom: 0.5rem; }
+.archidate-format-wrapper { }
+.archidate-format-wrapper.inactive { display: none; }
+.bound-wrapper.inactive { opacity: 0.5; }
+.bound-wrapper.inactive input, .bound-wrapper.inactive select { pointer-events: none; }
+.equal-bounds-command { margin-right: 0.25rem; }
+
+/* Select2 full width */
+.select2-container { width: 100% !important; }
+.select2-container .select2-selection--single { height: 38px; border: 1px solid #ced4da; border-radius: 0.375rem; }
+.select2-container .select2-selection--single .select2-selection__rendered { line-height: 36px; padding-left: 12px; }
+.select2-container .select2-selection--single .select2-selection__arrow { height: 36px; }
+.select2-dropdown { border: 1px solid #ced4da; border-radius: 0.375rem; }
+.select2-results__option { padding: 6px 12px; }
+.select2-container--open .select2-dropdown { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25); }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // =====================================================
+    // Formset handler (same pattern as fond_form.html)
+    // =====================================================
+    function setupFormset(prefix) {
+        const formset = document.getElementById(prefix + '_formset');
+        if (!formset) return;
+
+        const totalForms = formset.querySelector(`#id_${prefix}-TOTAL_FORMS`)
+                        || document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+        if (!totalForms) return;
+
+        let formCount = parseInt(totalForms.value);
+
+        // Find the add link
+        const addLink = document.querySelector(`.add-formset-link[data-prefix="${prefix}"]`);
+        if (!addLink) return;
+
+        addLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const forms = formset.querySelectorAll('.formset-item');
+            if (forms.length === 0) return;
+
+            const lastForm = forms[forms.length - 1];
+
+            // Step 1: Destroy Select2 on the ORIGINAL row
+            $(lastForm).find('select.select2-hidden-accessible').select2('destroy');
+
+            // Step 2: Clone
+            const newForm = lastForm.cloneNode(true);
+
+            // Step 3: Re-initialize Select2 on the ORIGINAL row
+            $(lastForm).find('select.django-select2').djangoSelect2();
+
+            // Step 4: Clean Select2 artifacts from the CLONE
+            newForm.querySelectorAll('.select2-container').forEach(function(el) { el.remove(); });
+            newForm.querySelectorAll('select').forEach(function(sel) {
+                sel.classList.remove('select2-hidden-accessible');
+                sel.removeAttribute('data-select2-id');
+                sel.removeAttribute('aria-hidden');
+                sel.selectedIndex = 0;
+            });
+
+            // Reset values
+            newForm.querySelectorAll('input, textarea').forEach(function(field) {
+                if (field.type !== 'hidden' && field.type !== 'checkbox') {
+                    field.value = '';
+                }
+                field.checked = false;
+            });
+
+            // Update names and ids
+            const regex = new RegExp(`${prefix}-(\\d+)`, 'g');
+            newForm.innerHTML = newForm.innerHTML.replace(regex, `${prefix}-${formCount}`);
+
+            // Remove any cloned id field value
+            const idInput = newForm.querySelector(`input[name="${prefix}-${formCount}-id"]`);
+            if (idInput) idInput.value = '';
+
+            formset.appendChild(newForm);
+
+            // Trigger formset:added event for django-select2
+            $(newForm).trigger('formset:added');
+
+            formCount++;
+            totalForms.value = formCount;
+        });
+    }
+
+    // Setup all formsets
+    [
+        'creator_names',
+        'creator_urls',
+        'creator_identifiers',
+        'creator_legal_statuses',
+        'creator_activities',
+        'relcreatorfond_set',
+        'relcreatorinstitution_set',
+        'rel_creator_creators',
+        'relcreatorsource_set',
+        'creator_editors'
+    ].forEach(setupFormset);
+
+    // =====================================================
+    // Creator type show/hide
+    // =====================================================
+    var creatorTypeSelect = document.getElementById('id_creator_type');
+    var nameCfSection = document.getElementById('preferred_name_cf');
+    var namePSection = document.getElementById('preferred_name_p');
+    var corporateTypeWrapper = document.getElementById('corporate_type_wrapper');
+
+    function updateNameSection() {
+        var val = creatorTypeSelect.value;
+        nameCfSection.style.display = (val === 'F' || val === 'E') ? 'block' : 'none';
+        namePSection.style.display = (val === 'P') ? 'block' : 'none';
+        corporateTypeWrapper.style.display = (val === 'E') ? 'block' : 'none';
+    }
+    creatorTypeSelect.addEventListener('change', updateNameSection);
+    updateNameSection();
+
+    // =====================================================
+    // Archidate JavaScript (porting semplificato da Ruby)
+    // =====================================================
+    function initArchidate() {
+        document.querySelectorAll('.format-toggler').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const bound = this.classList.contains('start') ? 'start' : 'end';
+                const format = this.value;
+                const wrapper = this.closest('.bound-wrapper');
+                wrapper.querySelectorAll('.archidate-format-wrapper').forEach(function(fw) {
+                    if (fw.dataset.bound === bound) {
+                        if (fw.dataset.boundFormat === format) {
+                            fw.classList.add('active');
+                            fw.classList.remove('inactive');
+                            fw.querySelectorAll('input, select').forEach(function(f) { f.disabled = false; });
+                        } else {
+                            fw.classList.remove('active');
+                            fw.classList.add('inactive');
+                            fw.querySelectorAll('input, select').forEach(function(f) { f.disabled = true; });
+                        }
+                    }
+                });
+            });
+            if (radio.checked) radio.dispatchEvent(new Event('change'));
+        });
+
+        document.querySelectorAll('.equal-bounds-command').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                const wrapper = this.closest('.archidate-wrapper');
+                const endBound = wrapper.querySelector('.end.bound-wrapper');
+                if (this.checked) {
+                    endBound.classList.add('inactive');
+                    endBound.querySelectorAll('input, select').forEach(function(f) { f.disabled = true; });
+                } else {
+                    endBound.classList.remove('inactive');
+                    endBound.querySelectorAll('input, select').forEach(function(f) { f.disabled = false; });
+                }
+            });
+            cb.dispatchEvent(new Event('change'));
+        });
+    }
+
+    initArchidate();
+});
+</script>
+
+<!-- Select2 media (django-select2) -->
+{{ relcreatorfond_set_formset.media }}
+
+{% endblock %}

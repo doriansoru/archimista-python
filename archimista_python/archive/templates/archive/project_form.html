@@ -1,0 +1,324 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}{{ action }} - Archimista{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'archive:project_list' %}">Progetti</a></li>
+            <li class="breadcrumb-item active">{{ action }}</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-3">
+        <div class="col">
+            <h1>{{ action }}</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'archive:project_list' %}" class="btn btn-secondary">Annulla</a>
+        </div>
+    </div>
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <!-- Tab Navigation - Allineata ad Archimista Ruby -->
+        <ul class="nav nav-tabs mb-4" id="projectTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="identification-tab" data-bs-toggle="tab" data-bs-target="#identification" type="button" role="tab">Identificazione</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="credits-tab" data-bs-toggle="tab" data-bs-target="#credits" type="button" role="tab">Responsabilità</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="relations-tab" data-bs-toggle="tab" data-bs-target="#relations" type="button" role="tab">Relazioni</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="projectTabsContent">
+            <!-- 1. IDENTIFICAZIONE -->
+            <div class="tab-pane fade show active" id="identification" role="tabpanel">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">Denominazione <span class="text-danger">*</span></label>
+                            {{ form.name }}
+                            {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.project_type_term.id_for_label }}" class="form-label fw-bold">Tipologia d'intervento</label>
+                                {{ form.project_type_term }}
+                                {% if form.project_type_term.errors %}<div class="text-danger small">{{ form.project_type_term.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    {{ form.published }}
+                                    <label for="{{ form.published.id_for_label }}" class="form-check-label">Pubblicato</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.start_year.id_for_label }}" class="form-label fw-bold">Anno d'inizio</label>
+                                {{ form.start_year }}
+                                {% if form.start_year.errors %}<div class="text-danger small">{{ form.start_year.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.end_year.id_for_label }}" class="form-label fw-bold">Anno di fine</label>
+                                {{ form.end_year }}
+                                {% if form.end_year.errors %}<div class="text-danger small">{{ form.end_year.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.status_term.id_for_label }}" class="form-label fw-bold">Status</label>
+                                {{ form.status_term }}
+                                {% if form.status_term.errors %}<div class="text-danger small">{{ form.status_term.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">Descrizione</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.note.id_for_label }}" class="form-label fw-bold">Annotazioni</label>
+                            {{ form.note }}
+                            {% if form.note.errors %}<div class="text-danger small">{{ form.note.errors }}</div>{% endif %}
+                        </div>
+
+                        <!-- URL -->
+                        <h5 class="fw-bold mb-3 border-bottom pb-2 mt-4">Collegamenti</h5>
+                        {{ url_formset.management_form }}
+                        <div id="url_formset">
+                            {% for f in url_formset %}
+                            <div class="card mb-2 formset-item">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-5 mb-2">
+                                            <label class="form-label">URL</label>
+                                            {{ f.url }}
+                                        </div>
+                                        <div class="col-md-5 mb-2">
+                                            <label class="form-label">Note</label>
+                                            {{ f.note }}
+                                        </div>
+                                        <div class="col-md-2 mb-2 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ f.DELETE }}
+                                                <label class="form-check-label text-danger">Elimina</label>
+                                            </div>
+                                        </div>
+                                        {{ f.position }}
+                                        {{ f.id }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-formset-btn" data-prefix="url">+ Nuovo collegamento</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. RESPONSABILITÀ -->
+            <div class="tab-pane fade" id="credits" role="tabpanel">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <!-- Responsabili -->
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">Responsabili</h5>
+                        {{ manager_formset.management_form }}
+                        <div id="manager_formset">
+                            {% for f in manager_formset %}
+                            <div class="card mb-2 formset-item">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-5 mb-2">
+                                            <label class="form-label">Nome</label>
+                                            {{ f.name }}
+                                        </div>
+                                        <div class="col-md-5 mb-2">
+                                            <label class="form-label">Qualificatore</label>
+                                            {{ f.qualifier_term }}
+                                            {{ f.qualifier }}
+                                        </div>
+                                        <div class="col-md-2 mb-2 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ f.DELETE }}
+                                                <label class="form-check-label text-danger">Elimina</label>
+                                            </div>
+                                        </div>
+                                        {{ f.id }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-formset-btn" data-prefix="manager">+ Aggiungi un responsabile</button>
+
+                        <!-- Stakeholder -->
+                        <h5 class="fw-bold mb-3 border-bottom pb-2 mt-4">Soggetti coinvolti</h5>
+                        {{ stakeholder_formset.management_form }}
+                        <div id="stakeholder_formset">
+                            {% for f in stakeholder_formset %}
+                            <div class="card mb-2 formset-item">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-5 mb-2">
+                                            <label class="form-label">Nome</label>
+                                            {{ f.name }}
+                                        </div>
+                                        <div class="col-md-5 mb-2">
+                                            <label class="form-label">Qualificatore</label>
+                                            {{ f.qualifier_term }}
+                                            {{ f.qualifier }}
+                                        </div>
+                                        <div class="col-md-2 mb-2 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ f.DELETE }}
+                                                <label class="form-check-label text-danger">Elimina</label>
+                                            </div>
+                                        </div>
+                                        {{ f.id }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-formset-btn" data-prefix="stakeholder">+ Aggiungi un soggetto</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. RELAZIONI -->
+            <div class="tab-pane fade" id="relations" role="tabpanel">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">Fondi collegati</h5>
+                        {{ fond_formset.management_form }}
+                        <div id="fond_formset">
+                            {% for f in fond_formset %}
+                            <div class="card mb-2 formset-item">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-10 mb-2">
+                                            <label class="form-label">Fondo</label>
+                                            {{ f.fond }}
+                                        </div>
+                                        <div class="col-md-2 mb-2 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ f.DELETE }}
+                                                <label class="form-check-label text-danger">Elimina</label>
+                                            </div>
+                                        </div>
+                                        {{ f.id }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-formset-btn" data-prefix="fond">+ Aggiungi fondo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'archive:project_list' %}" class="btn btn-secondary btn-lg">Annulla</a>
+            <button type="submit" class="btn btn-success btn-lg">Salva progetto</button>
+        </div>
+    </form>
+</div>
+
+<style>
+/* Select2 full width */
+.select2-container { width: 100% !important; }
+.select2-container .select2-selection--single { height: 38px; border: 1px solid #ced4da; border-radius: 0.375rem; }
+.select2-container .select2-selection--single .select2-selection__rendered { line-height: 36px; padding-left: 12px; }
+.select2-container .select2-selection--single .select2-selection__arrow { height: 36px; }
+.select2-dropdown { border: 1px solid #ced4da; border-radius: 0.375rem; }
+.select2-results__option { padding: 6px 12px; }
+.select2-container--open .select2-dropdown { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25); }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function setupFormset(prefix) {
+        const formset = document.getElementById(prefix + '_formset');
+        if (!formset) return;
+
+        const totalForms = formset.querySelector(`#id_${prefix}-TOTAL_FORMS`)
+                        || document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+        if (!totalForms) return;
+
+        let formCount = parseInt(totalForms.value);
+
+        // Find or create add button
+        let addBtn = document.querySelector(`.add-formset-btn[data-prefix="${prefix}"]`);
+        if (!addBtn) {
+            addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'btn btn-sm btn-outline-primary mt-2';
+            addBtn.textContent = '+ Aggiungi';
+            formset.parentNode.insertBefore(addBtn, formset.nextSibling);
+        }
+
+        addBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const forms = formset.querySelectorAll('.formset-item');
+            if (forms.length === 0) return;
+
+            const lastForm = forms[forms.length - 1];
+
+            // Step 1: Destroy Select2 on the ORIGINAL row
+            $(lastForm).find('select.select2-hidden-accessible').select2('destroy');
+
+            // Step 2: Clone
+            const newForm = lastForm.cloneNode(true);
+
+            // Step 3: Re-initialize Select2 on the ORIGINAL row
+            $(lastForm).find('select.django-select2').djangoSelect2();
+
+            // Step 4: Clean Select2 artifacts from the CLONE
+            newForm.querySelectorAll('.select2-container').forEach(function(el) { el.remove(); });
+            newForm.querySelectorAll('select').forEach(function(sel) {
+                sel.classList.remove('select2-hidden-accessible');
+                sel.removeAttribute('data-select2-id');
+                sel.removeAttribute('aria-hidden');
+                sel.selectedIndex = 0;
+            });
+
+            newForm.querySelectorAll('input, textarea').forEach(function(field) {
+                if (field.type !== 'hidden' && field.type !== 'checkbox') {
+                    field.value = '';
+                }
+                field.checked = false;
+            });
+
+            const regex = new RegExp(`${prefix}-(\\d+)`, 'g');
+            newForm.innerHTML = newForm.innerHTML.replace(regex, `${prefix}-${formCount}`);
+
+            const idInput = newForm.querySelector(`input[name="${prefix}-${formCount}-id"]`);
+            if (idInput) idInput.value = '';
+
+            formset.appendChild(newForm);
+            $(newForm).trigger('formset:added');
+
+            formCount++;
+            totalForms.value = formCount;
+        });
+    }
+
+    // Setup tutti i formset
+    ['url', 'manager', 'stakeholder', 'fond'].forEach(setupFormset);
+});
+</script>
+
+<!-- Select2 media (django-select2) -->
+{{ fond_formset.media }}
+
+{% endblock %}

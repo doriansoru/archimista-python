@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Report progetto</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 10pt; line-height: 1.4; margin: 0; padding: 0; }
+        h2 { font-size: 16pt; font-weight: bold; margin-top: 18px; margin-bottom: 6px; }
+        h2 .date { font-size: 12pt; font-weight: normal; color: #555; }
+        h3 { font-size: 14pt; font-weight: bold; margin-top: 14px; margin-bottom: 6px; }
+        h4 { font-size: 12pt; font-weight: bold; margin-top: 10px; margin-bottom: 4px; }
+        .pbi_avoid { page-break-inside: avoid; }
+        hr { border: none; border-bottom: 1px solid #000; margin: 10px 0; }
+        .fldcaption { margin-top: 6px; margin-bottom: 2px; }
+        .field-header { font-weight: bold; }
+        p { margin: 2px 0 6px 0; }
+        ul { margin: 2px 0 6px 18px; padding: 0; }
+        li { margin-bottom: 2px; }
+        .head { margin: 4px 0; }
+    </style>
+</head>
+<body>
+    <h2>
+        {{ project.name }}
+        <span class="date">{{ project.display_date }}</span>
+    </h2>
+
+    {{ project_html|safe }}
+
+    {% for custodian, custodian_html in custodians_data %}
+        <hr>
+        <h3>Soggetto conservatore</h3>
+        <h4>{{ custodian.display_name }}</h4>
+        {{ custodian_html|safe }}
+
+        <hr>
+        <h3>Fondi</h3>
+        {% for fd in fonds_data %}
+            {% if fd.creators_data %}
+                <hr>
+                <h3>Soggetti produttori</h3>
+                {% for creator, creator_html in fd.creators_data %}
+                    <h4>{{ creator.display_name }}</h4>
+                    {{ creator_html|safe }}
+                {% endfor %}
+            {% endif %}
+
+            <hr>
+            <h4>{{ fd.fond.name }}</h4>
+            {{ fd.fond_html|safe }}
+
+            {% if fd.units_data %}
+                <hr>
+                <h3>Unità archivistiche</h3>
+                {% for u, unit_html, seq_num in fd.units_data %}
+                <div class="pbi_avoid">
+                    <p class="head"><strong>{{ seq_num }}</strong></p>
+                    <h4>{{ u.formatted_title }}</h4>
+                    {{ unit_html|safe }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <hr />
+    {% endfor %}
+</body>
+</html>

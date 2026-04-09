@@ -1,0 +1,75 @@
+{% comment %}
+Partial: Tab Relazioni del Soggetto Produttore
+Required context variables: relcreatorfond_set_formset, relcreatorinstitution_set_formset,
+  rel_creator_creators_formset, fonds_list, institutions_list, creators_list, association_types_list
+{% endcomment %}
+<div class="tab-pane fade" id="relations" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            <h5>Relazioni con fondi</h5>
+            {{ relcreatorfond_set_formset.management_form }}
+            <div id="relcreatorfond_set_formset">
+                {% for form in relcreatorfond_set_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-10">{{ form.fond }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="relcreatorfond_set-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-10"><select name="relcreatorfond_set-__prefix__-fond" id="id_relcreatorfond_set-__prefix__-fond" class="form-select"><option value="">---------</option>{% for f in fonds_list %}<option value="{{ f.pk }}">{{ f.name }}</option>{% endfor %}</select></div>
+                    <div class="col-md-2"><input type="checkbox" name="relcreatorfond_set-__prefix__-DELETE" id="id_relcreatorfond_set-__prefix__-DELETE"> <label for="id_relcreatorfond_set-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="relcreatorfond_set">Aggiungi fondo</a></p>
+
+            <h5 class="mt-4">Relazioni con istituzioni</h5>
+            {{ relcreatorinstitution_set_formset.management_form }}
+            <div id="relcreatorinstitution_set_formset">
+                {% for form in relcreatorinstitution_set_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-10">{{ form.institution }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="relcreatorinstitution_set-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-10"><select name="relcreatorinstitution_set-__prefix__-institution" id="id_relcreatorinstitution_set-__prefix__-institution" class="form-select"><option value="">---------</option>{% for i in institutions_list %}<option value="{{ i.pk }}">{{ i.name }}</option>{% endfor %}</select></div>
+                    <div class="col-md-2"><input type="checkbox" name="relcreatorinstitution_set-__prefix__-DELETE" id="id_relcreatorinstitution_set-__prefix__-DELETE"> <label for="id_relcreatorinstitution_set-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="relcreatorinstitution_set">Aggiungi istituzione</a></p>
+
+            <h5 class="mt-4">Relazioni con altri soggetti produttori</h5>
+            {{ rel_creator_creators_formset.management_form }}
+            <div id="rel_creator_creators_formset">
+                {% for form in rel_creator_creators_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-5">{{ form.related_creator }}</div>
+                    <div class="col-md-5">{{ form.association_type }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="rel_creator_creators-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-5"><select name="rel_creator_creators-__prefix__-related_creator" id="id_rel_creator_creators-__prefix__-related_creator" class="form-select"><option value="">---------</option>{% for c in creators_list %}<option value="{{ c.pk }}">{{ c }}</option>{% endfor %}</select></div>
+                    <div class="col-md-5"><select name="rel_creator_creators-__prefix__-association_type" id="id_rel_creator_creators-__prefix__-association_type" class="form-select"><option value="">---------</option>{% for at in association_types_list %}<option value="{{ at.pk }}">{{ at }}</option>{% endfor %}</select></div>
+                    <div class="col-md-2"><input type="checkbox" name="rel_creator_creators-__prefix__-DELETE" id="id_rel_creator_creators-__prefix__-DELETE"> <label for="id_rel_creator_creators-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="rel_creator_creators">Aggiungi relazione</a></p>
+        </div>
+    </div>
+</div>

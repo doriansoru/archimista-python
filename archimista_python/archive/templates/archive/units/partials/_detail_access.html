@@ -1,0 +1,47 @@
+{% comment %}
+  Partial: Tab Accesso del dettaglio unità
+  Variabili richieste: unit
+{% endcomment %}
+<div class="tab-pane fade" id="detail-access" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Accesso e utilizzo</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Condizione di accesso:</div>
+                <div class="col-sm-9">{{ unit.access_condition_term.term_value|default:unit.access_condition|default:"-" }}</div>
+            </div>
+            {% if unit.access_condition_note %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Nota accesso:</div>
+                <div class="col-sm-9">{{ unit.access_condition_note }}</div>
+            </div>
+            {% endif %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Condizione d'uso:</div>
+                <div class="col-sm-9">{{ unit.use_condition_term.term_value|default:unit.use_condition|default:"-" }}</div>
+            </div>
+            {% if unit.use_condition_note %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Nota uso:</div>
+                <div class="col-sm-9">{{ unit.use_condition_note }}</div>
+            </div>
+            {% endif %}
+
+            {% if unit.preservation_term or unit.preservation %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Stato di conservazione:</div>
+                <div class="col-sm-9">{{ unit.preservation_term.term_value|default:unit.preservation|default:"-" }}</div>
+            </div>
+            {% endif %}
+
+            {% if unit.preservation_note %}
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Nota conservazione:</div>
+                <div class="col-sm-9">{{ unit.preservation_note }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

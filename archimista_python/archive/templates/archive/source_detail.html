@@ -1,0 +1,184 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ source.title|default:"Fonte" }} - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ source.short_title|default:"Fonte" }}</h2>
+    <div>
+        <div class="btn-group btn-group-sm">
+            <a href="{% url 'archive:source_digital_object_list' source_id=source.pk %}" class="btn btn-outline-info" title="Oggetti digitali">
+                <i class="fas fa-images"></i> <span class="d-none d-md-inline">Oggetti digitali{% if source.digital_objects.count %} ({{ source.digital_objects.count }}){% endif %}</span>
+            </a>
+            <a href="{% url 'archive:source_edit' source.pk %}" class="btn btn-outline-primary" title="Modifica">
+                <i class="fas fa-edit"></i>
+            </a>
+            <a href="{% url 'archive:source_delete' source.pk %}" class="btn btn-outline-danger" title="Elimina">
+                <i class="fas fa-trash"></i>
+            </a>
+        </div>
+        <a href="{% url 'archive:source_list' %}" class="btn btn-sm btn-secondary">&larr; Torna alle fonti</a>
+    </div>
+</div>
+
+<div class="tabbable mb-4">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#tab-description" data-bs-toggle="tab">Descrizione</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#tab-relations" data-bs-toggle="tab">Relazioni</a>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content">
+    <!-- Tab 1: Descrizione -->
+    <div class="tab-pane active" id="tab-description">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table class="table table-show">
+                    <tr>
+                        <th style="width:200px">Tipologia</th>
+                        <td>
+                            {% if source.source_type_code %}
+                                {{ source.source_type_code }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Tipologia specifica</th>
+                        <td>{{ source.source_subtype_code|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Sigla</th>
+                        <td>{{ source.short_title|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Autore</th>
+                        <td>{{ source.author|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Titolo</th>
+                        <td>{{ source.title|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Curatore</th>
+                        <td>{{ source.editor|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Luogo di pubblicazione</th>
+                        <td>{{ source.place|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Editore</th>
+                        <td>{{ source.publisher|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Data di pubblicazione</th>
+                        <td>{{ source.date_string|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Validità dello strumento</th>
+                        <td>{% if source.finding_aid_valid %}Sì{% else %}No{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>Edito?</th>
+                        <td>{% if source.finding_aid_published %}Sì{% else %}No{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>Titolo correlato</th>
+                        <td>{{ source.related_item|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Note titolo correlato</th>
+                        <td>{{ source.related_item_specs|default:"—" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Abstract</th>
+                        <td>{{ source.abstract|default:"—" }}</td>
+                    </tr>
+                    {% if source_urls %}
+                    <tr>
+                        <th>Collegamenti</th>
+                        <td>
+                            <ul>
+                                {% for su in source_urls %}
+                                <li>
+                                    <a href="{{ su.url }}" target="_blank">{{ su.url }}</a>
+                                    {% if su.note %} — {{ su.note }}{% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <th>Collegamenti</th>
+                        <td>—</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Relazioni -->
+    <div class="tab-pane" id="tab-relations">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <!-- Complessi archivistici collegati -->
+                <h5>Complessi archivistici collegati</h5>
+                {% if rel_fonds %}
+                <table class="table table-show mb-4">
+                    <thead><tr><th>Nome</th></tr></thead>
+                    <tbody>
+                        {% for rel in rel_fonds %}
+                        <tr>
+                            <td><a href="{% url 'archive:fond_detail' rel.fond.pk %}">{{ rel.fond.name }}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">Nessun complesso archivistico collegato.</p>
+                {% endif %}
+
+                <!-- Soggetti produttori collegati -->
+                <h5>Soggetti produttori collegati</h5>
+                {% if rel_creators %}
+                <table class="table table-show mb-4">
+                    <thead><tr><th>Denominazione</th></tr></thead>
+                    <tbody>
+                        {% for rel in rel_creators %}
+                        <tr>
+                            <td><a href="{% url 'archive:creator_detail' rel.creator.pk %}">{{ rel.creator.display_name }}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">Nessun soggetto produttore collegato.</p>
+                {% endif %}
+
+                <!-- Soggetti conservatori collegati -->
+                <h5>Soggetti conservatori collegati</h5>
+                {% if rel_custodians %}
+                <table class="table table-show mb-4">
+                    <thead><tr><th>Denominazione</th></tr></thead>
+                    <tbody>
+                        {% for rel in rel_custodians %}
+                        <tr>
+                            <td><a href="{% url 'archive:custodian_detail' rel.custodian.pk %}">{{ rel.custodian.display_name }}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">Nessun soggetto conservatore collegato.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'archive/base.html' %}
+{% block title %}Schede anagrafiche - Archimista{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Schede anagrafiche</h2>
+    <a href="{% url 'archive:anagraphic_create' %}" class="btn btn-primary">Nuova scheda anagrafica</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if anagraphics %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Cognome</th>
+                    <th>Nome</th>
+                    <th>Luogo di nascita</th>
+                    <th>Data di nascita</th>
+                    <th>Luogo di morte</th>
+                    <th>Data di morte</th>
+                    <th style="width:250px">Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in anagraphics %}
+                <tr>
+                    <td>{{ a.surname|default:"—" }}</td>
+                    <td>{{ a.name|default:"—" }}</td>
+                    <td>{{ a.start_date_place|default:"—" }}</td>
+                    <td>{{ a.start_date|date:"d/m/Y"|default:"—" }}</td>
+                    <td>{{ a.end_date_place|default:"—" }}</td>
+                    <td>{{ a.end_date|date:"d/m/Y"|default:"—" }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'archive:anagraphic_detail' a.pk %}" class="btn btn-outline-secondary" title="Dettaglio">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'archive:anagraphic_edit' a.pk %}" class="btn btn-outline-primary" title="Modifica">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'archive:anagraphic_delete' a.pk %}" class="btn btn-outline-danger" title="Elimina">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% if is_paginated %}
+        <nav aria-label="Navigazione paginazione">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Precedente</a>
+                </li>
+                {% endif %}
+                <li class="page-item active">
+                    <span class="page-link">Pagina {{ page_obj.number }} di {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Successiva</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <p class="text-muted">Nessuna scheda anagrafica presente.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

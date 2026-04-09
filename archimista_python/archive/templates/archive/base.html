@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Archimista{% endblock %}</title>
+    <!-- Usa un framework CSS semplice e moderno, come raccomandato: Bootstrap 5 via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_media %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'archive:fond_list' %}">Archimista</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <form class="d-flex ms-lg-3 my-2 my-lg-0 flex-grow-1" action="{% url 'archive:search' %}" method="get">
+                    <input class="form-control me-2" type="search" name="q"
+                        placeholder="Cerca in tutto l'archivio..." aria-label="Search" value="{{ query|default:'' }}">
+                    <button class="btn btn-outline-light" type="submit">Cerca</button>
+                </form>
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUtente" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownUtente">
+                            <li><a class="dropdown-item" href="{% url 'archive:password_change' %}">Cambia password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:logout' %}">Esci</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    <!-- Schede -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSchede" role="button" data-bs-toggle="dropdown">
+                            Schede
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownSchede">
+                            <li><a class="dropdown-item" href="{% url 'archive:fond_list' %}">Complessi archivistici</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:unit_list' %}">Unità</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:creator_list' %}">Soggetti produttori</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:custodian_list' %}">Soggetti conservatori</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:source_list' %}">Fonti</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:digital_object_list' %}">Oggetti digitali</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:institution_list' %}">Profili istituzionali</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:document_form_list' %}">Profili documentari</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:project_list' %}">Progetti</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:editor_list' %}">Compilatori</a></li>
+                        </ul>
+                    </li>
+                    <!-- Strumenti -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownStrumenti" role="button" data-bs-toggle="dropdown">
+                            Strumenti
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownStrumenti">
+                            <li><a class="dropdown-item" href="{% url 'archive:heading_list' %}">Voci di indice</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:anagraphic_list' %}">Schede anagrafiche</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:classification_list' %}">Titolario</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:quality_check_index' %}">Controllo qualità</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:editor_list' %}">Compilatori</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:digital_object_list' %}">Oggetti digitali</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:advanced_search' %}">Ricerca avanzata</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:export_aef' %}">Esporta AEF</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:export_units_csv' %}">Esporta unità CSV</a></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:report_index' %}">Report</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'archive:import_aef' %}">Importa AEF</a></li>
+                        </ul>
+                    </li>
+                    <!-- Azioni rapide -->
+                    <li class="nav-item">
+                        <a class="nav-link text-info" href="{% url 'archive:archive_tree' %}">Albero</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+
+</html>

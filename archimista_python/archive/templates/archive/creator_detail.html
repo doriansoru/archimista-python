@@ -1,0 +1,342 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}Soggetto produttore{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'archive:creator_list' %}">Soggetti produttori</a></li>
+            <li class="breadcrumb-item active">
+                {% with pn=creator.creator_names.first %}{{ pn.name|default:"Senza nome" }}{% endwith %}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="display-6">
+            {% with pn=creator.creator_names.first %}{{ pn.name|default:"Soggetto produttore" }}{% endwith %}
+        </h1>
+        <div>
+            <div class="btn-group btn-group-sm">
+                <a href="{% url 'archive:creator_digital_object_list' creator_id=creator.pk %}" class="btn btn-outline-info" title="Oggetti digitali">
+                    <i class="fas fa-images"></i> <span class="d-none d-md-inline">Oggetti digitali{% if creator.digital_objects.count %} ({{ creator.digital_objects.count }}){% endif %}</span>
+                </a>
+                <a href="{% url 'archive:creator_update' creator.pk %}" class="btn btn-outline-primary" title="Modifica">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'archive:creator_delete' creator.pk %}" class="btn btn-outline-danger" title="Elimina">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-4" id="creatorDetailTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="detail-identification-tab" data-bs-toggle="tab" data-bs-target="#detail-identification" type="button" role="tab">1. Identificazione</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="detail-description-tab" data-bs-toggle="tab" data-bs-target="#detail-description" type="button" role="tab">2. Descrizione</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="detail-relations-tab" data-bs-toggle="tab" data-bs-target="#detail-relations" type="button" role="tab">3. Relazioni</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="detail-sources-tab" data-bs-toggle="tab" data-bs-target="#detail-sources" type="button" role="tab">4. Fonti</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="detail-editors-tab" data-bs-toggle="tab" data-bs-target="#detail-editors" type="button" role="tab">5. Compilatori</button>
+        </li>
+        {% if events %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="detail-dates-tab" data-bs-toggle="tab" data-bs-target="#detail-dates" type="button" role="tab">Estremi cronologici</button>
+        </li>
+        {% endif %}
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="creatorDetailTabsContent">
+
+        <!-- 1. IDENTIFICAZIONE -->
+        <div class="tab-pane fade show active" id="detail-identification" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">Identificazione</h5></div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Tipo:</div>
+                        <div class="col-sm-9">
+                            {% if creator.creator_type == 'P' %}Persona
+                            {% elif creator.creator_type == 'F' %}Famiglia
+                            {% elif creator.creator_type == 'E' %}Ente
+                            {% else %}-{% endif %}
+                        </div>
+                    </div>
+                    {% if creator.creator_type == 'E' and creator.creator_corporate_type %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Tipo di ente:</div>
+                        <div class="col-sm-9">{{ creator.creator_corporate_type }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Pubblicato:</div>
+                        <div class="col-sm-9">
+                            {% if creator.published %}<span class="badge bg-success">Sì</span>
+                            {% else %}<span class="badge bg-secondary">No</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3 fw-bold">Sede:</div>
+                        <div class="col-sm-9">{{ creator.residence|default:"-" }}</div>
+                    </div>
+
+                    <!-- Denominazione principale -->
+                    {% if creator.preferred_name %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Denominazione principale</h6>
+                    <div class="row mb-2">
+                        {% if creator.creator_type == 'P' %}
+                            <div class="col-sm-3 fw-bold">Nome:</div>
+                            <div class="col-sm-9">{{ creator.preferred_name.first_name|default:"-" }} {{ creator.preferred_name.last_name|default:"-" }}</div>
+                        {% else %}
+                            <div class="col-sm-3 fw-bold">Nome:</div>
+                            <div class="col-sm-9">{{ creator.preferred_name.name|default:"-" }}</div>
+                        {% endif %}
+                        {% if creator.preferred_name.note %}
+                        <div class="col-sm-3 fw-bold mt-2">Nota:</div>
+                        <div class="col-sm-9 mt-2">{{ creator.preferred_name.note }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Denominazioni alternative -->
+                    {% if creator.creator_names.exists %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Denominazioni alternative</h6>
+                    <ul class="list-unstyled">
+                        {% for n in creator.creator_names.all %}
+                        <li><strong>{{ n.name }}</strong>
+                            {% if n.qualifier %} ({{ n.qualifier }}){% endif %}
+                            {% if n.preferred %} <span class="badge bg-info">Preferito</span>{% endif %}
+                            {% if n.patronymic %} — Patronimico: {{ n.patronymic }}{% endif %}
+                            {% if n.nickname %} — Nickname: {{ n.nickname }}{% endif %}
+                            {% if n.note %} — {{ n.note }}{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <!-- Identificativi -->
+                    {% if creator.creator_identifiers.exists %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Identificativi</h6>
+                    <ul class="list-unstyled">
+                        {% for ident in creator.creator_identifiers.all %}
+                        <li><strong>{{ ident.identifier }}</strong>
+                            {% if ident.identifier_source %} ({{ ident.identifier_source }}){% endif %}
+                            {% if ident.note %} — {{ ident.note }}{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <!-- URL -->
+                    {% if creator.creator_urls.exists %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">URL</h6>
+                    <ul class="list-unstyled">
+                        {% for u in creator.creator_urls.all %}
+                        <li><a href="{{ u.url }}" target="_blank">{{ u.url }}</a> {% if u.note %}- {{ u.note }}{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <!-- Stati giuridici -->
+                    {% if creator.creator_legal_statuses.exists %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Condizione giuridica</h6>
+                    <ul class="list-unstyled">
+                        {% for ls in creator.creator_legal_statuses.all %}
+                        <li><strong>{{ ls.legal_status }}</strong> {% if ls.note %}- {{ ls.note }}{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. DESCRIZIONE -->
+        <div class="tab-pane fade" id="detail-description" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">Descrizione</h5></div>
+                <div class="card-body">
+                    {% if creator.abstract %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2">Abstract</h6>
+                    <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ creator.abstract }}</div>
+                    {% endif %}
+
+                    {% if creator.history %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Storia</h6>
+                    <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ creator.history }}</div>
+                    {% endif %}
+
+                    {% if creator.note %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Note</h6>
+                    <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">{{ creator.note }}</div>
+                    {% endif %}
+
+                    <!-- Attività -->
+                    {% if creator.creator_activities.exists %}
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Attività</h6>
+                    <ul class="list-unstyled">
+                        {% for a in creator.creator_activities.all %}
+                        <li><strong>{{ a.activity }}</strong> {% if a.note %}- {{ a.note }}{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. RELAZIONI -->
+        <div class="tab-pane fade" id="detail-relations" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">Relazioni</h5></div>
+                <div class="card-body">
+                    <!-- Fondi -->
+                    <h6 class="fw-bold mb-3 border-bottom pb-2">Fondi collegati</h6>
+                    {% if creator.relcreatorfond_set.exists %}
+                    <ul class="list-unstyled">
+                        {% for rel in creator.relcreatorfond_set.all %}
+                        <li><a href="{% url 'archive:fond_detail' rel.fond.pk %}">{{ rel.fond.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}<p class="text-muted">Nessun fondo collegato</p>{% endif %}
+
+                    <!-- Istituzioni -->
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Relazioni con istituzioni</h6>
+                    {% if creator.relcreatorinstitution_set.exists %}
+                    <ul class="list-unstyled">
+                        {% for rel in creator.relcreatorinstitution_set.all %}<li>{{ rel.institution }}</li>{% endfor %}
+                    </ul>
+                    {% else %}<p class="text-muted">Nessuna istituzione collegata</p>{% endif %}
+
+                    <!-- Altri soggetti produttori -->
+                    <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Relazioni con altri soggetti produttori</h6>
+                    {% if creator.rel_creator_creators.exists %}
+                    <table class="table table-sm">
+                        <thead><tr><th>Soggetto</th><th>Tipo relazione</th></tr></thead>
+                        <tbody>
+                            {% for rel in creator.rel_creator_creators.all %}
+                            <tr>
+                                <td>{{ rel.related_creator.creator_names.first.name|default:"Senza nome" }}</td>
+                                <td>{{ rel.association_type|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}<p class="text-muted">Nessuna relazione con altri soggetti</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. FONTI -->
+        <div class="tab-pane fade" id="detail-sources" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">Fonti</h5></div>
+                <div class="card-body">
+                    {% if creator.relcreatorsource_set.exists %}
+                    <ul class="list-unstyled">
+                        {% for rel in creator.relcreatorsource_set.all %}<li>{{ rel.source }}</li>{% endfor %}
+                    </ul>
+                    {% else %}<p class="text-muted">Nessuna fonte collegata</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. COMPILATORI -->
+        <div class="tab-pane fade" id="detail-editors" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">Compilatori</h5></div>
+                <div class="card-body">
+                    {% if creator.creator_editors.exists %}
+                    <table class="table table-striped">
+                        <thead><tr><th>Nome</th><th>Qualificatore</th><th>Tipo compilazione</th><th>Data</th></tr></thead>
+                        <tbody>
+                            {% for editor in creator.creator_editors.all %}
+                            <tr>
+                                <td>{{ editor.name|default:"-" }}</td>
+                                <td>{{ editor.qualifier|default:"-" }}</td>
+                                <td>{{ editor.editing_type|default:"-" }}</td>
+                                <td>{{ editor.edited_at|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}<p class="text-muted">Nessun compilatore registrato</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ESTREMI CRONOLOGICI -->
+        {% if events %}
+        <div class="tab-pane fade" id="detail-dates" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">Estremi cronologici</h5></div>
+                <div class="card-body">
+                    {% for event in events %}
+                    <div class="mb-3 pb-2 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between">
+                            <strong>
+                                {% if event.start_date_display and event.end_date_display %}
+                                    {{ event.start_date_display }} – {{ event.end_date_display }}
+                                {% elif event.start_date_display %}
+                                    {{ event.start_date_display }}
+                                {% elif event.end_date_display %}
+                                    {{ event.end_date_display }}
+                                {% else %}
+                                    Data non specificata
+                                {% endif %}
+                            </strong>
+                            {% if event.preferred %}<span class="badge bg-success">Preferito</span>{% endif %}
+                        </div>
+                        {% if event.event_type %}
+                        <div class="text-muted small">Tipo: {{ event.event_type }}</div>
+                        {% endif %}
+                        {% if event.start_date_spec or event.start_date_valid %}
+                        <div class="small">
+                            {% if event.start_date_spec %}<span class="badge bg-secondary me-1">{{ event.start_date_spec }}</span>{% endif %}
+                            {% if event.start_date_valid %}<span class="badge bg-info me-1">{{ event.start_date_valid }}</span>{% endif %}
+                            {% if event.end_date_spec %}<span class="badge bg-secondary me-1">{{ event.end_date_spec }}</span>{% endif %}
+                            {% if event.end_date_valid %}<span class="badge bg-info me-1">{{ event.end_date_valid }}</span>{% endif %}
+                        </div>
+                        {% endif %}
+                        {% if event.start_date_place or event.end_date_place %}
+                        <div class="small text-muted">
+                            {% if event.start_date_place %}Luogo inizio: {{ event.start_date_place }}{% endif %}
+                            {% if event.end_date_place %}{% if event.start_date_place %} | {% endif %}Luogo fine: {{ event.end_date_place }}{% endif %}
+                        </div>
+                        {% endif %}
+                        {% if event.note %}
+                        <div class="small text-muted">Nota: {{ event.note }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 mb-4 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Azioni</h5>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="{% url 'archive:creator_update' creator.pk %}" class="btn btn-sm btn-outline-primary">✏️ Modifica</a>
+                        <a href="{% url 'archive:creator_list' %}" class="btn btn-sm btn-outline-secondary">📋 Lista</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

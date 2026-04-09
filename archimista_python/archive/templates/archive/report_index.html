@@ -1,0 +1,78 @@
+{% extends "archive/base.html" %}
+
+{% block title %}Report{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Report</h2>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Inventario di complesso archivistico</h5>
+                </div>
+                <div class="card-body">
+                    {% if fonds %}
+                    <ul class="list-group list-group-flush">
+                        {% for fond in fonds %}
+                        <li class="list-group-item">
+                            <a href="{% url 'archive:report_inventory' fond.id %}">{{ fond.name }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">Nessun fondo disponibile.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Report per progetto</h5>
+                </div>
+                <div class="card-body">
+                    {% if projects %}
+                    <ul class="list-group list-group-flush">
+                        {% for project in projects %}
+                        <li class="list-group-item">
+                            <a href="{% url 'archive:report_project' project.id %}">{{ project.name }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">Nessun progetto disponibile.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">Report per soggetto conservatore</h5>
+                </div>
+                <div class="card-body">
+                    {% if custodians %}
+                    <ul class="list-group list-group-flush">
+                        {% for c in custodians %}
+                        <li class="list-group-item">
+                            <a href="{% url 'archive:report_custodian' c.id %}">
+                                {% with pn=c.custodian_names.all|first %}{{ pn.name|default:"Senza nome" }}{% endwith %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">Nessun soggetto conservatore disponibile.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

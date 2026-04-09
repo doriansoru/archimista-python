@@ -1,0 +1,34 @@
+{% comment %}
+Partial: Tab Fonti del Fondo
+Required context variables: rel_fond_source_formset
+{% endcomment %}
+<div class="tab-pane fade" id="sources" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Fonti</h5>
+        </div>
+        <div class="card-body">
+            {{ rel_fond_source_formset.management_form }}
+            <div id="rel_fond_source_formset">
+                {% for form in rel_fond_source_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.source.label }}</label>
+                                {{ form.source }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">
+                                {{ form.DELETE }}
+                                <label for="{{ form.DELETE.id_for_label }}" class="form-label small ms-1 mb-0">Elimina</label>
+                                {% if form.instance.pk %}{{ form.id }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_source_btn">+ Aggiungi Fonte</button>
+        </div>
+    </div>
+</div>

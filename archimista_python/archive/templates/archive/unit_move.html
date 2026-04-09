@@ -1,0 +1,141 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}Modifica livello - Archimista{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Modifica livello</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    <span class="badge bg-secondary">{{ current_level }}</span>
+                    <strong>{{ display_seq }}. {{ unit.title }}</strong>
+                </p>
+
+                {% if unit.is_not_movable %}
+                    <div class="alert alert-info">
+                        Nessuna azione disponibile.
+                    </div>
+                {% else %}
+                    <p>Azioni disponibili:</p>
+
+                    {% if unit.is_movable_up %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="move_action" id="move_up" value="up">
+                            <label class="form-check-label" for="move_up">
+                                Trasforma in <strong>{{ up_level }}</strong>
+                            </label>
+                        </div>
+                    {% endif %}
+
+                    {% if unit.is_movable_down and siblings %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="move_action" id="move_down" value="down">
+                            <label class="form-check-label" for="move_down">
+                                Trasforma in <strong>{{ down_level }}</strong>
+                            </label>
+                        </div>
+                    {% endif %}
+
+                    <!-- Scelta: su -->
+                    <div id="move-up-choice" class="mt-3" style="display: none;">
+                        <div class="alert alert-info">
+                            <p>Trasforma l'elemento in <strong>{{ up_level }}</strong></p>
+                            <p class="text-muted small mb-0">
+                                L'elemento sarà inserito in ultima posizione al livello superiore.
+                            </p>
+                        </div>
+                        <form method="post" action="{% url 'archive:unit_move_up' unit.pk %}" id="move-up-form">
+                            {% csrf_token %}
+                        </form>
+                    </div>
+
+                    <!-- Scelta: giù -->
+                    <div id="move-down-choice" class="mt-3" style="display: none;">
+                        <div class="alert alert-info">
+                            <p>Trasforma l'elemento in <strong>{{ down_level }}</strong></p>
+                            <p class="text-muted small mb-0">
+                                Scegli il nuovo padre tra quelli disponibili.<br>
+                                L'elemento sarà inserito come ultimo figlio del padre selezionato.
+                            </p>
+                        </div>
+                        <form method="post" action="{% url 'archive:unit_move_down' unit.pk %}" id="move-down-form">
+                            {% csrf_token %}
+                            <ul class="list-unstyled">
+                                {% for sibling in siblings %}
+                                    <li>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="new_parent_id"
+                                                   id="sibling_{{ sibling.pk }}" value="{{ sibling.pk }}">
+                                            <label class="form-check-label" for="sibling_{{ sibling.pk }}">
+                                                {{ sibling.reference_number|default:sibling.position }}.
+                                                {{ sibling.title|default:"Senza titolo" }}
+                                            </label>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" id="back-btn" style="display: none;"
+                        onclick="goBack()">Indietro</button>
+                <div class="ms-auto">
+                    <a href="{% url 'archive:unit_detail' unit.pk %}" class="btn btn-outline-secondary me-2">Annulla</a>
+                    <button type="button" class="btn btn-primary" id="confirm-move" disabled
+                            onclick="confirmMove()">Trasforma</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    var currentAction = null;
+
+    $('input[name="move_action"]').on('change', function() {
+        var action = $(this).val();
+        currentAction = action;
+
+        // Nascondi tutte le scelte
+        $('#move-up-choice, #move-down-choice').hide();
+
+        // Mostra la scelta selezionata
+        $('#move-' + action + '-choice').show();
+
+        // Abilita pulsante
+        $('#confirm-move').prop('disabled', false);
+
+        // Mostra pulsante indietro
+        $('#back-btn').show();
+    });
+});
+
+function goBack() {
+    // Torna alla scelta iniziale
+    $('input[name="move_action"]').prop('checked', false);
+    $('#move-up-choice, #move-down-choice').hide();
+    $('#confirm-move').prop('disabled', true);
+    $('#back-btn').hide();
+}
+
+function confirmMove() {
+    if (currentAction === 'up') {
+        $('#move-up-form').submit();
+    } else if (currentAction === 'down') {
+        var selectedParent = $('input[name="new_parent_id"]:checked');
+        if (!selectedParent.val()) {
+            alert('Seleziona un padre');
+            return;
+        }
+        $('#move-down-form').submit();
+    }
+}
+</script>
+{% endblock %}

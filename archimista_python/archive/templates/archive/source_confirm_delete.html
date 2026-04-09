@@ -1,0 +1,20 @@
+{% extends 'archive/base.html' %}
+{% block title %}Elimina fonte - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Elimina fonte</h2>
+    <a href="{% url 'archive:source_list' %}" class="btn btn-sm btn-secondary">&larr; Torna alle fonti</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p>Sei sicuro di voler eliminare la fonte <strong>{{ source.short_title|default:source.title }}</strong>?</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Elimina</button>
+            <a href="{% url 'archive:source_edit' source.pk %}" class="btn btn-secondary">Annulla</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

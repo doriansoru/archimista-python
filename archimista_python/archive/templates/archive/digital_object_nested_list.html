@@ -1,0 +1,81 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ title }} - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ title }}</h2>
+    <div>
+        <a href="{{ attachable_detail_url }}" class="btn btn-outline-secondary">&larr; Torna a {{ attachable }}</a>
+        <a href="{% if attachable_type == 'fond' %}{% url 'archive:fond_digital_object_create' fond_id=attachable.pk %}{% elif attachable_type == 'unit' %}{% url 'archive:unit_digital_object_create' unit_id=attachable.pk %}{% elif attachable_type == 'creator' %}{% url 'archive:creator_digital_object_create' creator_id=attachable.pk %}{% elif attachable_type == 'custodian' %}{% url 'archive:custodian_digital_object_create' custodian_id=attachable.pk %}{% elif attachable_type == 'source' %}{% url 'archive:source_digital_object_create' source_id=attachable.pk %}{% endif %}" class="btn btn-primary">Nuovo oggetto digitale</a>
+    </div>
+</div>
+
+<div class="card shadow-sm"><div class="card-body">
+    {% if digital_objects %}
+    <p class="text-muted mb-3">Oggetti digitali associati a <strong>{{ attachable }}</strong>.</p>
+    <div class="row">
+        {% for d in digital_objects %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                {% if d.asset %}
+                <div class="text-center p-2 bg-light">
+                    {% if d.is_image %}
+                        <a href="{{ d.asset.url }}" target="_blank">
+                            <img src="{% if d.access_token %}/media/thumbnails/{{ d.access_token }}_medium.jpg{% else %}{{ d.asset.url }}{% endif %}"
+                                 class="img-fluid" style="max-height:200px;" alt="{{ d.title|default:'Immagine' }}">
+                        </a>
+                    {% elif d.is_pdf %}
+                        <img src="/static/images/pdf-medium.png" class="img-fluid" style="max-height:200px;" alt="PDF">
+                    {% elif d.is_video %}
+                        <img src="/static/images/mp4-medium.png" class="img-fluid" style="max-height:200px;" alt="Video">
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ d.title|default:d.asset_file_name|default:"Senza titolo" }}</h6>
+                    {% if d.description %}
+                    <p class="card-text text-muted small">{{ d.description|truncatewords:20 }}</p>
+                    {% endif %}
+                    {% if d.asset_file_name %}
+                    <p class="mb-1 small"><strong>File:</strong> {{ d.asset_file_name }}
+                        {% if d.asset_file_size %}({{ d.asset_file_size|filesizeformat }}){% endif %}
+                    </p>
+                    {% endif %}
+                    <p class="mb-1 small"><strong>Posizione:</strong> {{ d.position|default:"—" }}</p>
+                    <p class="mb-1 small"><strong>Pubblicato:</strong> {% if d.published %}Sì{% else %}No{% endif %}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% if attachable_type == 'fond' %}{% url 'archive:fond_digital_object_edit' fond_id=attachable.pk pk=d.pk %}{% elif attachable_type == 'unit' %}{% url 'archive:unit_digital_object_edit' unit_id=attachable.pk pk=d.pk %}{% elif attachable_type == 'creator' %}{% url 'archive:creator_digital_object_edit' creator_id=attachable.pk pk=d.pk %}{% elif attachable_type == 'custodian' %}{% url 'archive:custodian_digital_object_edit' custodian_id=attachable.pk pk=d.pk %}{% elif attachable_type == 'source' %}{% url 'archive:source_digital_object_edit' source_id=attachable.pk pk=d.pk %}{% endif %}" class="btn btn-outline-primary" title="Modifica">
+                            <i class="fas fa-edit"></i> Modifica
+                        </a>
+                        <a href="{% if attachable_type == 'fond' %}{% url 'archive:fond_digital_object_delete' fond_id=attachable.pk pk=d.pk %}{% elif attachable_type == 'unit' %}{% url 'archive:unit_digital_object_delete' unit_id=attachable.pk pk=d.pk %}{% elif attachable_type == 'creator' %}{% url 'archive:creator_digital_object_delete' creator_id=attachable.pk pk=d.pk %}{% elif attachable_type == 'custodian' %}{% url 'archive:custodian_digital_object_delete' custodian_id=attachable.pk pk=d.pk %}{% elif attachable_type == 'source' %}{% url 'archive:source_digital_object_delete' source_id=attachable.pk pk=d.pk %}{% endif %}" class="btn btn-outline-danger" title="Elimina">
+                            <i class="fas fa-trash"></i> Elimina
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav class="mt-3">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo; Prima</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Precedente</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">Pagina {{ page_obj.number }} di {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Successiva</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Ultima &raquo;</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <p class="text-muted">Non sono ancora presenti oggetti digitali per questa entità.</p>
+    {% endif %}
+</div></div>
+{% endblock %}

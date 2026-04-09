@@ -1,0 +1,12 @@
+.env
+db.sqlite3
+__pycache__/
+*.pyc
+*.pyo
+*.sqlite3
+.env.local
+*.log
+media/
+staticfiles/
+.qwen/
+archimista-export_complesso-20260402153816.aef.zip

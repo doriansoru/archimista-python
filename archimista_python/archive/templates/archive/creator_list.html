@@ -1,0 +1,57 @@
+{% extends 'archive/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h1>Soggetti produttori</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'archive:creator_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nuovo soggetto produttore
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            {% if creators %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Stato giuridico</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for creator in creators %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'archive:creator_detail' creator.pk %}">
+                                {{ creator.history|truncatewords:5|default:"Senza nome" }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if creator.creator_type == 'P' %}Persona
+                            {% elif creator.creator_type == 'F' %}Famiglia
+                            {% elif creator.creator_type == 'E' %}Ente
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>{{ creator.legal_status|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'archive:creator_update' creator.pk %}" class="btn btn-sm btn-outline-primary">Modifica</a>
+                            <a href="{% url 'archive:creator_delete' creator.pk %}" class="btn btn-sm btn-outline-danger">Elimina</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">Nessun soggetto produttore presente.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

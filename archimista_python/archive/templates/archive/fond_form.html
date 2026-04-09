@@ -1,0 +1,232 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}{% if fond %}Modifica{% else %}Nuovo{% endif %} Fondo - Archimista{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Archivio</a></li>
+            <li class="breadcrumb-item active">{% if fond %}Modifica{% else %}Nuovo{% endif %} Fondo</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-3">
+        <div class="col">
+            <h1>{% if fond %}Modifica{% else %}Nuovo{% endif %} Fondo</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'archive:fond_list' %}" class="btn btn-secondary">Annulla</a>
+        </div>
+    </div>
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-4" id="fondTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">1. Descrizione</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="other-info-tab" data-bs-toggle="tab" data-bs-target="#other-info" type="button" role="tab">2. Altre informazioni</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" type="button" role="tab">3. Accesso</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="relations-tab" data-bs-toggle="tab" data-bs-target="#relations" type="button" role="tab">4. Relazioni</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sources-tab" data-bs-toggle="tab" data-bs-target="#sources" type="button" role="tab">5. Fonti</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="editors-tab" data-bs-toggle="tab" data-bs-target="#editors" type="button" role="tab">6. Compilatori</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="fondTabsContent">
+            {% include "archive/fonds/partials/_tab_description.html" %}
+            {% include "archive/fonds/partials/_tab_other_info.html" %}
+            {% include "archive/fonds/partials/_tab_access.html" %}
+            {% include "archive/fonds/partials/_tab_relations.html" %}
+            {% include "archive/fonds/partials/_tab_sources.html" %}
+            {% include "archive/fonds/partials/_tab_editors.html" %}
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'archive:fond_list' %}" class="btn btn-secondary">Annulla</a>
+            <button type="submit" class="btn btn-success btn-lg">Salva fondo</button>
+        </div>
+    </form>
+</div>
+
+<style>
+/* Archidate styles */
+.archidate-wrapper { border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 1rem; margin-bottom: 1rem; background: #f8f9fa; }
+.bound-wrapper { padding: 0.75rem; background: #fff; border-radius: 0.25rem; margin-bottom: 0.5rem; }
+.archidate-format-wrapper { }
+.archidate-format-wrapper.inactive { display: none; }
+.bound-wrapper.inactive { opacity: 0.5; }
+.bound-wrapper.inactive input, .bound-wrapper.inactive select { pointer-events: none; }
+.equal-bounds-command { margin-right: 0.25rem; }
+
+/* Select2 full width */
+.select2-container { width: 100% !important; }
+.select2-container .select2-selection--single { height: 38px; border: 1px solid #ced4da; border-radius: 0.375rem; }
+.select2-container .select2-selection--single .select2-selection__rendered { line-height: 36px; padding-left: 12px; }
+.select2-container .select2-selection--single .select2-selection__arrow { height: 36px; }
+.select2-dropdown { border: 1px solid #ced4da; border-radius: 0.375rem; }
+.select2-results__option { padding: 6px 12px; }
+.select2-container--open .select2-dropdown { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25); }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Funzione generica per gestire i formset dinamici
+    function setupFormset(prefix) {
+        const formset = document.getElementById(prefix + '_formset');
+        if (!formset) return;
+
+        const totalForms = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+        if (!totalForms) return;
+        let formCount = parseInt(totalForms.value);
+
+        let addBtn = document.querySelector(`.add-formset-btn[data-prefix="${prefix}"]`);
+
+        if (!addBtn) {
+            const possibleIds = [
+                'add_' + prefix + '_btn',
+                'add_' + prefix.replace(/^rel_/, '') + '_btn',
+                'add_' + prefix.replace(/^rel_fond_/, '') + '_btn',
+                'add_' + prefix.replace(/^rel_unit_/, '') + '_btn',
+                'add_' + prefix.replace(/^rel_creator_/, '') + '_btn',
+                'add_' + prefix.replace(/^rel_custodian_/, '') + '_btn',
+            ];
+            for (const btnId of possibleIds) {
+                addBtn = document.getElementById(btnId);
+                if (addBtn) break;
+            }
+        }
+
+        if (!addBtn) {
+            addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'btn btn-sm btn-outline-primary mt-2';
+            addBtn.textContent = '+ Aggiungi';
+            formset.parentNode.insertBefore(addBtn, formset.nextSibling);
+        }
+
+        addBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const forms = formset.querySelectorAll('.formset-item');
+            if (forms.length === 0) return;
+
+            const lastForm = forms[forms.length - 1];
+
+            // Step 1: Destroy Select2 on the ORIGINAL row
+            $(lastForm).find('select.select2-hidden-accessible').select2('destroy');
+
+            // Step 2: Clone the now-clean row
+            const newForm = lastForm.cloneNode(true);
+
+            // Step 3: Re-initialize Select2 on the ORIGINAL row
+            $(lastForm).find('select.django-select2').djangoSelect2();
+
+            // Step 4: Clean Select2 artifacts from the CLONE
+            newForm.querySelectorAll('.select2-container').forEach(function(el) { el.remove(); });
+            newForm.querySelectorAll('select').forEach(function(sel) {
+                sel.classList.remove('select2-hidden-accessible');
+                sel.removeAttribute('data-select2-id');
+                sel.removeAttribute('aria-hidden');
+                sel.selectedIndex = 0;
+            });
+
+            // Step 5: Reset other fields
+            newForm.querySelectorAll('input, textarea').forEach(function(field) {
+                if (field.type !== 'hidden' && field.type !== 'checkbox') {
+                    field.value = '';
+                }
+                field.checked = false;
+            });
+
+            // Step 6: Update names/ids
+            const regex = new RegExp(`${prefix}-(\\d+)`, 'g');
+            newForm.innerHTML = newForm.innerHTML.replace(regex, `${prefix}-${formCount}`);
+
+            const idInput = newForm.querySelector(`input[name="${prefix}-${formCount}-id"]`);
+            if (idInput) idInput.value = '';
+
+            // Step 7: Append and trigger
+            formset.appendChild(newForm);
+            $(newForm).trigger('formset:added');
+
+            formCount++;
+            totalForms.value = formCount;
+        });
+    }
+
+    // Setup tutti i formset
+    const formsetPrefixes = [
+        'fond_name',
+        'fond_identifier',
+        'fond_lang',
+        'fond_owner',
+        'fond_url',
+        'fond_editor',
+        'rel_fond_heading',
+        'rel_fond_source',
+        'rel_fond_document'
+    ];
+
+    formsetPrefixes.forEach(setupFormset);
+
+    // Archidate JavaScript
+    function initArchidate() {
+        document.querySelectorAll('.format-toggler').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const bound = this.classList.contains('start') ? 'start' : 'end';
+                const format = this.value;
+                const wrapper = this.closest('.bound-wrapper');
+                wrapper.querySelectorAll('.archidate-format-wrapper').forEach(function(fw) {
+                    if (fw.dataset.bound === bound) {
+                        if (fw.dataset.boundFormat === format) {
+                            fw.classList.add('active');
+                            fw.classList.remove('inactive');
+                            fw.querySelectorAll('input, select').forEach(function(f) { f.disabled = false; });
+                        } else {
+                            fw.classList.remove('active');
+                            fw.classList.add('inactive');
+                            fw.querySelectorAll('input, select').forEach(function(f) { f.disabled = true; });
+                        }
+                    }
+                });
+            });
+            if (radio.checked) radio.dispatchEvent(new Event('change'));
+        });
+
+        document.querySelectorAll('.equal-bounds-command').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                const wrapper = this.closest('.archidate-wrapper');
+                const endBound = wrapper.querySelector('.end.bound-wrapper');
+                if (this.checked) {
+                    endBound.classList.add('inactive');
+                    endBound.querySelectorAll('input, select').forEach(function(f) { f.disabled = true; });
+                } else {
+                    endBound.classList.remove('inactive');
+                    endBound.querySelectorAll('input, select').forEach(function(f) { f.disabled = false; });
+                }
+            });
+            cb.dispatchEvent(new Event('change'));
+        });
+    }
+
+    initArchidate();
+});
+</script>
+
+<!-- Select2 media (django-select2) -->
+{{ form.media }}
+{{ rel_fond_heading_formset.media }}
+
+{% endblock %}

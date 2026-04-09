@@ -1,0 +1,30 @@
+{% extends 'archive/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h2 class="mb-0">Conferma cancellazione</h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">Sei sicuro di voler eliminare l'unità <strong>"{{ object.title }}"</strong>?</p>
+                <div class="alert alert-warning">
+                    <p class="mb-0">Questa operazione non può essere annullata.</p>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between mt-4">
+                        {% if object.fond %}
+                        <a href="{% url 'archive:fond_detail' object.fond.pk %}" class="btn btn-secondary">Annulla</a>
+                        {% else %}
+                        <a href="{% url 'archive:fond_list' %}" class="btn btn-secondary">Annulla</a>
+                        {% endif %}
+                        <button type="submit" class="btn btn-danger">Elimina definitivamente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

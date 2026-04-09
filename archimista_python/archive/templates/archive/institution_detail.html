@@ -1,0 +1,43 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ institution.name|default:"Istituzione" }} - Archimista{% endblock %}
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'archive:institution_list' %}">&larr; Torna ai profili istituzionali</a>
+    <span class="mx-2">|</span>
+    <a href="{% url 'archive:institution_edit' institution.pk %}" class="btn btn-sm btn-secondary">Modifica</a>
+</div>
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white"><h5 class="mb-0">{{ institution.name|default:"Istituzione" }}</h5></div>
+    <div class="card-body">
+        <table class="table">
+            <tr><th style="width:200px">Denominazione</th><td>{{ institution.name|default:"—" }}</td></tr>
+            <tr><th>Descrizione</th><td>{{ institution.description|default:"—" }}</td></tr>
+            <tr><th>Annotazioni</th><td>{{ institution.note|default:"—" }}</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- Compilatori -->
+<div class="card shadow-sm mt-3">
+    <div class="card-header bg-secondary text-white"><h5 class="mb-0">Compilatori</h5></div>
+    <div class="card-body">
+        {% if institution_editors %}
+        <table class="table table-sm">
+            <thead><tr><th>Compilatore</th><th>Qualifica</th><th>Tipologia di intervento</th><th>Data intervento</th></tr></thead>
+            <tbody>
+                {% for editor in institution_editors %}
+                <tr>
+                    <td>{{ editor.name|default:"—" }}</td>
+                    <td>{{ editor.qualifier|default:"—" }}</td>
+                    <td>{{ editor.editing_type|default:"—" }}</td>
+                    <td>{{ editor.edited_at|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">Nessun compilatore registrato.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

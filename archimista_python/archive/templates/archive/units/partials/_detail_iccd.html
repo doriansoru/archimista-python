@@ -1,0 +1,53 @@
+{% comment %}
+  Partial: Scheda ICCD del dettaglio unità
+  Variabili richieste: unit
+{% endcomment %}
+{% if unit.iccd_card %}
+<div class="tab-pane fade" id="detail-iccd" role="tabpanel">
+    <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Scheda beni culturali (ICCD)</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Denominazione:</div>
+                <div class="col-sm-9">{{ unit.iccd_card.denomination|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Tipo oggetto:</div>
+                <div class="col-sm-9">{{ unit.iccd_card.object_type|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Categoria:</div>
+                <div class="col-sm-9">{{ unit.iccd_card.category|default:"-" }}</div>
+            </div>
+
+            {% if unit.iccd_tech_spec %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Specifiche tecniche</h6>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Materiali:</div>
+                <div class="col-sm-9">{{ unit.iccd_tech_spec.materials|default:"-" }}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-3 fw-bold">Tecniche:</div>
+                <div class="col-sm-9">{{ unit.iccd_tech_spec.techniques|default:"-" }}</div>
+            </div>
+            {% endif %}
+
+            {% if unit.iccd_card.subjects.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Soggetti</h6>
+            <ul class="list-unstyled">
+                {% for subj in unit.iccd_card.subjects.all %}<li>{{ subj.subject }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if unit.iccd_damages.exists %}
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Danni</h6>
+            <ul class="list-unstyled">
+                {% for dmg in unit.iccd_damages.all %}<li>{{ dmg.code }} {% if dmg.note %}- {{ dmg.note }}{% endif %}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}

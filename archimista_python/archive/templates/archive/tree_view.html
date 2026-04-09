@@ -1,0 +1,358 @@
+{% extends 'archive/base.html' %}
+
+{% block title %}Esplora Archivio - Archimista{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Esplorazione gerarchica</h2>
+            <div class="text-muted small">Naviga tra fondi, serie e unità</div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span id="tree-create-node" class="btn btn-sm btn-outline-success" title="Aggiungi livello">
+                        <i class="bi bi-plus-lg"></i>
+                    </span>
+                    <span id="tree-remove-node" class="btn btn-sm btn-outline-danger" title="Rimuovi livello">
+                        <i class="bi bi-dash-lg"></i>
+                    </span>
+                    <div class="vr mx-1"></div>
+                    {% if root_fond %}
+                    <a href="{% url 'archive:tree_trash' root_fond.id %}" id="tree-trash-link" class="btn btn-sm btn-outline-secondary" title="Cestino">
+                        <i class="bi bi-trash"></i> Cestino
+                    </a>
+                    {% else %}
+                    <span id="tree-trash-link" class="btn btn-sm btn-outline-secondary disabled" title="Cestino">
+                        <i class="bi bi-trash"></i> Cestino
+                    </span>
+                    {% endif %}
+                    <div class="ms-auto text-muted small" id="tree-status">Seleziona un nodo per operare</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div id="archive-tree" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons per jstree types -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+    .jstree-node {
+        font-size: 1.05rem;
+        padding-top: 3px;
+    }
+    .jstree-anchor {
+        padding: 4px 8px;
+    }
+    .jstree-anchor.jstree-clicked {
+        background-color: #e9ecef;
+        border-radius: 4px;
+    }
+    .jstree-anchor.jstree-wholerow-hovered {
+        background-color: #f8f9fa;
+    }
+    #tree-status {
+        transition: opacity 0.2s;
+    }
+    .jstree-default .jstree-icon {
+        font-size: 1.1em;
+    }
+</style>
+
+<script>
+$(function () {
+    var $tree = $('#archive-tree');
+    var selectedNode = null;
+
+    $tree.jstree({
+        'core': {
+            'data': {
+                'url': function (node) {
+                    return node.id === '#' ?
+                        "{% url 'archive:tree_data_root' %}" :
+                        "{% url 'archive:tree_data_children' 'NODE_ID' %}".replace('NODE_ID', node.id);
+                },
+                'data': function (node) {
+                    return { 'id': node.id };
+                }
+            },
+            'check_callback': function (operation, node, node_parent, node_position, more) {
+                if (operation === 'move_node') {
+                    // Non permettere di spostare un nodo dentro un'unità
+                    // (in Ruby solo i fondi possono essere genitori)
+                    if (node_parent && node_parent.type === 'unit') {
+                        return false;
+                    }
+                    return true;
+                }
+                return true;
+            },
+            'themes': {
+                'name': 'default',
+                'responsive': true,
+                'dots': true
+            }
+        },
+        'types': {
+            'fond': {
+                'icon': 'bi bi-folder-fill text-warning'
+            },
+            'unit': {
+                'icon': 'bi bi-file-earmark-text text-primary'
+            }
+        },
+        'dnd': {
+            'is_draggable': function (node) {
+                // Permetti drag solo sui nodi fond (come Ruby)
+                // Le unità non sono trascinabili: usano "Modifica livello"
+                var nodeType = node[0].type;
+                return nodeType === 'fond';
+            },
+            'check_while_dragging': true
+        },
+        'plugins': ['types', 'state', 'wholerow', 'dnd']
+    });
+
+    // Gestione selezione nodo
+    $tree.on("select_node.jstree", function (e, data) {
+        selectedNode = data.node;
+        var isRoot = data.node.data && data.node.data.is_root;
+        var type = data.node.type;
+
+        $('#tree-status').text('Selezionato: ' + data.node.text + (isRoot ? ' (root)' : ''));
+
+        // Il pulsante rimuovi funziona SOLO per i fondi (come Ruby)
+        // Le unità non si eliminano dall'albero
+        if (type === 'unit') {
+            $('#tree-remove-node').prop('disabled', true).attr('title', 'Le unità non si eliminano dall\'albero');
+        } else if (isRoot) {
+            $('#tree-remove-node').prop('disabled', true).attr('title', 'Non puoi rimuovere il livello root');
+        } else {
+            $('#tree-remove-node').prop('disabled', false).attr('title', 'Rimuovi livello');
+        }
+    });
+
+    // Doppio click per rinominare (solo fondi, non unità)
+    $tree.on("dblclick.jstree", function (e) {
+        var instance = $tree.jstree(true);
+        var node = instance.get_node(e.target);
+        if (node && node.id !== '#' && node.type === 'fond') {
+            instance.edit(node);
+        }
+    });
+
+    // Quando un fondo viene rinominato
+    $tree.on("rename_node.jstree", function (e, data) {
+        if (data.node.type !== 'fond') return;
+        var fondId = data.node.id.replace('fond_', '');
+        var newName = data.text;
+
+        $.ajax({
+            url: "{% url 'archive:tree_rename_node' 0 %}".replace('0', fondId),
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({ name: newName }),
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#tree-status').text('Rinominato con successo');
+                } else {
+                    alert('Errore: ' + (response.message || 'Rinomina fallita'));
+                    $tree.jstree('refresh');
+                }
+            },
+            error: function () {
+                alert('Errore di comunicazione con il server');
+                $tree.jstree('refresh');
+            }
+        });
+    });
+
+    // Pulsante + : crea nuovo nodo
+    $('#tree-create-node').on('click', function () {
+        var instance = $tree.jstree(true);
+        var parentNode = selectedNode;
+
+        if (!parentNode || parentNode.id === '#') {
+            // Crea come root
+            var name = prompt('Nome del nuovo livello (root):');
+            if (!name) return;
+
+            $.ajax({
+                url: "{% url 'archive:tree_create_node' %}",
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ name: name, parent_id: null }),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        instance.refresh();
+                        $('#tree-status').text('Livello creato con successo');
+                    } else {
+                        alert('Errore: ' + (response.message || 'Creazione fallita'));
+                    }
+                },
+                error: function () {
+                    alert('Errore di comunicazione con il server');
+                }
+            });
+        } else if (parentNode.type === 'unit') {
+            // Non si possono creare fondi sotto un'unità
+            alert('Non è possibile creare un livello sotto un\'unità. Usa il form di creazione unità dal dettaglio del fondo.');
+            return;
+        } else {
+            // Crea come figlio del nodo selezionato
+            var name = prompt('Nome del nuovo livello sotto "' + parentNode.text + '":');
+            if (!name) return;
+
+            var parentId = parentNode.id.replace('fond_', '');
+
+            $.ajax({
+                url: "{% url 'archive:tree_create_node' %}",
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ name: name, parent_id: parentId }),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        // Aggiungi il nodo direttamente nell'albero
+                        instance.create_node(parentNode, response.node, 'last', function (newNode) {
+                            instance.select_node(newNode);
+                        });
+                        $('#tree-status').text('Livello creato con successo');
+                    } else {
+                        alert('Errore: ' + (response.message || 'Creazione fallita'));
+                    }
+                },
+                error: function () {
+                    alert('Errore di comunicazione con il server');
+                }
+            });
+        }
+    });
+
+    // Pulsante − : rimuovi nodo
+    $('#tree-remove-node').on('click', function () {
+        if ($(this).prop('disabled')) return;
+
+        var instance = $tree.jstree(true);
+        var node = selectedNode;
+
+        if (!node || node.id === '#') {
+            alert('Seleziona un livello da rimuovere');
+            return;
+        }
+
+        // Le unità non si eliminano dall'albero (come Ruby)
+        if (node.type === 'unit') {
+            alert('Le unità non si eliminano dall\'albero. Per eliminare un\'unità, usa il pulsante Elimina nella sua pagina di dettaglio.');
+            return;
+        }
+
+        var isRoot = node.data && node.data.is_root;
+        if (isRoot) {
+            alert('Non è possibile rimuovere il livello iniziale');
+            return;
+        }
+
+        if (!confirm('Confermi l\'eliminazione del livello selezionato e dei livelli dipendenti?')) {
+            return;
+        }
+
+        var fondId = node.id.replace('fond_', '');
+
+        $.ajax({
+            url: "{% url 'archive:tree_move_to_trash' 0 %}".replace('0', fondId),
+            type: 'PUT',
+            success: function (response) {
+                if (response.status === 'success') {
+                    instance.delete_node(node);
+                    $('#tree-status').text('Livello spostato nel cestino');
+                    // Mostra il link al cestino se non era visibile
+                    $('#tree-trash-link').removeClass('disabled').prop('disabled', false);
+                } else {
+                    alert('Errore nell\'eliminazione');
+                }
+            },
+            error: function () {
+                alert('Errore di comunicazione con il server');
+            }
+        });
+    });
+
+    // Drag & Drop: sposta nodo (solo fondi)
+    $tree.on("move_node.jstree", function (e, data) {
+        if (data.node.type !== 'fond') return;
+        var fondId = data.node.id.replace('fond_', '');
+        var newParentId = data.parent !== '#' ? data.parent.replace('fond_', '') : null;
+        var newPosition = data.position + 1;
+
+        $.ajax({
+            url: "{% url 'archive:tree_move_node' 0 %}".replace('0', fondId),
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                new_parent_id: newParentId,
+                new_position: newPosition
+            }),
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#tree-status').text('Nodo spostato con successo');
+                } else {
+                    alert('Errore nello spostamento: ' + (response.message || 'Operazione fallita'));
+                    $tree.jstree('refresh');
+                }
+            },
+            error: function () {
+                alert('Errore di comunicazione con il server');
+                $tree.jstree('refresh');
+            }
+        });
+    });
+
+    // Gestione clic sui nodi per navigare al dettaglio
+    $tree.on("select_node.jstree", function (e, data) {
+        var id_raw = data.node.id;
+        var parts = id_raw.split('_');
+        var type = parts[0];
+        var pk = parts[1];
+
+        // Salva il link per eventuale navigazione con doppio click + ctrl
+        data.node.a_attr = data.node.a_attr || {};
+        if (type === 'fond') {
+            data.node.a_attr.href = "{% url 'archive:fond_detail' 0 %}".replace('0', pk);
+        } else if (type === 'unit') {
+            data.node.a_attr.href = "{% url 'archive:unit_detail' 0 %}".replace('0', pk);
+        }
+    });
+
+    // Click sul testo del nodo (non sull'icona) per navigare
+    $tree.on("changed.jstree", function (e, data) {
+        // Il doppio click gestisce la navigazione
+    });
+
+    // Click singolo sul link per navigare
+    $tree.on("click", ".jstree-anchor", function (e) {
+        if (e.target.tagName === 'A' && e.target.href) {
+            // Navigazione normale
+        }
+    });
+
+    // Doppio click su nodo fond/unit per navigare al dettaglio
+    $tree.on("dblclick", ".jstree-anchor", function (e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        if (href) {
+            window.location.href = href;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% comment %}
+Partial: Tab Compilatori del Fondo
+Required context variables: fond_editor_formset
+{% endcomment %}
+<div class="tab-pane fade" id="editors" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Compilatori</h5>
+        </div>
+        <div class="card-body">
+            {{ fond_editor_formset.management_form }}
+            <div id="fond_editor_formset">
+                {% for form in fond_editor_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label">{{ form.name.label }}</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ form.qualifier.label }}</label>
+                                {{ form.qualifier }}
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ form.editing_type.label }}</label>
+                                {{ form.editing_type }}
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label">{{ form.edited_at.label }}</label>
+                                {{ form.edited_at }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-11">
+                                {{ form.DELETE }} Elimina
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add_editor_btn">+ Aggiungi Compilatore</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,298 @@
+{% extends 'archive/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Soggetto conservatore</h2>
+            <div id="links">
+                <a href="{% url 'archive:custodian_list' %}" class="btn btn-sm btn-secondary">Lista conservatori</a>
+                <div class="btn-group btn-group-sm">
+                    <a href="{% url 'archive:custodian_digital_object_list' custodian_id=custodian.pk %}" class="btn btn-outline-info" title="Oggetti digitali">
+                        <i class="fas fa-images"></i> <span class="d-none d-md-inline">Oggetti digitali{% if custodian.digital_objects.count %} ({{ custodian.digital_objects.count }}){% endif %}</span>
+                    </a>
+                    <a href="{% url 'archive:custodian_update' custodian.pk %}" class="btn btn-outline-primary" title="Modifica">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'archive:custodian_delete' custodian.pk %}" class="btn btn-outline-danger" title="Elimina">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="record-main" class="span9">
+
+        <!-- Identificazione -->
+        <h3 class="section">Identificazione</h3>
+        <table class="table table-show">
+            <tr>
+                <th>Condizione giuridica</th>
+                <td>
+                    {% if custodian.legal_status == 'P' %}Pubblico
+                    {% elif custodian.legal_status == 'R' %}Privato
+                    {% else %}-{% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Macrotipologia</th>
+                <td>
+                    {% if custodian.custodian_type %}
+                        {{ custodian.custodian_type.custodian_type|capfirst }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Pubblicato</th>
+                <td>
+                    {% if custodian.published %}<span class="badge bg-success">Sì</span>
+                    {% else %}<span class="badge bg-secondary">No</span>{% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Denominazione</th>
+                <td>
+                    {% with pref_name=custodian.custodian_names.all|dictsortreversed:"preferred"|first %}
+                        {% if pref_name %}
+                            {{ pref_name.name }}
+                            {% if pref_name.note %}[{{ pref_name.note }}]{% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    {% endwith %}
+                </td>
+            </tr>
+            <tr>
+                <th>Altre denominazioni</th>
+                <td>
+                    {% with other_names=custodian.custodian_names.all|dictsort:"preferred" %}
+                        {% if other_names %}
+                            <ul>
+                                {% for other_name in other_names %}
+                                    {% if not other_name.preferred %}
+                                        <li>
+                                            {{ other_name.name }}
+                                            {% if other_name.qualifier %}<span>({{ other_name.qualifier }})</span>{% endif %}
+                                            {% if other_name.note %}[{{ other_name.note }}]{% endif %}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            -
+                        {% endif %}
+                    {% endwith %}
+                </td>
+            </tr>
+            <tr>
+                <th>Cenni storico istituzionali</th>
+                <td>{{ custodian.history|default:"-"|linebreaksbr }}</td>
+            </tr>
+            <tr>
+                <th>Contatti</th>
+                <td>
+                    {% if custodian.custodian_contacts.exists %}
+                        <ul>
+                            {% for contact in custodian.custodian_contacts.all %}
+                                <li>
+                                    {{ contact.contact_type|default:"" }}:
+                                    {{ contact.contact }}
+                                    {% if contact.contact_note %}[{{ contact.contact_note }}]{% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Referente</th>
+                <td>{{ custodian.contact_person|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>Enti titolari</th>
+                <td>
+                    {% if custodian.custodian_owners.exists %}
+                        <ul>
+                            {% for owner in custodian.custodian_owners.all %}
+                                <li>{{ owner.owner }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Collegamenti</th>
+                <td>
+                    {% if custodian.custodian_urls.exists %}
+                        <ul>
+                            {% for cu in custodian.custodian_urls.all %}
+                                <li>
+                                    <a href="{{ cu.url }}" target="_blank">{{ cu.url }}</a>
+                                    {% if cu.note %}[{{ cu.note }}]{% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Codici identificativi</th>
+                <td>
+                    {% if custodian.custodian_identifiers.exists %}
+                        <ul>
+                            {% for ci in custodian.custodian_identifiers.all %}
+                                <li>
+                                    {{ ci.identifier }}
+                                    {% if ci.identifier_source %}<span>({{ ci.identifier_source }})</span>{% endif %}
+                                    {% if ci.note %}[{{ ci.note }}]{% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <!-- Descrizione -->
+        <h3 class="section">Descrizione</h3>
+        <table class="table table-show">
+            <tr>
+                <th>Patrimonio</th>
+                <td>{{ custodian.holdings|default:"-"|linebreaksbr }}</td>
+            </tr>
+            <tr>
+                <th>Politiche di gestione e di acquisizione</th>
+                <td>{{ custodian.collecting_policies|default:"-"|linebreaksbr }}</td>
+            </tr>
+            <tr>
+                <th>Struttura amministrativa</th>
+                <td>{{ custodian.administrative_structure|default:"-"|linebreaksbr }}</td>
+            </tr>
+        </table>
+
+        <!-- Accesso -->
+        <h3 class="section">Accesso</h3>
+        <table class="table table-show">
+            <tr>
+                <th>Orari e indicazioni per l'accesso ai fondi</th>
+                <td>{{ custodian.accessibility|default:"-"|linebreaksbr }}</td>
+            </tr>
+            <tr>
+                <th>Servizi</th>
+                <td>{{ custodian.services|default:"-"|linebreaksbr }}</td>
+            </tr>
+        </table>
+
+        <!-- Sedi -->
+        <h3 class="section">Sedi</h3>
+        <table class="table table-show">
+            {% for building in custodian.custodian_buildings.all %}
+                <tr>
+                    <th>
+                        {% if building.custodian_building_type %}{{ building.custodian_building_type|capfirst }}{% else %}Sede{% endif %}
+                    </th>
+                    <td>
+                        {% if building.name %}{{ building.name }}<br>{% endif %}
+                        {% if building.address %}{{ building.address }}<br>{% endif %}
+                        {% if building.postcode %}{{ building.postcode }}{% endif %}
+                        {% if building.city %} {{ building.city }}<br>{% endif %}
+                        {% if building.state %}{{ building.state }} {% endif %}
+                        {% if building.country %}{{ building.country }}{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Descrizione</th>
+                    <td>{{ building.description|default:"-"|linebreaksbr }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <th>-</th>
+                    <td>-</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <!-- Relazioni -->
+        <h3 class="section">Relazioni</h3>
+        <table class="table table-show">
+            <tr>
+                <th>Fondi</th>
+                <td>
+                    {% if custodian.fonds.exists %}
+                        <ul>
+                            {% for fond in custodian.fonds.all %}
+                                <li>
+                                    <a href="{% url 'archive:fond_detail' fond.pk %}">{{ fond.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <!-- Fonti -->
+        {% if custodian.sources.exists %}
+            <h3 class="section">Fonti</h3>
+            <table class="table table-show">
+                {% for source in custodian.sources.all %}
+                    <tr>
+                        <th>Fonte</th>
+                        <td>
+                            <a href="{% url 'archive:source_detail' source.pk %}">{{ source }}</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        <!-- Compilatori -->
+        {% if custodian.custodian_editors.exists %}
+            <h3 class="section">Compilatori</h3>
+            <table class="table table-show">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Qualificatore</th>
+                        <th>Tipo compilazione</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for editor in custodian.custodian_editors.all %}
+                        <tr>
+                            <td>{{ editor.name }}</td>
+                            <td>{{ editor.qualifier }}</td>
+                            <td>
+                                {% if editor.editing_type == 'c' %}Compilazione
+                                {% elif editor.editing_type == 'r' %}Revisione
+                                {% else %}{{ editor.editing_type }}{% endif %}
+                            </td>
+                            <td>{{ editor.edited_at|date:"d/m/Y" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+    </div>
+
+    <div class="d-flex justify-content-between mt-4 mb-4">
+        <a href="{% url 'archive:custodian_list' %}" class="btn btn-secondary">Torna alla lista</a>
+        <a href="{% url 'archive:custodian_update' custodian.pk %}" class="btn btn-primary">Modifica</a>
+    </div>
+</div>
+{% endblock %}

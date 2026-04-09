@@ -1,0 +1,30 @@
+{% comment %}
+  Partial: Tab Compilatori del dettaglio unità
+  Variabili richieste: unit
+{% endcomment %}
+<div class="tab-pane fade" id="detail-editors" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Compilatori</h5>
+        </div>
+        <div class="card-body">
+            {% if unit.unit_editors.exists %}
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>Nome</th><th>Qualificatore</th><th>Tipo compilazione</th><th>Data</th></tr>
+                </thead>
+                <tbody>
+                    {% for editor in unit.unit_editors.all %}
+                    <tr>
+                        <td>{{ editor.name|default:"-" }}</td>
+                        <td>{{ editor.qualifier|default:"-" }}</td>
+                        <td>{{ editor.editing_type|default:"-" }}</td>
+                        <td>{{ editor.edited_at|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}<p class="text-muted">Nessun compilatore registrato</p>{% endif %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+<div class="tab-pane fade" id="tab-relations" role="tabpanel">
+    <div class="card shadow">
+        <div class="card-body">
+            <h5>Relazioni con fondi</h5>
+            {{ rel_custodian_fond_formset.management_form }}
+            <div id="rel_custodian_fond_formset">
+                {% for form in rel_custodian_fond_formset %}
+                <div class="row mb-2 formset-item">
+                    <div class="col-md-10">{{ form.fond }}</div>
+                    <div class="col-md-2">
+                        {{ form.DELETE }} <label class="form-label small">Elimina</label>
+                        {% if form.instance.pk %}{{ form.id }}{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="rel_custodian_fond-empty-template" style="display:none">
+                <div class="row mb-2 formset-item" data-index="__prefix__">
+                    <div class="col-md-10"><select name="rel_custodian_fonds-__prefix__-fond" id="id_rel_custodian_fonds-__prefix__-fond" class="form-select"><option value="">---------</option>{% for f in fonds_list %}<option value="{{ f.pk }}">{{ f.name }}</option>{% endfor %}</select></div>
+                    <div class="col-md-2"><input type="checkbox" name="rel_custodian_fonds-__prefix__-DELETE" id="id_rel_custodian_fonds-__prefix__-DELETE"> <label for="id_rel_custodian_fonds-__prefix__-DELETE" class="form-label small">Elimina</label></div>
+                </div>
+            </div>
+            <p><a href="#" class="add-formset-link" data-prefix="rel_custodian_fonds">Aggiungi fondo</a></p>
+        </div>
+    </div>
+</div>

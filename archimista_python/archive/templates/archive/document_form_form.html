@@ -1,0 +1,161 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ action }} - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ action }}</h2>
+    <a href="{% url 'archive:document_form_list' %}" class="btn btn-sm btn-secondary">&larr; Torna ai profili documentari</a>
+</div>
+
+{% if form.errors or editor_formset.errors %}
+<div class="alert alert-danger">
+    <strong>Errore:</strong> correggi i campi evidenziati.
+    {{ form.errors }}
+    {{ editor_formset.errors }}
+</div>
+{% endif %}
+
+<form method="post" id="document-form-form">
+    {% csrf_token %}
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <!-- Denominazione (obbligatorio) -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.name.label }} <span class="text-danger">*</span></label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="text-danger small">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Descrizione -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.description.label }}</label>
+                {{ form.description }}
+            </div>
+
+            <!-- Note -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.note.label }}</label>
+                {{ form.note }}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Compilatori (formset) -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Compilatori</h5>
+            <div id="editor_formset">
+                <table class="table table-sm table-borderless mb-2">
+                    <thead>
+                        <tr>
+                            <th style="width:30%">Compilatore</th>
+                            <th style="width:20%">Qualifica</th>
+                            <th style="width:25%">Tipologia di intervento</th>
+                            <th style="width:15%">Data intervento</th>
+                            <th style="width:10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ editor_formset.management_form }}
+                        {% for form_item in editor_formset %}
+                        <tr class="editor-formset-row">
+                            <td>{{ form_item.name }}</td>
+                            <td>{{ form_item.qualifier }}</td>
+                            <td>{{ form_item.editing_type }}</td>
+                            <td>{{ form_item.edited_at }}</td>
+                            <td>
+                                {% if form_item.id %}{{ form_item.id }}{% endif %}
+                                {% if form_item.DELETE %}
+                                <div class="form-check">
+                                    {{ form_item.DELETE }}
+                                    <label class="form-check-label small">Elimina</label>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <!-- Empty form template for JS cloning (always present) -->
+                <template id="editor-empty">
+                    <tr class="editor-formset-row">
+                        <td><input type="text" name="editor-__prefix__-name" id="editor-__prefix__-name" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="editor-__prefix__-qualifier" id="editor-__prefix__-qualifier" class="form-control form-control-sm"></td>
+                        <td>
+                            <select name="editor-__prefix__-editing_type" id="editor-__prefix__-editing_type" class="form-select form-select-sm">
+                                <option value="">-- Seleziona --</option>
+                                {% for t in editing_type_terms %}
+                                <option value="{{ t.term_value }}">{{ t.term_value }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="date" name="editor-__prefix__-edited_at" id="editor-__prefix__-edited_at" class="form-control form-control-sm"></td>
+                        <td>
+                            <div class="form-check">
+                                <input type="checkbox" name="editor-__prefix__-DELETE" id="editor-__prefix__-DELETE" class="form-check-input">
+                                <label class="form-check-label small">Elimina</label>
+                            </div>
+                        </td>
+                    </tr>
+                </template>
+                <button type="button" class="btn btn-sm btn-link add-formset-link" data-prefix="editor">Aggiungi compilatore</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Salva</button>
+        <a href="{% url 'archive:document_form_list' %}" class="btn btn-secondary">Annulla</a>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupFormset('editor');
+});
+
+function setupFormset(prefix) {
+    const container = document.getElementById(prefix + '_formset');
+    if (!container) return;
+
+    const totalInput = container.querySelector('[name$="-TOTAL_FORMS"]');
+    if (!totalInput) return;
+
+    const link = container.querySelector('.add-formset-link');
+    if (!link) return;
+
+    link.addEventListener('click', function() {
+        const currentTotal = parseInt(totalInput.value);
+        const emptyTpl = document.getElementById(prefix + '-empty');
+        if (!emptyTpl) return;
+
+        // Clone the <template> content (which contains a <tr>)
+        const cloned = emptyTpl.content.cloneNode(true);
+
+        // The first child of the cloned fragment is the <tr> itself
+        const tr = cloned.querySelector('tr');
+        if (!tr) return;
+        tr.classList.add('editor-formset-row');
+
+        // Replace __prefix__ with actual index in all name/id/for attributes
+        const elements = tr.querySelectorAll('input, select, textarea, label');
+        elements.forEach(function(el) {
+            ['name', 'id', 'for'].forEach(function(attr) {
+                const val = el.getAttribute(attr);
+                if (val) {
+                    el.setAttribute(attr, val.replace(/__prefix__/g, currentTotal));
+                }
+            });
+        });
+
+        link.parentElement.querySelector('tbody').appendChild(tr);
+        totalInput.value = currentTotal + 1;
+    });
+}
+</script>
+
+{% endblock %}

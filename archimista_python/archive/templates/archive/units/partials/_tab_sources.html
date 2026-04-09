@@ -1,0 +1,69 @@
+{% comment %}
+  Partial: Tab Fonti del form unità
+  Variabili richieste: rel_unit_source_formset, rel_unit_heading_formset, rel_unit_anagraphic_formset
+{% endcomment %}
+<div class="tab-pane fade" id="sources" role="tabpanel">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Fonti e relazioni</h5>
+        </div>
+        <div class="card-body">
+            <!-- Fonti -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2">Fonti</h6>
+            {{ rel_unit_source_formset.management_form }}
+            <div id="rel_unit_source_formset">
+                {% for form_item in rel_unit_source_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.source.label }}</label>
+                                {{ form_item.source }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Voci di indice -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Voci di indice</h6>
+            {{ rel_unit_heading_formset.management_form }}
+            <div id="rel_unit_heading_formset">
+                {% for form_item in rel_unit_heading_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.heading.label }}</label>
+                                {{ form_item.heading }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Anagrafiche -->
+            <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Anagrafiche</h6>
+            {{ rel_unit_anagraphic_formset.management_form }}
+            <div id="rel_unit_anagraphic_formset">
+                {% for form_item in rel_unit_anagraphic_formset %}
+                <div class="card mb-2 formset-item">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-10 mb-2">
+                                <label class="form-label">{{ form.anagraphic.label }}</label>
+                                {{ form_item.anagraphic }}
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">{{ form_item.DELETE }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

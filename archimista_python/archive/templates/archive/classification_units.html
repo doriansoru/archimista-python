@@ -1,0 +1,111 @@
+{% extends 'archive/base.html' %}
+{% load i18n %}
+
+{% block title %}Unità classificate - {{ classification }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'archive:fond_list' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'archive:classification_list' %}">Titolario</a></li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'archive:classification_detail' classification.pk %}">
+                            {{ classification.code|default:"" }} {{ classification.name }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Unità classificate</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <h2>
+                <i class="fas fa-file-archive me-2"></i>
+                Unità classificate con "{{ classification }}"
+            </h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'archive:classification_detail' classification.pk %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Torna alla classificazione
+            </a>
+        </div>
+    </div>
+
+    {% if units %}
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list me-1"></i> {{ units.count }} unità
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Segnatura</th>
+                                <th>Titolo</th>
+                                <th>Fondo</th>
+                                <th>Tipo</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for unit in units %}
+                            <tr>
+                                <td><code>{{ unit.reference_number|default:"—" }}</code></td>
+                                <td>
+                                    <a href="{% url 'archive:unit_detail' unit.pk %}">
+                                        {{ unit.title|truncatechars:80|default:"(senza titolo)" }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if unit.fond %}
+                                    <a href="{% url 'archive:fond_detail' unit.fond.pk %}">
+                                        {{ unit.fond.name|truncatechars:40 }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if unit.unit_type_term %}
+                                    <span class="badge bg-secondary">{{ unit.unit_type_term.term_value }}</span>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'archive:unit_detail' unit.pk %}" class="btn btn-outline-secondary" title="Dettaglio">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'archive:unit_update' unit.pk %}" class="btn btn-outline-primary" title="Modifica">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                Nessuna unità è classificata con questa classificazione.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

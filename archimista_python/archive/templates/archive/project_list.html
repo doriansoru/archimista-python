@@ -1,0 +1,52 @@
+{% extends 'archive/base.html' %}
+{% block title %}Progetti - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Progetti</h2>
+    <a href="{% url 'archive:project_create' %}" class="btn btn-success">+ Nuovo progetto</a>
+</div>
+<div class="card shadow-sm"><div class="card-body">
+    {% if projects %}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Denominazione</th>
+                <th>Tipologia d'intervento</th>
+                <th>Status</th>
+                <th>Pubblicato</th>
+                <th class="text-end">Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in projects %}
+            <tr>
+                <td>{{ p.name|default:"—" }}</td>
+                <td>{{ p.project_type|default:"—" }}</td>
+                <td>{{ p.status|default:"—" }}</td>
+                <td>
+                    {% if p.published %}
+                    <span class="badge bg-success">Sì</span>
+                    {% else %}
+                    <span class="badge bg-secondary">No</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <div class="btn-group btn-group-sm justify-content-end">
+                        <a href="{% url 'archive:project_detail' p.pk %}" class="btn btn-outline-secondary" title="Dettaglio">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'archive:project_update' p.pk %}" class="btn btn-outline-primary" title="Modifica">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'archive:project_delete' p.pk %}" class="btn btn-outline-danger" title="Elimina">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}<p class="text-muted text-center py-4">Nessun progetto presente.</p>{% endif %}
+</div></div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "archive/base.html" %}
+
+{% block title %}Esporta unità CSV{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Esporta unità archivistiche (CSV)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Esporta le unità archivistiche in formato CSV, aprendo con fogli di calcolo.
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="fond_id" class="form-label fw-bold">Filtro per fondo</label>
+                            <select name="fond_id" id="fond_id" class="form-select">
+                                <option value="">Tutti i fondi</option>
+                                {% for fond in fonds %}
+                                <option value="{{ fond.id }}">{{ fond.name|default:"Senza nome" }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="query" class="form-label fw-bold">Cerca per titolo/segnatura</label>
+                            <input type="text" name="query" id="query" class="form-control" placeholder="Lascia vuoto per esportare tutte">
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'archive:unit_list' %}" class="btn btn-secondary">Annulla</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-file-earmark-spreadsheet"></i> Esporta CSV
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

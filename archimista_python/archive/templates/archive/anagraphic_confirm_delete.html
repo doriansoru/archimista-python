@@ -1,0 +1,50 @@
+{% extends 'archive/base.html' %}
+{% block title %}Elimina scheda anagrafica - Archimista{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Elimina scheda anagrafica</h2>
+    <a href="{% url 'archive:anagraphic_list' %}" class="btn btn-secondary">&larr; Torna alle schede anagrafiche</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p class="text-danger">
+            <strong>Attenzione:</strong> Stai per eliminare la seguente scheda anagrafica. Questa azione non può essere annullata.
+        </p>
+        
+        <table class="table table-bordered">
+            <tr>
+                <th style="width:200px">Nome</th>
+                <td>{{ anagraphic.name|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Cognome</th>
+                <td>{{ anagraphic.surname }}</td>
+            </tr>
+            <tr>
+                <th>Luogo di nascita</th>
+                <td>{{ anagraphic.start_date_place|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Data di nascita</th>
+                <td>{{ anagraphic.start_date|date:"d/m/Y"|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Luogo di morte</th>
+                <td>{{ anagraphic.end_date_place|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Data di morte</th>
+                <td>{{ anagraphic.end_date|date:"d/m/Y"|default:"—" }}</td>
+            </tr>
+        </table>
+
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Elimina</button>
+            <a href="{% url 'archive:anagraphic_list' %}" class="btn btn-secondary">Annulla</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

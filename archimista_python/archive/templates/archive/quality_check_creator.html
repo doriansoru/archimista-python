@@ -1,0 +1,134 @@
+{% extends "archive/base.html" %}
+{% block title %}Controllo qualità — Soggetto produttore{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+
+            <!-- Header con link indietro -->
+            <div class="d-flex align-items-center mb-3">
+                <h2 class="mb-0 me-3">
+                    Controllo qualità
+                    <span class="text-muted mx-2">/</span>
+                    Soggetti produttori
+                </h2>
+            </div>
+            <div id="links" class="mb-3">
+                <a href="{% url 'archive:quality_check_index' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Controllo qualità
+                </a>
+            </div>
+
+            <!-- REQUISITI MINIMI -->
+            <h3 class="section">Requisiti minimi</h3>
+            <table class="table">
+                <tr>
+                    <th style="width:25%;">Tipologia</th>
+                    <td>
+                        {% if creator.creator_type %}
+                            {% if creator.creator_type == 'P' %}Persona
+                            {% elif creator.creator_type == 'E' %}Ente
+                            {% elif creator.creator_type == 'F' %}Famiglia
+                            {% else %}{{ creator.creator_type }}{% endif %}
+                        {% else %}
+                            <span class="text-danger">[non presente]</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if creator.creator_type == 'E' %}
+                <tr>
+                    <th>Tipologia ente</th>
+                    <td>
+                        {% if creator.creator_corporate_type %}
+                            {{ creator.creator_corporate_type.corporate_type|capfirst }}
+                        {% else %}
+                            <span class="text-danger">[non presente]</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>Denominazione</th>
+                    <td>
+                        {% if creator.preferred_name.name %}
+                            {% if creator.preferred_name.name == '[nome non compilato]' %}
+                                <span class="text-danger">{{ creator.preferred_name.name }}</span>
+                            {% else %}
+                                {{ creator.preferred_name.name }}
+                            {% endif %}
+                        {% else %}
+                            <span class="text-danger">[non presente]</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Datazione</th>
+                    <td>
+                        {% if creator.preferred_event %}
+                            {{ creator.preferred_event.full_display_date_with_place|default:creator.preferred_event }}
+                        {% else %}
+                            <span class="text-danger">[non presente]</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Storia del soggetto -->
+            <h4 class="section mt-4">1. Profilo storico / Biografia</h4>
+            {% if creator.history %}
+                <p><i class="bi bi-check-circle-fill text-success"></i> Il campo "Profilo storico / Biografia" è compilato.</p>
+            {% else %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width:90%;">&nbsp;</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Il campo "Profilo storico / Biografia" non è compilato.
+                            </td>
+                            <td>
+                                <a href="{% url 'archive:creator_update' creator.pk %}">modifica</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+
+            <!-- Fonti collegate -->
+            <h4 class="section mt-4">2. Fonti</h4>
+            {% with creator.sources.count as source_count %}
+            {% if source_count == 0 %}
+                <p><i class="bi bi-exclamation-triangle-fill text-warning"></i> Nessuna fonte collegata.</p>
+            {% else %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width:90%;">&nbsp;</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                {{ source_count }} fonti collegate.
+                            </td>
+                            <td>
+                                <a href="{% url 'archive:creator_detail' creator.pk %}">Dettagli</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+            {% endwith %}
+
+            <hr style="border-width: 2px 0;">
+
+        </div>
+    </div>
+</div>
+{% endblock %}

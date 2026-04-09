@@ -1,0 +1,18 @@
+{% extends 'archive/base.html' %}
+{% block title %}{{ title }} - Archimista{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ title }}</h2>
+    <a href="{% if attachable_type == 'fond' %}{% url 'archive:fond_digital_object_list' fond_id=attachable.pk %}{% elif attachable_type == 'unit' %}{% url 'archive:unit_digital_object_list' unit_id=attachable.pk %}{% elif attachable_type == 'creator' %}{% url 'archive:creator_digital_object_list' creator_id=attachable.pk %}{% elif attachable_type == 'custodian' %}{% url 'archive:custodian_digital_object_list' custodian_id=attachable.pk %}{% elif attachable_type == 'source' %}{% url 'archive:source_digital_object_list' source_id=attachable.pk %}{% endif %}" class="btn btn-outline-secondary">&larr; Torna agli oggetti digitali</a>
+</div>
+<div class="card shadow-sm"><div class="card-body">
+    <form method="post">
+        {% csrf_token %}
+        <p>Sei sicuro di voler eliminare l'oggetto digitale <strong>{{ digital_object.title|default:digital_object.asset_file_name|default:"#" }}</strong>?</p>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-danger">Elimina</button>
+            <a href="{% if attachable_type == 'fond' %}{% url 'archive:fond_digital_object_list' fond_id=attachable.pk %}{% elif attachable_type == 'unit' %}{% url 'archive:unit_digital_object_list' unit_id=attachable.pk %}{% elif attachable_type == 'creator' %}{% url 'archive:creator_digital_object_list' creator_id=attachable.pk %}{% elif attachable_type == 'custodian' %}{% url 'archive:custodian_digital_object_list' custodian_id=attachable.pk %}{% elif attachable_type == 'source' %}{% url 'archive:source_digital_object_list' source_id=attachable.pk %}{% endif %}" class="btn btn-outline-secondary">Annulla</a>
+        </div>
+    </form>
+</div></div>
+{% endblock %}

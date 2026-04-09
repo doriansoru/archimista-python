@@ -1,0 +1,88 @@
+{% extends 'archive/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Soggetti conservatori</h2>
+        </div>
+    </div>
+
+    <div class="span12">
+        <div id="index-controls" class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{% url 'archive:custodian_create' %}" class="btn btn-sm btn-primary new">Nuovo</a>
+            <form method="get" class="form-search">
+                <input type="text" name="q" value="{{ search_query }}" class="search-query form-control" placeholder="Denominazione">
+                <button type="submit" class="btn btn-small">Cerca</button>
+            </form>
+        </div>
+
+        {% if custodians %}
+            <p>Visualizzazione {{ custodians.start_index }}-{{ custodians.end_index }} di {{ custodians.paginator.count }} risultati</p>
+
+            <table class="table table-hover table-sortable">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="?q={{ search_query }}&sort=name">Denominazione</a>
+                        </th>
+                        <th>&nbsp;</th>
+                        <th>
+                            <a href="?q={{ search_query }}&sort=updated_at">Aggiornato il</a>
+                        </th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for custodian in custodians %}
+                        <tr class="{% cycle 'odd' 'even' %}">
+                            <td>
+                                <a href="{% url 'archive:custodian_update' custodian.pk %}">
+                                    {{ custodian.display_name|default:"Senza nome" }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if custodian.published %}Pubblicato{% else %}Non pubblicato{% endif %}
+                            </td>
+                            <td>{{ custodian.updated_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'archive:custodian_detail' custodian.pk %}" class="btn btn-sm btn-secondary">Mostra</a>
+                            </td>
+                            <td>
+                                <a href="{% url 'archive:custodian_delete' custodian.pk %}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Sei sicuro di voler eliminare questo soggetto conservatore?')">Elimina</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if custodians.has_other_pages %}
+                <nav>
+                    <ul class="pagination">
+                        {% if custodians.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ custodians.previous_page_number }}&q={{ search_query }}">&laquo; Prec</a>
+                            </li>
+                        {% endif %}
+                        {% for num in custodians.paginator.page_range %}
+                            <li class="page-item {% if custodians.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}&q={{ search_query }}">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+                        {% if custodians.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ custodians.next_page_number }}&q={{ search_query }}">Succ &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+
+        {% else %}
+            <p class="text-muted">Non sono presenti schede soggetto conservatore.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
