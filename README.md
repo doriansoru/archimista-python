@@ -2,6 +2,8 @@
 
 Riscrittura in Python/Django di [Archimista](https://github.com/ProgettoArchimista/archimista/), software per la descrizione di archivi storici, originariamente sviluppato in Ruby on Rails.
 
+![Schermata della versione Python di Archimista](snapshot.webp)
+
 ---
 
 ## Licenza
