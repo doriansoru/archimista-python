@@ -10,7 +10,7 @@ Questo programma è **software libero**, distribuito sotto i termini della **GNU
 
 ```
 Archimista Python/Django — Porting del software Archimista
-Copyright (C) 2026 [Dorian Soru / &#x64;&#x6f;&#x72;&#x69;&#x61;&#x6e;&#x73;&#x6f;&#x72;&#x75;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;]
+Copyright (C) 2026 [Dorian Soru / doriansoru (chiocciola) gmail (punto) com]
 
 Questo programma è software libero; è lecito redistribuirlo e/o modificarlo
 secondo i termini della GNU General Public License come pubblicata dalla
