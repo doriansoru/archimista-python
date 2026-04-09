@@ -144,8 +144,8 @@ funzionalità implementate, vedere
 ### 1. Clona la repository
 
 ```bash
-git clone <url-repository>
-cd archimista/python_rewrite
+git clone https://github.com/doriansoru/archimista-python.git
+cd archimista-python
 ```
 
 ### 2. Crea l'ambiente virtuale
@@ -194,8 +194,8 @@ python manage.py runserver
 Apri PowerShell:
 
 ```powershell
-git clone <url-repository>
-cd archimista\python_rewrite
+git clone https://github.com/doriansoru/archimista-python.git
+cd archimista-python
 ```
 
 ### 2. Crea l'ambiente virtuale
@@ -283,7 +283,7 @@ python manage.py runserver
 ## Struttura del progetto
 
 ```
-python_rewrite/
+archimista-python/
 ├── manage.py                          # Django management script
 ├── requirements.txt                   # Dipendenze Python
 ├── setup.sh                           # Script di inizializzazione rapida
