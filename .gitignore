@@ -10,3 +10,4 @@ media/
 staticfiles/
 .qwen/
 archimista-export_complesso-20260402153816.aef.zip
+.vscode
