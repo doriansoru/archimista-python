@@ -133,7 +133,7 @@ funzionalità implementate, vedere
 ## Requisiti
 
 - **Python** 3.11 o superiore
-- **pip** (Python package manager)
+- **pip** (_pip installs packages_, il gestore di pacchetti per Python)
 - **SQLite** (sviluppo) / **PostgreSQL** (produzione, consigliato)
 - **wkhtmltopdf** (opzionale, solo se si vuole il rendering PDF alternativo; di default si usa WeasyPrint)
 
