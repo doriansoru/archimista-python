@@ -81,11 +81,12 @@ la risoluzione di bug e la documentazione. Il codice prodotto è di esclusiva
 titolarità dello sviluppatore umano che ne ha guidato, verificato e validato
 ogni modifica.
 
-**Versione corrente**: v0.54.0
+**Versione corrente**: v0.55.0
 
 **Stato del porting**: tutte le funzionalità core di Archimista Ruby sono state
 replicate in Python/Django, con l'aggiunta di export XML (SAN, EAD/ICAR-IMPORT,
-METS) e refactoring modulare dell'AEF exporter. Per il dettaglio completo delle
+METS), refactoring modulare dell'AEF exporter e **installer Windows standalone**
+(.exe) che include Python embedded e configurazione guidata. Per il dettaglio completo delle
 funzionalità implementate, vedere
 [COMPLETION_STATUS.md](markdown_porting/COMPLETION_STATUS.md) e
 [CHANGELOG.md](markdown_porting/CHANGELOG.md) nella directory
@@ -253,6 +254,75 @@ credenziali stampate dallo script di setup.
 
 ---
 
+## Installer Windows (.exe)
+
+A partire dalla versione **v0.55.0**, è disponibile un sistema di build che
+consente di generare un **installer Windows autonomo** (.exe) che non richiede
+l'installazione preventiva di Python, pip o dipendenze. L'installer include
+tutto il necessario: Python embedded, Django, tutte le librerie, file del
+progetto e una procedura guidata di configurazione al primo avvio.
+
+### Come funziona
+
+Il processo di build ha due fasi:
+
+1. **PyInstaller** — Bundla Python + tutte le dipendenze in un eseguibile standalone
+2. **Inno Setup** — Crea un installer Windows con procedura guidata
+
+### Come costruire l'installer (su Windows)
+
+```cmd
+REM Dalla directory python_rewrite\
+build_all.bat
+```
+
+Lo script:
+1. Esegue `build_installer.bat` (PyInstaller)
+2. Compila `archimista_installer.iss` con Inno Setup
+3. Produce `output\Archimista-Setup-0.55.0.exe`
+
+### Cosa include l'installer
+
+- **Python 3.x embedded** (nessuna installazione Python richiesta)
+- **Django + tutte le dipendenze** (WeasyPrint, Pillow, lxml, reportlab, ecc.)
+- **Tutti i file del progetto** (template, migrazioni, seed script)
+- **Configurazione guidata al primo avvio**:
+  - Applicazione migrazioni database
+  - Popolamento vocabolari controllati
+  - Popolamento tipologie di fonte
+  - **Domanda interattiva**: vuoi i dati di esempio? (S/n)
+  - Creazione utente admin con password temporanea
+  - Avvio automatico del server e apertura browser
+
+### Per i manutentori
+
+| File | Scopo |
+|------|-------|
+| `archimista_launcher.py` | Launcher intelligente (gestisce first-run setup) |
+| `archimista.spec` | Specifica PyInstaller (import, data files, esclusioni) |
+| `build_installer.bat` | Script build PyInstaller (Fase 1) |
+| `archimista_installer.iss` | Script Inno Setup (Fase 2) |
+| `build_all.bat` | Orchestratore one-click (entrambe le fasi) |
+| `requirements-build.txt` | Dipendenze di build (PyInstaller) |
+| `INSTALLER_BUILD.md` | Documentazione completa del processo di build |
+
+Per istruzioni dettagliate, vedere [INSTALLER_BUILD.md](INSTALLER_BUILD.md).
+
+### Requisiti di build
+
+- **Python 3.10+** (64-bit) + virtual environment con dipendenze
+- **PyInstaller**: `pip install -r requirements-build.txt`
+- **Inno Setup 6.x** (gratuito): https://jrsoftware.org/isdl.php
+
+### Note
+
+- Dimensione installer stimata: **150-300 MB** (include Python + tutte le libs)
+- L'installer funziona anche senza Python installato sul sistema target
+- Per testare il bundle PyInstaller senza creare l'installer: `build_installer.bat`
+- Per resettare la configurazione first-run: cancellare `first_run.done` e `db.sqlite3`
+
+---
+
 ## Installazione manuale (passo per passo)
 
 Se preferisci controllare ogni passaggio:
@@ -288,6 +358,7 @@ python manage.py runserver
 archimista-python/
 ├── manage.py                          # Django management script
 ├── requirements.txt                   # Dipendenze Python
+├── requirements-build.txt             # Dipendenze di build (PyInstaller)
 ├── setup.sh                           # Script di inizializzazione rapida
 ├── db.sqlite3                         # Database SQLite (generato)
 │
@@ -297,6 +368,13 @@ archimista-python/
 ├── seed_source_types.py               # Popola tipologie di fonte
 ├── clean_vocabularies.py              # Pulisce termini non-Ruby dai vocabolari
 ├── fix_sc2_card_types.py              # Fix retrocompatibilità SC2/SC3
+│
+├── archimista_launcher.py             # Launcher per installer Windows (v0.55.0)
+├── archimista.spec                    # Specifica PyInstaller
+├── archimista_installer.iss           # Script Inno Setup
+├── build_installer.bat                # Build PyInstaller (Windows)
+├── build_all.bat                      # Build completo one-click (Windows)
+├── INSTALLER_BUILD.md                 # Documentazione installer
 │
 ├── test_*.py                          # Script di test
 │
@@ -392,6 +470,7 @@ archimista-python/
 | Vocabolari controllati | 30 | 30 ✅ |
 | Controllo qualità | ✅ | ✅ |
 | Autenticazione | Multi-utente | Singolo admin (v0.45.0) |
+| Installer Windows (.exe) | ❌ | ✅ (v0.55.0) |
 
 ### Differenze note
 

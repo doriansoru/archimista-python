@@ -6,6 +6,79 @@ Per la cronologia completa delle fasi iniziali (v0.1 - v0.19), vedere [WALKTHROU
 
 ---
 
+## Rilascio v0.55.0 - Installer Windows standalone (.exe) (2026-04-10)
+
+### Cosa è stato fatto
+
+#### 1. Sistema di build per installer Windows
+- **Problema:** distribuire Archimista Python su Windows richiede l'installazione manuale di Python, pip, dipendenze, virtual environment, configurazione. Troppo complesso per utenti finali non tecnici.
+- **Soluzione:** processo di build in due fasi che produce un singolo file `.exe` installer:
+  - **Fase 1 (PyInstaller):** bundla Python embedded + Django + tutte le librerie + file del progetto in un eseguibile standalone (`dist\archimista\`)
+  - **Fase 2 (Inno Setup):** crea un installer Windows con procedura guidata, shortcut, menu Start
+
+#### 2. Launcher intelligente (`archimista_launcher.py`)
+- **Primo avvio:**
+  1. Applica migrazioni Django (`manage.py migrate`)
+  2. Popola vocabolari controllati (`seed_vocabularies.py`)
+  3. Popola tipologie di fonte (`seed_source_types.py`)
+  4. **Domanda interattiva:** vuoi i dati di esempio? (S/n)
+  5. Crea utente admin con password casuale sicura (12 caratteri)
+  6. Salva credenziali in `admin_credentials.txt`
+  7. Avvia il server Django su `127.0.0.1:8000`
+  8. Apre automaticamente il browser
+- **Avvii successivi:** rileva il marker `first_run.done` e avvia direttamente il server
+- **PyInspector-aware:** funziona sia in sviluppo che nel bundle PyInstaller (one-file mode)
+
+#### 3. PyInstaller spec (`archimista.spec`)
+- **Hidden imports:** 80+ moduli Django, django-select2, django-extensions, lxml, Pillow, reportlab, weasyprint, python-docx
+- **Data files:** 68 template HTML, migrazioni, file statici, seed scripts, manage.py, launcher
+- **Esclusioni:** playwright, pytest, test suite (non servono a runtime)
+- **Output:** `dist\archimista\` (one-dir build)
+
+#### 4. Inno Setup script (`archimista_installer.iss`)
+- Installer professionale con wizard moderno (stile moderno)
+- Lingue: italiano e inglese
+- Shortcut: menu Start, desktop (opzionale), quick launch (opzionale)
+- Lancio opzionale post-installazione
+- Crea directory `media/` e `staticfiles/` al momento dell'installazione
+- Compressione LZMA2/ultra64 per dimensioni ridotte
+
+#### 5. Script di build automatizzati
+- **`build_installer.bat`:** installa PyInstaller, esegue `collectstatic`, build PyInstaller
+- **`build_all.bat`:** orchestratore one-click — esegue entrambe le fasi, auto-detect Inno Setup
+- **`requirements-build.txt`:** dipendenze di build minime (PyInstaller + hooks)
+
+#### 6. Modifiche a `settings.py` per compatibilità PyInstaller
+- **`BASE_DIR` detection:** quando `sys.frozen` è True (PyInstaller one-file), usa la directory dell'eseguibile invece di `__file__`
+- **`STATIC_ROOT`:** aggiunto `BASE_DIR / 'staticfiles'` per `collectstatic`
+- **`SECRET_KEY`:** ora legge da variabile d'ambiente `DJANGO_SECRET_KEY` (fallback a default)
+- **`DEBUG`:** ora legge da `DJANGO_DEBUG` (fallback a True)
+
+#### 7. Documentazione
+- **`INSTALLER_BUILD.md`:** guida completa al processo di build, troubleshooting, personalizzazione
+- **`README.md`:** aggiunta sezione "Installer Windows (.exe)" con istruzioni e tabella file
+- **Aggiornamento struttura progetto:** aggiunti nuovi file nel tree view
+
+### Risultato
+
+| Artefatto | Descrizione |
+|-----------|-------------|
+| `dist\archimista\` | Bundle PyInstaller (testabile direttamente) |
+| `output\Archimista-Setup-0.55.0.exe` | Installer Windows finale |
+
+**Dimensione stimata:** 150-300 MB (Python 3.x + Django + WeasyPrint + GTK + tutte le dipendenze)
+
+### Note tecniche
+
+- L'installer **NON richiede Python installato** sul sistema target
+- Funziona su **Windows 10/11 x64**
+- Al primo avvio l'utente sceglie se inserire i dati di esempio
+- Le credenziali admin sono salvate in `admin_credentials.txt` (leggibile)
+- Per resettare: cancellare `first_run.done` e `db.sqlite3`
+- **WeasyPrint/GTK:** PyInstaller bundla automaticamente le GTK DLLs necessarie; se non funziona, installare GTK3 Runtime per Windows
+
+---
+
 ## Rilascio v0.54.0 - Select2 ibrido, Export XML (SAN/EAD/METS), Refactor AEF (2026-04-09)
 
 ### Cosa è stato fatto

@@ -11,19 +11,32 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import sys
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# PyInstaller compatibility: when frozen, BASE_DIR should point to the
+# directory containing the executable (where manage.py, db.sqlite3, etc. live).
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    # Running in PyInstaller bundle (one-file mode)
+    BASE_DIR = Path(sys.executable).parent
+else:
+    # Normal development / one-dir mode
+    BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=x#y02292^(#e_maa_fm*xvwoznp-ybzs_vh4ko1)s2w12ja63'
+# In production, load from environment variable or external file.
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-=x#y02292^(#e_maa_fm*xvwoznp-ybzs_vh4ko1)s2w12ja63'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 
@@ -132,6 +145,7 @@ LOGOUT_REDIRECT_URL = 'archive:login'
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (user uploads)
 MEDIA_URL = 'media/'

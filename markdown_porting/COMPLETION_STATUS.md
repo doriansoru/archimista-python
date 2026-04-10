@@ -1,7 +1,7 @@
 # Stato di Completamento - Archimista Python/Django
 
-**Data:** 2026-04-09
-**Versione:** 0.54.0 (Select2 ibrido, Export XML SAN/EAD/METS, Refactor AEF)
+**Data:** 2026-04-10
+**Versione:** 0.55.0 (Installer Windows standalone .exe)
 
 ---
 
@@ -52,6 +52,7 @@
 | **Unit Detail View** | ✅ 100% | Tutti i campi form presenti in lettura (v0.27.0) |
 | **Albero Interattivo** | ✅ 100% | +, −, rinomina, drag & drop, cestino, ripristino (v0.35.0) |
 | **Classificazione di Massa** | ✅ 100% | Checkbox unità + modale albero + sposta sotto fondo (v0.35.0) |
+| **Installer Windows (.exe)** | ✅ 100% | PyInstaller + Inno Setup, launcher first-run, configurazione guidata, dati di esempio opzionali (v0.55.0) |
 
 ---
 
@@ -824,6 +825,79 @@ Creato `views/entities.py` con 16 viste (ListView + DetailView per ciascuna):
 
 ---
 
+### 27. Pacchettizzazione Windows — Installer Standalone (.exe) (v0.55.0) ✅
+
+Creazione di un sistema di build che produce un installer Windows autonomo, senza
+richiedere Python installato sul sistema target.
+
+#### Architettura del sistema di build
+
+```
+build_all.bat (one-click)
+├── build_installer.bat (PyInstaller)
+│   ├── Installa PyInstaller
+│   ├── collectstatic
+│   └── pyinstaller archimista.spec → dist\archimista\
+│
+└── archimista_installer.iss (Inno Setup)
+    └── iscc.exe → output\Archimista-Setup-0.55.0.exe
+```
+
+#### Componenti implementati
+
+**`archimista_launcher.py`** — Entry point intelligente:
+- Rileva primo avvio (marker `first_run.done` assente)
+- Esegue setup guidato: migrazioni → vocabolari → source_types → demo data (S/n) → admin
+- Salva credenziali admin in `admin_credentials.txt`
+- Avvia server Django + apre browser automaticamente
+- PyInstaller-aware: funziona sia in sviluppo che in bundle frozen
+
+**`archimista.spec`** — PyInstaller specification:
+- 80+ hidden imports (Django core, select2, lxml, Pillow, reportlab, weasyprint)
+- Data files: 68 template HTML, migrazioni, static, seed scripts, manage.py
+- Esclusioni: playwright, pytest, test suite (non necessari a runtime)
+- Output one-dir: `dist\archimista\`
+
+**`archimista_installer.iss`** — Inno Setup script:
+- Wizard moderno, lingue italiano/inglese
+- Shortcut: Start Menu, desktop, quick launch
+- Crea directory `media/` e `staticfiles/` post-install
+- Compressione LZMA2/ultra64
+- Lancio opzionale post-installazione
+
+**`build_installer.bat`** — Stage 1 build:
+- Verifica ambiente Python/Django
+- Installa PyInstaller
+- Esegue `collectstatic --no-input --clear`
+- Build con `pyinstaller --clean archimista.spec`
+
+**`build_all.bat`** — Orchestratore:
+- Esegue Stage 1 (PyInstaller)
+- Auto-detect Inno Setup (PATH o default install paths)
+- Esegue Stage 2 (iscc.exe)
+- Output: `output\Archimista-Setup-0.55.0.exe`
+
+**Modifiche a `settings.py`:**
+- `BASE_DIR` detection per PyInstaller frozen mode (`sys.frozen`)
+- `STATIC_ROOT = BASE_DIR / 'staticfiles'` aggiunto per collectstatic
+- `SECRET_KEY` e `DEBUG` leggibili da variabili d'ambiente
+
+#### File creati
+
+| File | Ruolo |
+|------|-------|
+| `archimista_launcher.py` | Launcher entry point |
+| `archimista.spec` | PyInstaller spec |
+| `archimista_installer.iss` | Inno Setup script |
+| `build_installer.bat` | Stage 1 build |
+| `build_all.bat` | One-click orchestratore |
+| `requirements-build.txt` | Build deps (PyInstaller) |
+| `INSTALLER_BUILD.md` | Documentazione completa |
+
+**Priorità:** ALTA - Completato ✅
+
+---
+
 ## Stima Completeness
 
 | Area | Completamento |
@@ -842,6 +916,7 @@ Creato `views/entities.py` con 16 viste (ListView + DetailView per ciascuna):
 | JavaScript E2E Test | ~70% (36 test Playwright v0.52.0: formset, show/hide, jsTree, archidate) |
 | Vocabolari Controllati | 100% (allineati Ruby) |
 | CRUD Fonti (Source) | 100% (v0.28.0) |
+| **Pacchettizzazione/Distribuzione** | **100% (Installer Windows .exe v0.55.0: PyInstaller + Inno Setup, launcher first-run)** |
 | Refactoring Unit Views | 100% (God Object → handler v0.37.0) |
 | Ricerca | 50% |
 | Esportazione | 60% |

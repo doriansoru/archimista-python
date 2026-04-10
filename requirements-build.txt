@@ -1,0 +1,15 @@
+# =============================================================================
+# Build-time requirements for creating the Windows installer
+# =============================================================================
+#
+# These are ONLY needed on the build machine, NOT at runtime.
+# Install with: pip install -r requirements-build.txt
+#
+# The runtime dependencies are in requirements.txt (already bundled).
+# =============================================================================
+
+# PyInstaller — bundles Python + all packages into a standalone executable
+pyinstaller>=6.0
+
+# PyInstaller hooks for some packages (optional but recommended)
+pyinstaller-hooks-contrib>=2024.0

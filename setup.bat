@@ -46,7 +46,7 @@ echo.
 echo -- Passo 1/5: Applicazione migrazioni database --
 python manage.py migrate --no-input
 if errorlevel 1 (
-    echo ERRORE: Migrazioni fallite!
+    echo ERRORE: Migrazioni fallite^!
     exit /b 1
 )
 echo   [OK] Migrazioni applicate.
@@ -58,7 +58,7 @@ echo.
 echo -- Passo 2/5: Popolamento vocabolari controllati --
 python seed_vocabularies.py
 if errorlevel 1 (
-    echo ERRORE: Seed vocabolari fallito!
+    echo ERRORE: Seed vocabolari fallito^!
     exit /b 1
 )
 echo.
@@ -70,7 +70,7 @@ echo.
 echo -- Passo 3/5: Popolamento tipologie di fonte --
 python seed_source_types.py
 if errorlevel 1 (
-    echo ERRORE: Seed source_types fallito!
+    echo ERRORE: Seed source_types fallito^!
     exit /b 1
 )
 echo.
@@ -88,7 +88,7 @@ if "%NO_SEED%"=="false" (
     echo -- Passo 4/5: Inserimento dati di esempio --
     python seed.py
     if errorlevel 1 (
-        echo ERRORE: Seed dati fallito!
+        echo ERRORE: Seed dati fallito^!
         exit /b 1
     )
     echo.
@@ -104,7 +104,7 @@ echo.
 echo -- Passo 5/5: Creazione utente admin --
 python seed_admin_user.py
 if errorlevel 1 (
-    echo ERRORE: Creazione admin fallita!
+    echo ERRORE: Creazione admin fallita^!
     exit /b 1
 )
 echo.
@@ -113,7 +113,7 @@ REM -------------------------------------------------------
 REM Riepilogo
 REM -------------------------------------------------------
 echo ============================================================
-echo   Setup completato!
+echo   Setup completato^!
 echo ============================================================
 echo.
 echo Per avviare il server di sviluppo:

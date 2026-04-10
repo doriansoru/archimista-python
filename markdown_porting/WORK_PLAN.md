@@ -1,4 +1,70 @@
-# Piano di Lavoro — Stato Aggiornato (2026-04-09)
+# Piano di Lavoro — Stato Aggiornato (2026-04-10)
+
+## ✅ Fase 10: Installer Windows Standalone (.exe) (COMPLETATA v0.55.0)
+
+### 10a. Launcher intelligente (`archimista_launcher.py`)
+- Entry point unificato per sviluppo e bundle PyInstaller
+- Rilevamento primo avvio tramite marker `first_run.done`
+- Setup guidato al primo avvio:
+  1. `manage.py migrate --no-input`
+  2. `seed_vocabularies.py`
+  3. `seed_source_types.py`
+  4. **Domanda interattiva:** vuoi i dati di esempio? (S/n)
+  5. Creazione utente admin con password casuale (12 caratteri)
+  6. Salvataggio credenziali in `admin_credentials.txt`
+  7. `manage.py runserver 127.0.0.1:8000` + apertura browser
+- Avvii successivi: salta setup, avvia direttamente il server
+- PyInstaller-aware: rileva `sys.frozen` e adatta `BASE_DIR`
+
+### 10b. PyInstaller build (`archimista.spec` + `build_installer.bat`)
+- **archimista.spec:**
+  - 80+ hidden imports (Django, select2, lxml, Pillow, reportlab, weasyprint, python-docx)
+  - Data files: 68 template HTML, migrazioni, file statici, seed scripts, manage.py
+  - Esclusioni: playwright, pytest, test suite (non necessari a runtime)
+  - Output: one-dir build in `dist\archimista\`
+- **build_installer.bat:**
+  - Verifica ambiente Python/Django
+  - Installa PyInstaller via pip
+  - Esegue `collectstatic --no-input --clear`
+  - Build con `pyinstaller --clean archimista.spec`
+
+### 10c. Inno Setup installer (`archimista_installer.iss`)
+- Installer Windows professionale con wizard moderno
+- Lingue: italiano e inglese
+- Shortcut: menu Start (sempre), desktop (opzionale), quick launch (opzionale)
+- Crea directory `media/` e `staticfiles/` post-installazione
+- Compressione LZMA2/ultra64
+- Lancio opzionale dell'applicazione post-installazione
+- Output: `output\Archimista-Setup-0.55.0.exe`
+
+### 10d. Script di build automatizzati
+- **`build_all.bat`:** orchestratore one-click
+  - Esegue Stage 1 (PyInstaller)
+  - Auto-detect Inno Setup (PATH o percorsi di default)
+  - Esegue Stage 2 (iscc.exe)
+  - Verifica output
+- **`requirements-build.txt`:** dipendenze di build minime (PyInstaller + hooks-contrib)
+
+### 10e. Modifiche a `settings.py`
+- **`BASE_DIR` detection:** quando `sys.frozen` è True, usa la directory dell'eseguibile
+- **`STATIC_ROOT`:** aggiunto `BASE_DIR / 'staticfiles'` per collectstatic
+- **`SECRET_KEY`:** leggibile da `DJANGO_SECRET_KEY` env var
+- **`DEBUG`:** leggibile da `DJANGO_DEBUG` env var
+
+### 10f. Documentazione
+- **`INSTALLER_BUILD.md`:** guida completa al processo di build, troubleshooting, personalizzazione (icona, porta, code-signing)
+- **`README.md`:** nuova sezione "Installer Windows (.exe)" con istruzioni e tabella file
+- **`CHANGELOG.md`:** voce v0.55.0 dettagliata
+- **`COMPLETION_STATUS.md`:** sezione 27 "Pacchettizzazione Windows" + riga summary
+
+### 10g. Risultato
+| Artefatto | Descrizione |
+|-----------|-------------|
+| `dist\archimista\` | Bundle PyInstaller (testabile direttamente) |
+| `output\Archimista-Setup-0.55.0.exe` | Installer Windows finale |
+
+**Dimensione stimata:** 150-300 MB
+**Nota:** L'installer NON richiede Python installato sul sistema target.
 
 ## ✅ Fase 9: Refactor AEF, Export XML, Select2 ibrido (COMPLETATA v0.53.0 → v0.54.0)
 
